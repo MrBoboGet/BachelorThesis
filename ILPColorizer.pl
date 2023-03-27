@@ -41,7 +41,6 @@ vertex_color_list(VertexCount,VertexName,ColorList) :-
      vertex_color_list(NewCount,VertexName,SubColors), append([NewAtom],SubColors,ColorList)).
 
 add_singlecolor_constraint(VertexList,S0,S1)  :-
-    write(VertexList),write("\n"),
     constraint(VertexList = 1,S0,S1).
 
 edge_constraint(Left,Right,S0,S1) :- 
@@ -93,8 +92,6 @@ main([FilePath|_]) :-
     variable_value(S6,w_8 ,W8),
     variable_value(S6,w_9 ,W9),
     variable_value(S6,w_10,W10),
-    write(List),
-    write("\n"),
     write(MinimumColorCount).
     %print_rows(Rows).
 
