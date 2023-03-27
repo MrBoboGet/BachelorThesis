@@ -31,11 +31,6 @@ lines(line(Lines)) --> sequence(line,Lines).
 vertex_list([],Vertexes) :- Vertexes=[].
 vertex_list([adj_list(Source,_)|Tail],Vertexes) :- vertex_list(Tail,SubVertexes),append([Source],SubVertexes,Vertexes).
 
-%vertex_color_list(1,VertexName,ColorList) :- 
-%    string_concat(VertexName,1,NewAtomName),
-%    atom_codes(NewAtom,NewAtomName),
-%    ColorList = [NewAtom].
-
 vertex_color_list(VertexCount,VertexName,ColorList) :- 
     VertexCount >= 0,
     string_concat(VertexName,"_",Prefix),
@@ -46,6 +41,7 @@ vertex_color_list(VertexCount,VertexName,ColorList) :-
      vertex_color_list(NewCount,VertexName,SubColors), append([NewAtom],SubColors,ColorList)).
 
 add_singlecolor_constraint(VertexList,S0,S1)  :-
+    write(VertexList),write("\n"),
     constraint(VertexList = 1,S0,S1).
 
 edge_constraint(Left,Right,S0,S1) :- 
@@ -59,25 +55,22 @@ add_edge_constraints(VertexCount,adj_list(Source,Targets),S0,S1) :-
     foldl(add_edge_constraint(SourceColorList),TargetsColorList,S0,S1).
 
 add_anycolor_constraint(Lhs,Rhs,S0,S1) :-
+    %write(Lhs),write(" "),write(Rhs),write("\n"),
     constraint([Lhs,-1*Rhs] =< 0,S0,S1).
 
 add_anycolor_constraints(ColorVariableList,VariableList,S0,S1) :- 
     foldl(add_anycolor_constraint, VariableList,ColorVariableList,S0,S1).
 
+integer_constraint(Variable,S0,S1) :-
+    constraint(integral(Variable),S0,S1).
+add_integer_constraints(VariableList,S0,S1) :-
+    foldl(integer_constraint,VariableList,S0,S1).
 
 %input handling
 main([FilePath|_]) :- 
-    write("Hello world!\n"),
     read_file_to_codes(FilePath,Data,[]),!,
-    %string_codes(StringData,Data),
-    %write(StringData),!,
-    write("File parsed!\n"),
     phrase(adj(Rows),Data,[]),
-    print_rows(Rows),
     vertex_list(Rows,Vertexes),
-    write(Vertexes),
-    vertex_color_list(100,a,ColorList),
-    write(ColorList),
     length(Vertexes,VertexCount),!,
     maplist(vertex_color_list(VertexCount),Vertexes,TotalColorList),
     gen_state(S0),
@@ -85,8 +78,22 @@ main([FilePath|_]) :-
     foldl(add_edge_constraints(VertexCount),Rows,S1,S2),
     vertex_color_list(VertexCount,w,ObjectiveList),
     foldl(add_anycolor_constraints(ObjectiveList),TotalColorList,S2,S3),
-    minimize(ObjectiveList,S3,S4),
-    objective(S4,MinimumColorCount),
+    foldl(add_integer_constraints,TotalColorList,S3,S4),
+    add_integer_constraints(ObjectiveList,S4,S5),
+    minimize(ObjectiveList,S5,S6),
+    objective(S6,MinimumColorCount),
+    List = [W1,W2,W3,W4,W5,W6,W7,W8,W9,W10],
+    variable_value(S6,w_1 ,W1),
+    variable_value(S6,w_2 ,W2),
+    variable_value(S6,w_3 ,W3),
+    variable_value(S6,w_4 ,W4),
+    variable_value(S6,w_5 ,W5),
+    variable_value(S6,w_6 ,W6),
+    variable_value(S6,w_7 ,W7),
+    variable_value(S6,w_8 ,W8),
+    variable_value(S6,w_9 ,W9),
+    variable_value(S6,w_10,W10),
+    write(List),
     write("\n"),
     write(MinimumColorCount).
     %print_rows(Rows).
