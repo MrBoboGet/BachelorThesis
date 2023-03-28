@@ -1,7 +1,8 @@
 import ModularDecomposition.modularDecomp as md
 import networkx as nx
 import matplotlib.pyplot as plt
-
+import grinpy as gp
+import sys
 # deterministic resultts
 import random
 import numpy
@@ -15,7 +16,7 @@ def first(Iterable):
 
 
 # returns the color map
-def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic):
+def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,ApplyWholePrime=True):
     if(len(ModuleToColor) == 1):
         return(set( [ ColorList[first(ModuleToColor)] ]))
     ReturnValue = set()
@@ -23,7 +24,7 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic):
     ChildrenColorMap = {}
     #postorder traversal
     for Child in MD.successors(ModuleToColor):
-        ChildrenColorMap[Child] = Colorize_Module(OriginalGraph,MD,ColorList,Child,Heuristic)
+        ChildrenColorMap[Child] = Colorize_Module(OriginalGraph,MD,ColorList,Child,Heuristic,ApplyWholePrime)
 
     if(Label == '1'):
         #paralell
@@ -46,21 +47,25 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic):
 
     else:
         #prime
-        #remove coloring for trivial modules, these are the ones we can recolor
-        for Child in ChildrenColorMap:
-            for Color in ChildrenColorMap[Child]:
-                ReturnValue.add(Color)
 
-        for Child in ModuleToColor:
-            ColorList[Child] = -1
-        ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ReturnValue)
+        if ApplyWholePrime:
+            #remove coloring for trivial modules, these are the ones we can recolor
+            for Child in ChildrenColorMap:
+                for Color in ChildrenColorMap[Child]:
+                    ReturnValue.add(Color)
+
+            for Child in ModuleToColor:
+                ColorList[Child] = -1
+            ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ReturnValue)
+        else:
+            pass
     return(ReturnValue)
 
 # Returns a list of colors, and the chromatic number
-def Colorize(OriginalGraph,MD,Heuristic):
+def Colorize(OriginalGraph,MD,Heuristic,ApplyWholePrime=True):
     Root = max([module for module in MD],key=lambda x: len(x))
     Colors = [i for i in range(len(Root))]
-    ColorMap = Colorize_Module(OriginalGraph,MD,Colors,Root,Heuristic)
+    ColorMap = Colorize_Module(OriginalGraph,MD,Colors,Root,Heuristic,ApplyWholePrime)
     return (Colors,ColorMap)
 
 # hueristic, takes a induced subgraph along with already colored parts
@@ -69,6 +74,8 @@ def Greedy(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
     ReturnValue = set()
     #completely arbitrary order
     for Node in GraphToColor.nodes:
+        if(CurrentColoring[Node] != -1):
+            continue
         for Color in ColorList:
             ColorIsValid = True
             for Neighbour in GraphToColor.adj[Node]:
@@ -90,13 +97,24 @@ def VerifyColoring(Graph,Coloring):
                 return(False)
     return(ReturnValue)
 
-edge_prob = 0.1
-G = nx.fast_gnp_random_graph(10, edge_prob)
-MD = md.modularDecomposition(G)
-(Colors,ColorCount) = Colorize(G,MD,Greedy)
-print(ColorCount,len(ColorCount),Colors)
-print(VerifyColoring(G,Colors))
+Test = False
+if Test:
+    edge_prob = 0.1
+    #G = nx.fast_gnp_random_graph(20, edge_prob)
+    G = nx.connected_watts_strogatz_graph(20,5,0.1)
+    MD = md.modularDecomposition(G)
+    (Colors,ColorCount) = Colorize(G,MD,Greedy)
+    print(ColorCount,len(ColorCount),Colors)
+    print(VerifyColoring(G,Colors))
 
-nx.write_adjlist(G,"ADJList.txt")
-nx.draw(G)
-plt.show()
+    nx.write_adjlist(G,"ADJList.txt")
+    print(gp.chromatic_number(G))
+    nx.draw(G)
+    plt.show()
+else:
+    G = nx.read_edgelist(sys.argv[1],nodetype=int)
+    MD = md.modularDecomposition(G)
+    (Colors,ColorCount) = Colorize(G,MD,Greedy)
+    print(len(ColorCount))
+    #print(ColorCount,len(ColorCount),Colors)
+    #print(VerifyColoring(G,Colors))
