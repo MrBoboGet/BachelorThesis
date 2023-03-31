@@ -58,7 +58,20 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,ApplyWhol
                 ColorList[Child] = -1
             ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ReturnValue)
         else:
-            pass
+            SingleModuleColors = set()
+            MaxMap = max(ChildrenColorMap.values(),key=lambda x: len(x))
+            for (Nodelist,Colors) in ChildrenColorMap.items():
+                if(len(Nodelist) == 1):
+                    SingleModuleColors.add(ColorList[first(Nodelist)])
+                    ColorList[first(Nodelist)] = -1
+                    continue
+                #recolor, random injective map
+                InjectiveMap = {}
+                for (Original,New) in zip(Colors,MaxMap):
+                    InjectiveMap[Original] = New
+                for Node in Nodelist:
+                    ColorList[Node] = InjectiveMap[ColorList[Node]]
+            ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,MaxMap.union(SingleModuleColors))
     return(ReturnValue)
 
 # Returns a list of colors, and the chromatic number
@@ -114,7 +127,24 @@ if Test:
 else:
     G = nx.read_edgelist(sys.argv[1],nodetype=int)
     MD = md.modularDecomposition(G)
+    Root = max([module for module in MD],key=lambda x: len(x))
+    print("Root is of type "+MD.nodes[Root]['MDlabel'])
     (Colors,ColorCount) = Colorize(G,MD,Greedy)
-    print(len(ColorCount))
+    if(not VerifyColoring(G,Colors)):
+        print("Error: whole prime coloring was an invalid coloring")
+        exit(1)
+    print("ColorCount complete modular:", len(ColorCount))
+    #(Colors,ColorCount) = Colorize(G,MD,Greedy,False)
+    #if(not VerifyColoring(G,Colors)):
+    #    print("Error: partial prime coloring was an invalid coloring")
+    #    exit(1)
+    #print("ColorCount partially colored primes:", len(ColorCount))
+    HeuristicColorList = [-1 for i in  range(len(G.nodes))]
+    HeuristicAllowedColors = [i for i in  range(len(G.nodes))]
+    HeuriticUsedColors = Greedy(G,HeuristicColorList,HeuristicAllowedColors)
+    if(not VerifyColoring(G,HeuristicColorList)):
+        print("Error: modular coloring was an invalid coloring")
+        exit(1)
+    print("Color count raw heuristic:",len(HeuriticUsedColors))
     #print(ColorCount,len(ColorCount),Colors)
     #print(VerifyColoring(G,Colors))
