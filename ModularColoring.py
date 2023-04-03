@@ -11,6 +11,8 @@ from enum import Enum
 
 from collections import deque
 from math import *
+from functools import partial
+import os
 
 class PrimeStrategy(Enum):
     WholeHeuristic = 1
@@ -150,14 +152,24 @@ def DSatur(GraphToColor:  nx.DiGraph,CurrentColoring,ColorList):
             
     return(ReturnValue);
 
-nbiter = 10000
-rep = 100
+nbiter = 700
+rep = 50
 tabsize = 7
-def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
-    Aspirations = {x: x-1 for x in range(len(CurrentColoring))}
+def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
+    Aspirations = {}
     TabuList = deque()
 
+    #Random K partition
+    for Node in GraphToColor:
+        CurrentColoring[Node] = random.randrange(0,K)
+    
     TotalConflictCount = 0
+    
+    for Edge in GraphToColor.edges:
+        if(CurrentColoring[Edge[0]] == CurrentColoring[Edge[1]]):
+            TotalConflictCount += 1
+    if(TotalConflictCount == 0):
+        return(True)
     for i in range(nbiter):
         Moves = []
         RepCount = 0
@@ -170,32 +182,37 @@ def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
                     ConflictCount += 1
             if(ConflictCount != 0):
                 #Calculate new S for the move
-                NewColor = random.randrange(0,len(ColorList))
+                NewColor = random.randrange(0,K)
                 #not completely uniform, but whatever
                 if(NewColor == CurrentColoring[Node]):
-                    NewColor = CurrentColoring[ CurrentColoring[Node] + 1 % len(CurrentColoring)]
+                    NewColor = CurrentColoring[ (CurrentColoring[Node] + 1) % len(CurrentColoring)]
                 #calculate the conflict count this new coloring would give
                 NewConflict = 0
                 for Neigbour in GraphToColor.adj[Node]:
-                    if(NewColor == GraphToColor.adj[Neigbour]):
+                    if(NewColor == CurrentColoring[Neigbour]):
                         NewConflict += 1
                 # This moves total new conflicts
                 NewTotalConflict = TotalConflictCount-ConflictCount+NewConflict
 
                 # Check in in tabu
                 if( (Node,NewColor) in TabuList):
-                    if(not (NewTotalConflict <= Aspirations[TotalConflictCount])):
+                    if(not (NewTotalConflict <= Aspirations.setdefault(TotalConflictCount,TotalConflictCount-1))):
                         continue
                 
                 Moves.append( (NewTotalConflict,Node,NewColor))
                 RepCount += 1
+                if(NewTotalConflict < TotalConflictCount):
+                    break
+        if(len(Moves) == 0):
+            break
         Moves.sort()
         Aspirations[TotalConflictCount] = Moves[0][0]-1
         TotalConflictCount = Moves[0][0]
         TabuList.append( (Moves[0][1],Moves[0][2]))
-        if( len(TabuList) >= tabsize):
+        if( len(TabuList) > tabsize):
             TabuList.popleft()
         CurrentColoring[Moves[0][1]] = Moves[0][2]
+
         if(TotalConflictCount == 0):
             break
 
@@ -212,7 +229,7 @@ def BinarySearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,Col
     while( Max != Min):
         CurrentGuess = floor( (Min+Max)/2)
         ResultColoring = CurrentColoring.copy()
-        IsPossible = KIsPossibleHeuristic(CurrentGuess,ResultColoring,ColorList)
+        IsPossible = KIsPossibleHeuristic(GraphToColor,ResultColoring,CurrentGuess)
         if( IsPossible):
             BestColoring = ResultColoring
             Max = CurrentGuess-1
@@ -223,9 +240,10 @@ def BinarySearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,Col
     #The coloring a always uses colors 0-len(ColorList)-1, recolor the graph to use the 
     #colors we were allowed to use
     UsedColors = set()
+    ColorListVector = list(ColorList)
     for Node in GraphToColor.nodes:
-        CurrentColoring[Node] = ColorList[ BestColoring[Node]]
-        UsedColors.add( ColorList[BestColoring[Node]])
+        CurrentColoring[Node] = ColorListVector[ BestColoring[Node]]
+        UsedColors.add( ColorListVector[BestColoring[Node]])
 
     return(UsedColors)
 
@@ -252,29 +270,31 @@ if Test:
     nx.draw(G)
     plt.show()
 else:
+    Filename = os.path.basename(sys.argv[1])
     G = nx.read_edgelist(sys.argv[1],nodetype=int)
     MD = md.modularDecomposition(G)
     Root = max([module for module in MD],key=lambda x: len(x))
-    print("Root is of type "+MD.nodes[Root]['MDlabel'])
+    RootType = MD.nodes[Root]['MDlabel']
+    #Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
     Heuristics = {"Greedy": Greedy,"DSatur": DSatur}
     for (Name,Function) in Heuristics.items():
         (Colors,ColorCount) = Colorize(G,MD,Function)
         if(not VerifyColoring(G,Colors)):
-            print("Error: whole prime coloring was an invalid coloring")
+            print("Error: whole prime coloring was an invalid coloring",file=sys.stderr)
             exit(1)
-        print(f"ColorCount complete prime module {Name}", len(ColorCount))
+        print(Filename,RootType,Name,"WholePrime",len(ColorCount) ,sep=",")
         (Colors,ColorCount) = Colorize(G,MD,Function,PrimeStrategy.Quotient)
         if(not VerifyColoring(G,Colors)):
-            print("Error: partial prime coloring was an invalid coloring")
+            print("Error: partial prime coloring was an invalid coloring",file=sys.stderr)
             exit(1)
-        print(f"ColorCount partially colored primes {Name}:", len(ColorCount))
+        print(Filename,RootType,Name,"QuotientPrime",len(ColorCount) ,sep=",")
         (Colors,ColorCount) = Colorize(G,MD,DSatur,PrimeStrategy.Quotient)
         HeuristicColorList = [-1 for i in  range(len(G.nodes))]
         HeuristicAllowedColors = [i for i in  range(len(G.nodes))]
         HeuriticUsedColors = Function(G,HeuristicColorList,HeuristicAllowedColors)
         if(not VerifyColoring(G,HeuristicColorList)):
-            print("Error: modular coloring was an invalid coloring")
+            print("Error: modular coloring was an invalid coloring",file=sys.stderr)
             exit(1)
-        print(f"Color count raw heuristic {Name}:",len(HeuriticUsedColors))
+        print(Filename,RootType,Name,"WholeHeuristic",len(HeuriticUsedColors) ,sep=",")
     #print(ColorCount,len(ColorCount),Colors)
     #print(VerifyColoring(G,Colors))
