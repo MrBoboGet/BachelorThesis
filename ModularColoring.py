@@ -85,7 +85,7 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
             QuotientGraph = nx.quotient_graph(OriginalGraph,[x for x in ChildrenColorMap])
             QuotientColoring = {k: -1 for k in ChildrenColorMap}
             AllowedColors = [i for i in range(len(ChildrenColorMap))]
-            UsedColors = Heuristic(QuotientGraph,QuotientColoring,AllowedColors)
+            UsedColors = Greedy(QuotientGraph,QuotientColoring,AllowedColors)
             ColorComponents = {c: [] for c in UsedColors}
             for (Node,Color) in QuotientColoring.items():
                 ColorComponents[Color].append(Node)
@@ -96,7 +96,7 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
 # Returns a list of colors, and the chromatic number
 def Colorize(OriginalGraph,MD,Heuristic,Strategy = PrimeStrategy.WholeHeuristic):
     Root = max([module for module in MD],key=lambda x: len(x))
-    Colors = [i for i in range(len(Root))]
+    Colors = [i for i in range(len(OriginalGraph.nodes))]
     ColorMap = Colorize_Module(OriginalGraph,MD,Colors,Root,Heuristic,Strategy)
     return (Colors,ColorMap)
 
@@ -152,9 +152,9 @@ def DSatur(GraphToColor:  nx.DiGraph,CurrentColoring,ColorList):
             
     return(ReturnValue);
 
-nbiter = 700
-rep = 50
-tabsize = 7
+nbiter = 300
+rep = 30
+tabsize = 6
 def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
     Aspirations = {}
     TabuList = deque()
@@ -171,8 +171,8 @@ def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
     if(TotalConflictCount == 0):
         return(True)
     for i in range(nbiter):
-        Moves = []
         RepCount = 0
+        BestMove = (100000000,0,0)
         for Node in GraphToColor:
             if(RepCount >= rep):
                 break
@@ -185,7 +185,7 @@ def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
                 NewColor = random.randrange(0,K)
                 #not completely uniform, but whatever
                 if(NewColor == CurrentColoring[Node]):
-                    NewColor = CurrentColoring[ (CurrentColoring[Node] + 1) % len(CurrentColoring)]
+                    NewColor = (NewColor+1) % K
                 #calculate the conflict count this new coloring would give
                 NewConflict = 0
                 for Neigbour in GraphToColor.adj[Node]:
@@ -198,20 +198,19 @@ def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
                 if( (Node,NewColor) in TabuList):
                     if(not (NewTotalConflict <= Aspirations.setdefault(TotalConflictCount,TotalConflictCount-1))):
                         continue
-                
-                Moves.append( (NewTotalConflict,Node,NewColor))
+                if(NewTotalConflict < BestMove[0]):
+                    BestMove = (NewTotalConflict,Node,NewColor)
                 RepCount += 1
                 if(NewTotalConflict < TotalConflictCount):
                     break
-        if(len(Moves) == 0):
+        if(BestMove[0] == 100000000):
             break
-        Moves.sort()
-        Aspirations[TotalConflictCount] = Moves[0][0]-1
-        TotalConflictCount = Moves[0][0]
-        TabuList.append( (Moves[0][1],Moves[0][2]))
+        Aspirations[TotalConflictCount] = BestMove[0]-1
+        TotalConflictCount = BestMove[0]
+        TabuList.append( (BestMove[1],BestMove[2]))
         if( len(TabuList) > tabsize):
             TabuList.popleft()
-        CurrentColoring[Moves[0][1]] = Moves[0][2]
+        CurrentColoring[BestMove[1]] = BestMove[2]
 
         if(TotalConflictCount == 0):
             break
@@ -272,11 +271,18 @@ if Test:
 else:
     Filename = os.path.basename(sys.argv[1])
     G = nx.read_edgelist(sys.argv[1],nodetype=int)
+    #add any edges lost in translation
+    TotalEdges = set(G.nodes)
+    MaxNode = max(TotalEdges)
+    for i in range(MaxNode):
+        if i not in TotalEdges:
+            G.add_node(i)
+    
     MD = md.modularDecomposition(G)
     Root = max([module for module in MD],key=lambda x: len(x))
     RootType = MD.nodes[Root]['MDlabel']
-    #Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
-    Heuristics = {"Greedy": Greedy,"DSatur": DSatur}
+    Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
+    #Heuristics = {"Greedy": Greedy,"DSatur": DSatur}
     for (Name,Function) in Heuristics.items():
         (Colors,ColorCount) = Colorize(G,MD,Function)
         if(not VerifyColoring(G,Colors)):
