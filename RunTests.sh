@@ -27,6 +27,7 @@ for pid in ${Jobs[*]}; do
 done
 
 rm TotalOutput.csv
+echo "Graph,RootType,Heuristic,Strategy,ColorCount" >> TotalOutput.csv
 for Res in ./TempOutput/*.res; do
     cat "$Res" >> TotalOutput.csv
 done

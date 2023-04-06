@@ -13,10 +13,12 @@ from collections import deque
 from math import *
 from functools import partial
 import os
+import time
 
 class PrimeStrategy(Enum):
     WholeHeuristic = 1
     Quotient = 2
+    LargestModuleFirst = 3
 
 random.seed(246)        # or any integer
 numpy.random.seed(4812)
@@ -46,9 +48,11 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
     ReturnValue = set()
     Label = MD.nodes[ModuleToColor]['MDlabel']
     ChildrenColorMap = {}
-    #postorder traversal
-    for Child in MD.successors(ModuleToColor):
-        ChildrenColorMap[Child] = Colorize_Module(OriginalGraph,MD,ColorList,Child,Heuristic,Strategy)
+
+    if(not Label == 'p' or (Strategy == PrimeStrategy.Quotient or Strategy == PrimeStrategy.WholeHeuristic)):
+        #postorder traversal
+        for Child in MD.successors(ModuleToColor):
+            ChildrenColorMap[Child] = Colorize_Module(OriginalGraph,MD,ColorList,Child,Heuristic,Strategy)
 
     if(Label == '1'):
         #paralell
@@ -91,6 +95,21 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
                 ColorComponents[Color].append(Node)
             for Component in ColorComponents.values():
                 ReturnValue.update(RecolorComponents(Component,ColorList,ChildrenColorMap))
+        elif Strategy == PrimeStrategy.LargestModuleFirst:
+            LargestModuleCount = -1
+            LargestModule = -1
+            for Module in MD.successors(ModuleToColor):
+                if(len(Module) > LargestModuleCount):
+                    LargestModuleCount = len(Module)
+                    LargestModule = Module
+            ColorsToUse = Colorize_Module(OriginalGraph,MD,ColorList,LargestModule,Heuristic,Strategy)
+            for Node in ModuleToColor:
+                if( Node in LargestModule):
+                    continue
+                ColorsToUse.add(ColorList[Node])
+                ColorList[Node] = -1
+            ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ColorsToUse)
+
     return(ReturnValue)
 
 # Returns a list of colors, and the chromatic number
@@ -151,6 +170,79 @@ def DSatur(GraphToColor:  nx.DiGraph,CurrentColoring,ColorList):
                 break
             
     return(ReturnValue);
+
+def GetMaxIndex(Iteratable):
+    ReturnValue = 0
+    MaxValue = -1
+    i = 0
+    for Item in Iteratable:
+        if(Item > MaxValue):
+            MaxValue = Item
+            ReturnValue = i
+        i += 1
+    return ReturnValue
+
+def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
+    MaxIndex = max(GraphToColor.nodes)+1
+    IsAdjecent = [False]*MaxIndex
+    Degree = [0]*MaxIndex
+    TotalNodes = set(GraphToColor.nodes)
+    ComponentNodes = set()
+    
+    CurrentColor = 0
+    
+    for Node in GraphToColor.nodes:
+        Degree[Node] = len(GraphToColor.adj[Node])
+    while len(TotalNodes) > 0:
+        MaxNode = 0
+        MaxValue = -1
+        for Node in TotalNodes:
+            if(Degree[Node] > MaxValue):
+                MaxValue = Degree[Node]
+                MaxNode = Node
+        ComponentNodes.add(MaxNode)
+        for Neighbour in GraphToColor.adj[MaxNode]:
+            IsAdjecent[Neighbour] = True
+
+        Candidates = set()
+        for Node in TotalNodes:
+            if(Node != MaxNode and not IsAdjecent[Node]):
+                Candidates.add(Node)
+        while len(Candidates) > 0:
+            MaxCandidate = -1
+            MaxAdjecent = -1
+            for Node in Candidates:
+                if(IsAdjecent[Node]):
+                    continue
+                AdjecentCount = 0
+                for Neighbour in GraphToColor.adj[Node]:
+                    if(IsAdjecent[Neighbour]):
+                        AdjecentCount += 1
+                if(AdjecentCount > MaxAdjecent):
+                    MaxCandidate = Node
+                    MaxAdjecent = AdjecentCount
+            if(MaxCandidate == -1):
+                break
+            ComponentNodes.add(MaxCandidate)
+            for Neighbour in GraphToColor.adj[MaxCandidate]:
+                Degree[Neighbour] -= 1
+                IsAdjecent[Neighbour] = True
+            Candidates.remove(MaxCandidate)
+        for Node in ComponentNodes:
+            CurrentColoring[Node] = CurrentColor
+        TotalNodes = TotalNodes.difference(ComponentNodes)
+        #resetting state
+        ComponentNodes = set()
+        for i in range(len(IsAdjecent)):
+            IsAdjecent[i] = False
+        CurrentColor += 1
+    #lazy
+    ColorMap = {i[0]: i[1] for i in enumerate(ColorList)}
+    ReturnValue = set()
+    for Node in GraphToColor:
+        CurrentColoring[Node] = ColorMap[CurrentColoring[Node]]
+        ReturnValue.add(CurrentColoring[Node])
+    return ReturnValue
 
 nbiter = 300
 rep = 30
@@ -281,26 +373,28 @@ else:
     MD = md.modularDecomposition(G)
     Root = max([module for module in MD],key=lambda x: len(x))
     RootType = MD.nodes[Root]['MDlabel']
-    Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
+    #Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
+    Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur}
+    Strategys = {"WholeHeuristic": PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient,"LargestModuleFirst": PrimeStrategy.LargestModuleFirst}
     #Heuristics = {"Greedy": Greedy,"DSatur": DSatur}
     for (Name,Function) in Heuristics.items():
-        (Colors,ColorCount) = Colorize(G,MD,Function)
-        if(not VerifyColoring(G,Colors)):
-            print("Error: whole prime coloring was an invalid coloring",file=sys.stderr)
-            exit(1)
-        print(Filename,RootType,Name,"WholePrime",len(ColorCount) ,sep=",")
-        (Colors,ColorCount) = Colorize(G,MD,Function,PrimeStrategy.Quotient)
-        if(not VerifyColoring(G,Colors)):
-            print("Error: partial prime coloring was an invalid coloring",file=sys.stderr)
-            exit(1)
-        print(Filename,RootType,Name,"QuotientPrime",len(ColorCount) ,sep=",")
-        (Colors,ColorCount) = Colorize(G,MD,DSatur,PrimeStrategy.Quotient)
+        for (StrategyName,Strategy) in Strategys.items():
+            StartTime = time.perf_counter()
+            (Colors,ColorCount) = Colorize(G,MD,Function,Strategy)
+            EndTime = time.perf_counter()
+            if(not VerifyColoring(G,Colors)):
+                print(f"Error: Heuristic {Name} with strategy {StrategyName} resulted in an invalid coloring",file=sys.stderr)
+                exit(1)
+            print(Filename,RootType,Name,StrategyName,len(ColorCount),EndTime-StartTime,sep=",")
+
         HeuristicColorList = [-1 for i in  range(len(G.nodes))]
         HeuristicAllowedColors = [i for i in  range(len(G.nodes))]
+        StartTime = time.perf_counter()
         HeuriticUsedColors = Function(G,HeuristicColorList,HeuristicAllowedColors)
+        EndTime = time.perf_counter()
         if(not VerifyColoring(G,HeuristicColorList)):
             print("Error: modular coloring was an invalid coloring",file=sys.stderr)
             exit(1)
-        print(Filename,RootType,Name,"WholeHeuristic",len(HeuriticUsedColors) ,sep=",")
+        print(Filename,RootType,Name,"WholeHeuristic",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
     #print(ColorCount,len(ColorCount),Colors)
     #print(VerifyColoring(G,Colors))
