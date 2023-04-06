@@ -1,0 +1,42 @@
+
+\documentclass{amsart}
+\usepackage{amsmath} 
+\usepackage{amssymb}
+\usepackage{graphicx}
+\author{Emanuel Berggren}
+\title{Graph coloring with modular decomposition}
+\newtheorem{definition}{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Abstract}
+
+\section{Definitions}
+
+
+
+\section{Modular decomposition}
+
+\begin{definition}
+    Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $X \subset V$
+    is a \textit{module} of $G$ if, for every $y \in V \setminus X$,  either
+    $N(y) \cap X = \emptyset$ or $X \subset N(y)$ is true. A module $M$ is
+    \textit{strong} if it does not overlap with any other module $M'$, i.e, if 
+    $M \cap M' \in \{M,M',\emptyset \}$.
+\end{definition}
+   
+%modular decomposition
+
+\begin{definition}
+    The modular decomposition of a graph $G = (V,E)$ is a directed, rooted, vertex labeled tree
+    $(\widetilde{T},t)$, where each of its vertices is associated with a strong
+    module $X$ of $G$, and a label $t$ disinguishing  three cases:
+    %
+    %
+    %
+    And where the $V = X'$ when $X'$ is the strong component associated with the
+    root node of the modular decomposition.
+\end{definition}
+
+\end{document}
