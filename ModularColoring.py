@@ -375,7 +375,7 @@ else:
     RootType = MD.nodes[Root]['MDlabel']
     #Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
     Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur}
-    Strategys = {"WholeHeuristic": PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient,"LargestModuleFirst": PrimeStrategy.LargestModuleFirst}
+    Strategys = {"WholePrime": PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient,"LargestModuleFirst": PrimeStrategy.LargestModuleFirst}
     #Heuristics = {"Greedy": Greedy,"DSatur": DSatur}
     for (Name,Function) in Heuristics.items():
         for (StrategyName,Strategy) in Strategys.items():
@@ -395,6 +395,6 @@ else:
         if(not VerifyColoring(G,HeuristicColorList)):
             print("Error: modular coloring was an invalid coloring",file=sys.stderr)
             exit(1)
-        print(Filename,RootType,Name,"WholeHeuristic",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
+        print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
     #print(ColorCount,len(ColorCount),Colors)
     #print(VerifyColoring(G,Colors))

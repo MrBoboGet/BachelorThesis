@@ -1,10 +1,10 @@
-
 \documentclass{amsart}
 \usepackage{amsmath} 
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{pictex}
 \author{Emanuel Berggren}
-\title{Graph coloring with modular decomposition}
+\title{Graph coloring using modular decomposition}
 \newtheorem{definition}{Definition}
 
 \begin{document}
@@ -12,13 +12,45 @@
 
 \section{Abstract}
 
+\section{Introduction}
+
+In this paper, we investigate a new heuristic using the modular decomposition of
+a graph, and if it can be combined with other heuristics. 
+
+The modular decomposition of a graph describes the structure of the graph, by
+recursively splitting it into distinct modules. These modules contain some
+vertexes from the graph, and can be further split into modules that partition
+the top module. Every parent vertex also has a type, that determine how its submodules
+combine to form their parent module.
+
+Modular decomposition allows for coloring of graphs in linear time with optimal
+chromatic number if all of the modules are vertexes are either  series or
+parallel (REFERENS). However, if any of the vertexes are prime then optimal graph coloring 
+is again NP-Hard, as prime vertexes cannot be recursively colored by this
+method. The question examined here, is however if one can still utilize the
+modular decomposition, with graph coloring heuristics for the prime colorings.
+The modular decomposition might still color some parts of the graph optimally,
+and the structure it provides might provide a hint for how to apply the
+heuristics.
+
+In section (PART) the basic terms are described.
+
+In section (SECTION) the heuristics are described
+
+In section (SECTION) the combination strategies are described, that is how are
+these heuristics applied, and how is the structure of the modular decomposition
+utilised.
+
+In section (SECTION) the data and benchmarking methods are described. The data
+used is both from DIMACS benchmarks (REFERENS), and custom generated data.
+
+Finally, the results are presented in section (SECTION)
+
 \section{Definitions}
 
+\subsection{Modular decomposition}
 
-
-\section{Modular decomposition}
-
-\begin{definition}
+\begin{definition}[Graph module]
     Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $X \subset V$
     is a \textit{module} of $G$ if, for every $y \in V \setminus X$,  either
     $N(y) \cap X = \emptyset$ or $X \subset N(y)$ is true. A module $M$ is
@@ -28,15 +60,111 @@
    
 %modular decomposition
 
-\begin{definition}
+\begin{definition}[Modular decomposition]
     The modular decomposition of a graph $G = (V,E)$ is a directed, rooted, vertex labeled tree
     $(\widetilde{T},t)$, where each of its vertices is associated with a strong
-    module $X$ of $G$, and a label $t$ disinguishing  three cases:
+    module $X$ of $G$, and a label $t$ distinguishing  three cases:
+
+    Series: The induced subgraph $G[X]$ constructed by graph union of the
+    induced subgraphs of it's children.
+    Parallel: The induced subgraph $G[X]$ is constructed by graph (SOMETHING) of
+    the induced subgraph of it's children
+    Prime: The induced subgraph $G[X]$ is constructed by some other means from
+    it's children
     %
     %
     %
     And where the $V = X'$ when $X'$ is the strong component associated with the
     root node of the modular decomposition.
 \end{definition}
+
+The modular decomposition of a graph is unique (REFERENS), which means that the
+construction of the modular decomposition doesn't vary and need not be a part of
+the heuristic.
+
+\begin{definition}[Quotient graph]
+
+\end{definition}
+
+\begin{definition}[Partially color graphed]
+
+
+\end{definition}
+
+\section{Heuristics}
+
+%ska man ta med sånt alla vet
+A graph coloring heuristic is an algorithm for coloring a graph, that doesn't
+necessarily give an optimal coloring, but uses various methods to approximate a
+good coloring. There are numerous graph coloring algorithms (REFERNENS) and is
+one of the most well studies parts of graph theory (REFERENS). 
+
+However, in order of be useful for the different STRATEGIES, a slightly
+different problem is solved by these algorithms, and that is to colorize a
+partially colored graph.
+
+The algorithms used are therefore slightly modified versions of the 
+Greedy (REFERENS), dsatur (REFERENS) and Recursive largest first (REFERENS). For
+completeness, the algorithms are described fully here, with their modifications.
+
+\section{General coloring algorithm}
+
+
+
+\section{Strategies}
+
+
+In the case where the whole graph doesn't contain any prime modules, coloring
+can is easy (REFERENS), it is when coloring prime modules where we have to apply
+the heuristics, and these different methods are described in this part.
+
+
+\subsection{Whole prime coloring}
+
+With this strategy, the prime vertex with the strong module $X$ of $G$, the
+whole induced subgraph $G[X]$ is colored with the heuristic.
+
+This method is the simplest combining strategy, but worth noting is that is
+equivalent to coloring the whole graph using the heuristic in the case where the
+root node is prime, and therefore only offers a possible improvement to existing
+heuristics when the graph isn't prime.
+
+\subsection{Quotient recoloring}
+
+With this method, all of the children for the prime vertex are first colored,
+and then the quotient graph for the child modules are constructed. This quotient
+graph is then colored. Then all of the child modules that have the same color
+are recolored to use the same colors among the largest set of colors for the
+modules.
+
+%formal description
+
+
+\subsection{Largest child first}
+
+The largest child module is first colored with the same coloring algorithm, and
+then the heuristic is applied on the partially colored induced subgraph 
+$G[X]$.
+
+%formal description
+
+\subsection{Data}
+
+The test sets used are part graphs from the DIMACS benchmark set (REFERENS), 
+and part graphs generated that aren't prime.
+
+All of the graphs from the DIMACS benchmark sets are difficult to color graphs,
+and also have modular decomposition where the root vertex is prime. However, the
+modular decomposition might provide a more efficient way to color graphs where
+only some of the child nodes are prime. 
+
+These graphs are generated by (GENERATION METHOD)
+
+\subsection{Results and evaluation}
+
+lorem ipsum
+
+\includegraphics[width=\textwidth]{Results.png}
+
 
 \end{document}
