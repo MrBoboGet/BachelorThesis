@@ -79,7 +79,7 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
         if Strategy == PrimeStrategy.WholeHeuristic:
             #remove coloring for trivial modules, these are the ones we can recolor
             for Child in ChildrenColorMap:
-                for Color in ChildrenColorMap[Child]:
+                for Color in Child:
                     ReturnValue.add(Color)
 
             for Child in ModuleToColor:
@@ -89,7 +89,7 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
             QuotientGraph = nx.quotient_graph(OriginalGraph,[x for x in ChildrenColorMap])
             QuotientColoring = {k: -1 for k in ChildrenColorMap}
             AllowedColors = [i for i in range(len(ChildrenColorMap))]
-            UsedColors = Greedy(QuotientGraph,QuotientColoring,AllowedColors)
+            UsedColors = Heuristic(QuotientGraph,QuotientColoring,AllowedColors)
             ColorComponents = {c: [] for c in UsedColors}
             for (Node,Color) in QuotientColoring.items():
                 ColorComponents[Color].append(Node)
@@ -104,9 +104,9 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
                     LargestModule = Module
             ColorsToUse = Colorize_Module(OriginalGraph,MD,ColorList,LargestModule,Heuristic,Strategy)
             for Node in ModuleToColor:
+                ColorsToUse.add(Node)
                 if( Node in LargestModule):
                     continue
-                ColorsToUse.add(ColorList[Node])
                 ColorList[Node] = -1
             ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ColorsToUse)
 
@@ -126,6 +126,7 @@ def Greedy(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
     #completely arbitrary order
     for Node in GraphToColor.nodes:
         if(CurrentColoring[Node] != -1):
+            ReturnValue.add(CurrentColoring[Node])
             continue
         for Color in ColorList:
             ColorIsValid = True
@@ -153,6 +154,7 @@ def DSatur(GraphToColor:  nx.DiGraph,CurrentColoring,ColorList):
         MaxSatDegree = -1
         for NewOffset in range(0,len(DeegreeSortedVertexes)):
             if(CurrentColoring[DeegreeSortedVertexes[NewOffset]] != -1):
+                ReturnValue.add(CurrentColoring[DeegreeSortedVertexes[NewOffset]])
                 continue
             SatDegree = len([x for x in GraphToColor.adj[DeegreeSortedVertexes[NewOffset]] if not CurrentColoring[x] == -1])
             if SatDegree > MaxSatDegree:
@@ -183,12 +185,17 @@ def GetMaxIndex(Iteratable):
     return ReturnValue
 
 def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
-    MaxIndex = max(GraphToColor.nodes)+1
-    IsAdjecent = [False]*MaxIndex
-    Degree = [0]*MaxIndex
+    #Supporting coloring other stuff requires map
+    #MaxIndex = max(GraphToColor.nodes)+1
+    #IsAdjecent = [False]*MaxIndex
+    #Degree = [0]*MaxIndex
+    #TotalNodes = set(GraphToColor.nodes)
+    #ComponentNodes = set()
+    IsAdjecent = {i: False for i in GraphToColor.nodes}
+    Degree = {i: 0 for i in GraphToColor.nodes}
     TotalNodes = set(GraphToColor.nodes)
     ComponentNodes = set()
-    
+
     CurrentColor = 0
     
     for Node in GraphToColor.nodes:
@@ -237,6 +244,7 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
             IsAdjecent[i] = False
         CurrentColor += 1
     #lazy
+    #ColorMap = {i[0]: i[1] for i in enumerate(ColorList)}
     ColorMap = {i[0]: i[1] for i in enumerate(ColorList)}
     ReturnValue = set()
     for Node in GraphToColor:

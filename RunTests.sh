@@ -6,6 +6,11 @@ if [[ $# > 0 ]]; then
     DataDir=$1
     echo $1
 fi
+OutFile=TotalOutput.csv
+if [[ $# > 1 ]]; then
+    OutFile=$2
+    echo $2
+fi
 
 if [[ -d TempOutput ]]; then
     rm -r TempOutput
@@ -26,8 +31,8 @@ for pid in ${Jobs[*]}; do
     echo "Job finished $pid"
 done
 
-rm TotalOutput.csv
-echo "Graph,RootType,Heuristic,Strategy,ColorCount,Time" >> TotalOutput.csv
+rm $OutFile
+echo "Graph,RootType,Heuristic,Strategy,ColorCount,Time" >> $OutFile
 for Res in ./TempOutput/*.res; do
-    cat "$Res" >> TotalOutput.csv
+    cat "$Res" >> $OutFile
 done

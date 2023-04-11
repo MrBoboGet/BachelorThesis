@@ -5,6 +5,7 @@
 \usepackage{pictex}
 \author{Emanuel Berggren}
 \title{Graph coloring using modular decomposition}
+\theoremstyle{definition}
 \newtheorem{definition}{Definition}
 
 \begin{document}
@@ -59,24 +60,30 @@ Finally, the results are presented in section (SECTION)
 \end{definition}
    
 %modular decomposition
-
+\newpage
 \begin{definition}[Modular decomposition]
-    The modular decomposition of a graph $G = (V,E)$ is a directed, rooted, vertex labeled tree
+    For a graph $G = (V,E)$, let $PMax(G) = \{M_1,\cdots,M_k\}$ be a partition of the vertex set $V$ 
+    into inclusion-maximal strong modules.
+    
+    The modular decomposition of the graph $G = (V,E)$ is a directed, rooted, vertex labeled tree
     $(\widetilde{T},t)$, where each of its vertices is associated with a strong
-    module $X$ of $G$, and a label $t$ distinguishing  three cases:
+    module $X \in PMax(G)$, and a label $t$ distinguishing  three cases:
 
-    Series: The induced subgraph $G[X]$ constructed by graph union of the
-    induced subgraphs of it's children.
-    Parallel: The induced subgraph $G[X]$ is constructed by graph (SOMETHING) of
-    the induced subgraph of it's children
-    Prime: The induced subgraph $G[X]$ is constructed by some other means from
-    it's children
-    %
-    %
-    %
-    And where the $V = X'$ when $X'$ is the strong component associated with the
+    \begin{enumerate}
+        \item Series: $G[X]$ is disconnected.
+        \item Parallel: $\overline{G[X]}$ is disconnected.
+        \item Prime: $G[X]$ and $\overline{G[X]}$ is disconnected.
+    \end{enumerate}
+
+    And where $V = X'$ when $X'$ is the strong component associated with the
     root node of the modular decomposition.
 \end{definition}
+
+Note, a label being series in modular decomposition tree with associated module
+$X$ means that the induced subgraph $G[X]$ can be constructed through graph
+union on the induced subgraphs of its childrens associated modules, and it being
+parallell means that $G[X]$ can be constructed through graph join on the
+induced subgraphs of its childrens associated modules.
 
 The modular decomposition of a graph is unique (REFERENS), which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
