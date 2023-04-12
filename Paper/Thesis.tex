@@ -1,12 +1,112 @@
 \documentclass{amsart}
-\usepackage{amsmath} 
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{pictex}
+%\usepackage{amsmath} 
+%\usepackage{amssymb}
+%\usepackage{graphicx}
+%\usepackage{pictex}
+%\usepackage[noend]{algorithmic}
+%\usepackage{algorithm}
+%\renewcommand{\algorithmiccomment}[1]{\hfill$\rhd???$\textit{#1}}
+%\usepackage{mathtools}
+%\providecommand{\keywords}[1]{\textbf{\textit{Keywords: }} #1}
+%\theoremstyle{definition}
+%\newtheorem{definition}{Definition}
+
+
+% COPY PASTE
+
+\usepackage{authblk}
+%\usepackage[numbers,sort&compress]{natbib}
+\usepackage[numbers, sort&compress]{natbib}
+
+\usepackage[colorlinks]{hyperref}
+\hypersetup{
+	citecolor=blue,
+   linkcolor=red,
+}
+
+\usepackage{amsmath, amssymb, amsfonts, amsfonts, amsthm,latexsym}
+\usepackage[noend]{algorithmic}
+\usepackage{algorithm}
+\renewcommand{\algorithmiccomment}[1]{\hfill$\rhd???$\textit{#1}}
+\usepackage{graphics}
+\usepackage{enumerate}
+\usepackage[usenames]{color}
+\usepackage{mathtools}
+\usepackage[normalem]{ulem}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}%[section]
+\newtheorem{lemma}[theorem]{Lemma}%[section]
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}[theorem]{Corollary}%[section]
+\newtheorem{remark}[theorem]{Remark}%[section]
+\newtheorem{problem}{Problem}[section]
+\newtheorem{observ}{Observation}
+\usepackage{url}
+\RequirePackage{hyperref}
+\DeclareMathOperator{\sgn}{sgn}
+
+\DeclareSymbolFont{yhlargesymbols}{OMX}{yhex}{m}{n}
+\DeclareMathAccent{\overarc}{\mathord}{yhlargesymbols}{"F3}
+
+%%%%% SOME LOW LEVEL STUFF NEEDED FOR SPECIAL SYMBOLS 
+\makeatletter
+\def\moverlay{\mathpalette\mov@rlay}
+\def\mov@rlay#1#2{\leavevmode\vtop{%
+    \baselineskip\z@skip \lineskiplimit-\maxdimen
+    \ialign{\hfil$\m@th#1##$\hfil\cr#2\crcr}}}
+\newcommand{\charfusion}[3][\mathord]{
+  #1{\ifx#1\mathop\vphantom{#2}\fi
+    \mathpalette\mov@rlay{#2\cr#3}
+  }
+  \ifx#1\mathop\expandafter\displaylimits\fi}
+\DeclareRobustCommand\bigop[1]{%
+  \mathop{\vphantom{\sum}\mathpalette\bigop@{#1}}\slimits@
+}
+\newcommand{\bigop@}[2]{%
+  \vcenter{%
+    \sbox\z@{$#1\sum$}%
+    \hbox{\resizebox{\ifx#1\displaystyle.9\fi\dimexpr\ht\z@+\dp\z@}{!}{$\m@th#2$}}%
+  }%
+}
+\makeatother
+%%%%% END LOWLEVEL USER DEFINITION 
+\newcommand{\bigjoin}{\bigop{\triangledown}}
+\DeclareMathOperator{\join}{\triangledown}
+\newcommand{\cupdot}{\charfusion[\mathbin]{\cup}{\cdot}}
+\DeclareMathOperator{\bigcupdot}{\charfusion[\mathop]{\bigcup}{\cdot}}
+\definecolor{jade}{rgb}{0.0, 0.66, 0.42}
+\newcommand{\child}{\mathsf{child}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\Pmax}{\mathrm{Pmax}}
+\newcommand{\T}{\widetilde{T}}
+\renewcommand{\t}{\widetilde{t}}
+
+%\definecolor{darkorchid}{rgb}{0.6, 0.2, 0.8}
+
+%\newcommand{\TODO}[1]{\begingroup\color{red}#1\endgroup}
+\newcommand{\AX}[1]{\textnormal{#1}}
+%%\newcommand{\NEW}[1]{\begingroup\color{blue}#1\endgroup}
+%\newcommand{\dv}[1]{\begingroup\color{jade}#1\endgroup}
+%\newcommand{\OLD}[1]{\begingroup\small	\color{green}#1\endgroup}
+%\newcommand{\PFS}[1]{\begingroup\color{blue}#1\endgroup}
+%\newcommand{\mhr}[1]{\begingroup\color{darkorchid}#1\endgroup}
+%\newcommand{\mh}[1]{\begingroup\color{magenta}#1\endgroup}
+%\newcommand{\mg}[1]{\begingroup\color{cyan}#1\endgroup}
+
+%%\journal{European Journal of Combinatorics} 
+
+\providecommand{\keywords}[1]{\textbf{\textit{Keywords: }} #1}
+
+ % END COPY PASTE
+
+
+
+
+
+
+
 \author{Emanuel Berggren}
 \title{Graph coloring using modular decomposition}
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}
 
 \begin{document}
 \maketitle
@@ -49,6 +149,14 @@ Finally, the results are presented in section (SECTION)
 
 \section{Definitions}
 
+\begin{definition}[Quotient graph]
+
+\end{definition}
+
+\begin{definition}[Cograph]
+
+\end{definition}
+
 \subsection{Modular decomposition}
 
 \begin{definition}[Graph module]
@@ -89,14 +197,53 @@ The modular decomposition of a graph is unique (REFERENS), which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
 the heuristic.
 
-\begin{definition}[Quotient graph]
-
-\end{definition}
 
 \begin{definition}[Partially color graphed]
 
 
 \end{definition}
+
+\section{General coloring algorithm}
+
+The algorithm used for coloring is algorithm 2 in (REFERENS). It provides a
+optimal coloring given that the graph is a cograph. It does however not
+provide a way to color the prime modules. This paper examines multiple different
+ways these prime modules can be colored, split into 2 parts, a heuristic used,
+and a coloring strategy. The heuristic is an ordinary coloring algorithm
+providing an approximate optimal coloring, and the strategy is the way this
+heuristic is applied. The different combinations of strategies and heuristic are
+then compared against the baseline of applying the same heuristic on the whole
+graph.
+
+\begin{algorithm}[t]
+  \caption{Modularly-minimal coloring a graph $G$ with MD tree $(T,t)$.}
+  \label{alg:modmin}
+  \algsetup{linenodelimiter=}
+  \begin{algorithmic}[1]
+    \REQUIRE Graph $G$ and MD tree $(\T,\t)$
+    \STATE Initialize a coloring $\sigma$ s.t.\ all $v \in V(G)$
+           have different colors
+      \FORALL{$u\in V^{0}(T)$ \text{in post order}}
+       \IF {$u$ is parallel} 
+          \STATE $\mathcal{G} \leftarrow \{G(w)\colon w\in\child(u)\}$ 
+          \STATE $G^* \leftarrow \argmax_{w\in\child(v)} |\chi(G(w))|$
+          \STATE $S \leftarrow \sigma(V(G^*))$ 
+          \FOR {$H\in\mathcal{G}\setminus \{G^*\}$} 
+             \STATE randomly choose an injective map $\phi:\sigma(H)\to S$
+             \FORALL {$x\in H$}
+                \STATE $\sigma(x)\leftarrow \phi(\sigma(x))$  
+             \ENDFOR
+          \ENDFOR
+       \ELSIF{$u$ is \emph{prime}} 
+          \STATE Construct a modularly-minimal coloring of $G(u)$
+              with colors contained in $\sigma(G(u))$
+              and adjust $\sigma$ accordingly \label{alg:prime-color}
+       \ENDIF
+    \ENDFOR
+  \end{algorithmic}
+\end{algorithm}
+
+
 
 \section{Heuristics}
 
@@ -114,17 +261,29 @@ The algorithms used are therefore slightly modified versions of the
 Greedy (REFERENS), dsatur (REFERENS) and Recursive largest first (REFERENS). For
 completeness, the algorithms are described fully here, with their modifications.
 
-\section{General coloring algorithm}
 
+
+\subsection{greedy}
+
+
+\subsection{dsatur}
+
+
+\subsection{Recursive largets first}
 
 
 \section{Strategies}
-
 
 In the case where the whole graph doesn't contain any prime modules, coloring
 can is easy (REFERENS), it is when coloring prime modules where we have to apply
 the heuristics, and these different methods are described in this part.
 
+\subsection{Whole graph}
+
+In this baseline test, the whole graph is colored using the heuristic, not
+utilizing the modular decomposition at all. This strategy is used as a baseline
+to compare whether or not the other strategies improves the performance for the
+graph.
 
 \subsection{Whole prime coloring}
 
@@ -134,7 +293,7 @@ whole induced subgraph $G[X]$ is colored with the heuristic.
 This method is the simplest combining strategy, but worth noting is that is
 equivalent to coloring the whole graph using the heuristic in the case where the
 root node is prime, and therefore only offers a possible improvement to existing
-heuristics when the graph isn't prime.
+heuristics when the root in the modular decomposition isn't prime.
 
 \subsection{Quotient recoloring}
 
@@ -165,11 +324,24 @@ and also have modular decomposition where the root vertex is prime. However, the
 modular decomposition might provide a more efficient way to color graphs where
 only some of the child nodes are prime. 
 
-These graphs are generated by (GENERATION METHOD)
+The algorithm for generating these graphs is described in figure 2. First an
+ordinary binary tree is randomly generated with a specified amount of leafs
+vertexes, and then every label in this tree is given a label 0 or 1.  This then
+describes a cograph, where the leafs are the K1 bases, and a label of 1 means
+that the children are joined by (GRAPH UNION) and a label of 0 means that the
+children are joined by (GRAPH something). Then, from this the corresponding
+graph can constructed. This forms one part of the test set. From this graph, we
+also randomly add edges in predetermined number of modules and with a
+predetermined size. This then forms a graph with a module decomposition which
+doesn't contain a prime module as the root, but still contains prime modules.
+
+This means that the training set are split into three parts, the DIMACS standard
+benchmark, cographs, and graphs formed from these cographs with prime modules.
 
 \subsection{Results and evaluation}
 
-lorem ipsum
+Every graph in the training set is colored using all the different combinations
+of heuristic and strategy, and the result can be found in (TABEL).
 
 \includegraphics[width=\textwidth]{Results.png}
 
