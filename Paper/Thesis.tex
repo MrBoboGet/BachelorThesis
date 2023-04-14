@@ -179,6 +179,12 @@ Finally, the results are presented in \autoref{sec:Result}.
     that $u$ and $v$ are neighbours.
 \end{definition}
 
+\begin{definition}[Degree]
+    The degree for a vertex $v \in V$ in a graph $G = (V,E)$, denoted by 
+    $deg(v)$, is the number of neighbours for $v$ in $G$, that is 
+    $deg(v) = |N_G(v)|$.
+
+\end{definition}
 
 In many cases, one is interested in some parts of the graph. And of of the most
 common ways 
@@ -407,14 +413,48 @@ vertices of the graph, where the vertices in the different parts are all
 non-adjecent to each other. This ensures that every partition can share the
 same color. 
 
-This construction is made by adding the vertex with the highest degree in the
-induced subgraph of unpartitioned vertices to the current module, and when no
+This construction is made by adding the vertex with the highest degree in the induced subgraph of unpartitioned vertices to the current module, and when no
 such vertex exist, create a new empty part in the partition and continue. When
 all of the vertices have been partitioned, the coloring is extracted by
 assigning every partition a unique color, and every vertex in that part the same
 color.
 
 
+\begin{algorithm}[H]
+    \caption{Recursive largest first (RLF)}
+  \label{alg:modmin}
+  \algsetup{linenodelimiter=}
+  \begin{algorithmic}[1]
+      \REQUIRE Graph $G = (V,E)$
+      \STATE $\textbf{Partition} \leftarrow \{\}$
+      \STATE $C \leftarrow \textbf{List of all possible colors in any order}$
+      \STATE $M \leftarrow \{\}$
+      \STATE $S \leftarrow V$
+      \WHILE{$|S| > 0$}
+        \STATE $v \leftarrow \textbf{the vertex maximizing $deg(v)$ for G[S]} $
+        \STATE $M \leftarrow \{v\}$
+        \WHILE{TRUE}
+            \STATE Candidates $\leftarrow \{\}$
+            \FORALL{$v' \in G[S]$}
+                \IF{$v' \neq m \wedge v' \notin N_{G[S]}(m) \textbf{for all $m \in
+                M$}$}
+                    \STATE $\textbf{Candidates} \leftarrow \textbf{Candidates}
+                    \cup \{v'\}$
+                \ENDIF
+            \ENDFOR
+            \IF{$|\textbf{Candidates}| = 0$}
+                \BREAK
+            \ENDIF
+            \STATE $n \leftarrow \textbf{the $n \in \textbf{Candidates}$ maximizing $deg(n)$ in $G[S]$}$ 
+            \STATE $M \leftarrow M \cup \{n\}$
+            \STATE $S \leftarrow S \setminus \{n\}$
+        \ENDWHILE
+        \STATE Partition $\leftarrow \textbf{Partition} \cup \{M\}$ 
+      \ENDWHILE
+      \STATE Assign consecutive colors from $C$ to the partitions in Partitions,
+      and then color every vertex in that partition with that color.
+  \end{algorithmic}
+\end{algorithm}
 
 
 \section{Strategies}
