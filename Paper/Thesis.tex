@@ -16,7 +16,9 @@
 
 \usepackage{authblk}
 %\usepackage[numbers,sort&compress]{natbib}
-\usepackage[numbers, sort&compress]{natbib}
+%\usepackage[numbers, sort&compress]{natbib}
+
+
 
 \usepackage[colorlinks]{hyperref}
 \hypersetup{
@@ -100,10 +102,12 @@
  % END COPY PASTE
 
 
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{References.bib}
 
 
-
-
+\newcommand{\algorithmicbreak}{\textbf{break}}
+\newcommand{\BREAK}{\STATE \algorithmicbreak}
 
 \author{Emanuel Berggren}
 \title{Graph coloring using modular decomposition}
@@ -128,47 +132,113 @@ Modular decomposition allows for coloring of graphs in linear time with optimal
 chromatic number if all of the modules are vertexes are either  series or
 parallel (REFERENS). However, if any of the vertexes are prime then optimal graph coloring 
 is again NP-Hard, as prime vertexes cannot be recursively colored by this
-method. The question examined here, is however if one can still utilize the
-modular decomposition, with graph coloring heuristics for the prime colorings.
+method. The question examined here, if one can still utilize the
+modular decomposition, with graph coloring heuristics for the prime modules.
 The modular decomposition might still color some parts of the graph optimally,
 and the structure it provides might provide a hint for how to apply the
-heuristics.
+heuristics on the prime parts.
 
-In section (PART) the basic terms are described.
+For this purpose
 
-In section (SECTION) the heuristics are described
+%kanske rätt onödigt?
+In \autoref{sec:Definitions} all of the required terminology and definitions is
+provided, and is split into two parts, \autoref{sec:GraphBasics} has definitions that might be
+familiar to most people that have worked with graphs, and
+\autoref{sec:GraphModules} provide the definitions that are more specific to
+this paper.
 
-In section (SECTION) the combination strategies are described, that is how are
-these heuristics applied, and how is the structure of the modular decomposition
+In \autoref{sec:Heuristics} the heuristics used are described.
+
+In \autoref{sec:Strategies} the combination strategies are described, that is how are
+these heuristics applied, and how the structure of the modular decomposition is
 utilised.
 
-In section (SECTION) the data and benchmarking methods are described. The data
-used is both from DIMACS benchmarks (REFERENS), and custom generated data.
+In \autoref{sec:Data} the test graphs and benchmarking methods are described. The data
+used is both from standard DIMACS benchmarks (REFERENS), and custom generated data.
 
-Finally, the results are presented in section (SECTION)
+Finally, the results are presented in \autoref{sec:Result}.
 
 \section{Definitions}
+\label{sec:Definitions}
+
+\subsection{Graph basics}
+\label{sec:GraphBasics}
+
+\begin{definition}[Graph]
+    A graph $G = (V,E)$ is a tuple, where $V$ is the set of vertices, and $E$ is
+    a set of pairs of vertices, the edges, such that for all $(v,u) \in E$,
+    $v \in V$ and $u \in E$.
+\end{definition}
+\begin{definition}[Neighbour]
+    For a graph $G = (V,E)$, we say that $v \in V$ is adjecent to 
+    $u \in V$ if $(v,u) \in E$ or $(u,v) \in E$. 
+
+    The neighbourhood $N_G(v)$ for a vertex $v \in V$ in a graph $G = (V,E)$,
+    is the set of vertices that are adjecent to $v$, that is 
+    $N_G(v) = \{u : (u,v) \vee (v,u) \in G\}$. If $u \in N_G(v)$, we also say
+    that $u$ and $v$ are neighbours.
+\end{definition}
+
+
+In many cases, one is interested in some parts of the graph. And of of the most
+common ways 
+
+\begin{definition}[Induced subgraph]
+    
+    For a graph $G = (V,E)$, the induced subgraph $G[X]$ for $X \subset V$, is
+    an a new graph $(\{v \in X\},\{(u,v) : (u,v) \in E, u \in V,v \in V\})$. That
+    is, a new graph only containing the vertices in $X$, and only edges between
+    these vertices.
+
+\end{definition}
+
+\begin{definition}[Disjoint union]
+    The disjoint union $\bigcup_i G_i$ for graphs $G_i = (V_i,E_i)$ where 
+    $\bigcap_i V_i = \varnothing $ , is a new graph
+    $G = \left( \bigcup_i V_i,\bigcup_i E_i \right)$.
+\end{definition}
+
+\begin{definition}[Graph join]
+    The graph join $\nabla G_i$ for graphs $G_i = (V_i,E_i)$ where 
+    $\bigcap_i V_i = \varnothing$, is the new graph $G = (\{ $
+\end{definition}
+
+
+\begin{definition}[Graph coloring]
+    A graph coloring $Col$ for a graph $G = (V,E)$
+    is function from $V$ to $C$, where $C$ is a set of colors. We say that 
+    we have a $k$ coloring if $k \neq |C$.
+\end{definition}
+
+Finding a coloring for a graph is easy, one could for example use 
+\autoref{alg:greedy}. Finding an optimal coloring, a coloring using the fewest
+possible colors is NP-Hard (REFERENS), which means that it's "difficult", takes
+a long time. For this purpose, multiple different heuristics, algorithms
+providing a proper coloring with as few colors as possible but not necessarily
+optimal, have been created.
 
 \begin{definition}[Quotient graph]
 
 \end{definition}
 
-\begin{definition}[Cograph]
+\subsection{Graph modules and cographs}
+\label{sec:GraphModules}
 
+\begin{definition}[Cograph]
+    
 \end{definition}
 
 \subsection{Modular decomposition}
 
 \begin{definition}[Graph module]
     Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $X \subset V$
-    is a \textit{module} of $G$ if, for every $y \in V \setminus X$,  either
-    $N(y) \cap X = \emptyset$ or $X \subset N(y)$ is true. A module $M$ is
-    \textit{strong} if it does not overlap with any other module $M'$, i.e, if 
+    is a module of $G$ if, for every $y \in V \setminus X$,  either
+    $N_G(y) \cap X = \emptyset$ or $X \subset N_G(y)$ is true. A module $M$ is
+    strong if it does not overlap with any other module $M'$, i.e, if 
     $M \cap M' \in \{M,M',\emptyset \}$.
 \end{definition}
    
 %modular decomposition
-\newpage
 \begin{definition}[Modular decomposition]
     For a graph $G = (V,E)$, let $PMax(G) = \{M_1,\cdots,M_k\}$ be a partition of the vertex set $V$ 
     into inclusion-maximal strong modules.
@@ -191,7 +261,7 @@ Note, a label being series in modular decomposition tree with associated module
 $X$ means that the induced subgraph $G[X]$ can be constructed through graph
 union on the induced subgraphs of its childrens associated modules, and it being
 parallell means that $G[X]$ can be constructed through graph join on the
-induced subgraphs of its childrens associated modules.
+induced subgraphs of its childrens associated modules. (REFERENS)
 
 The modular decomposition of a graph is unique (REFERENS), which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
@@ -205,7 +275,7 @@ the heuristic.
 
 \section{General coloring algorithm}
 
-The algorithm used for coloring is algorithm 2 in (REFERENS). It provides a
+The algorithm used for coloring is algorithm 2 in \cite{HCL}. It provides a
 optimal coloring given that the graph is a cograph. It does however not
 provide a way to color the prime modules. This paper examines multiple different
 ways these prime modules can be colored, split into 2 parts, a heuristic used,
@@ -246,6 +316,7 @@ graph.
 
 
 \section{Heuristics}
+\label{sec:Heuristics}
 
 %ska man ta med sånt alla vet
 A graph coloring heuristic is an algorithm for coloring a graph, that doesn't
@@ -263,17 +334,91 @@ completeness, the algorithms are described fully here, with their modifications.
 
 
 
-\subsection{greedy}
+(REFERENS)
+\subsection{Greedy}
+\label{alg:greedy}
+The classic greedy algorithm, most likely the the most simple heuristic. Greedy
+starts 
+
+\begin{algorithm}[H]
+  \caption{Greedy coloring of graph}
+  \label{alg:modmin}
+  \algsetup{linenodelimiter=}
+  \begin{algorithmic}[1]
+    \REQUIRE Graph $G$
+      \STATE $V' \leftarrow \textbf{List containing all $v \in V(G)$ in any order}$
+      \STATE $C \leftarrow \textbf{List of all possible colors in any order}$
+      \STATE $Col \leftarrow \textbf{Initial empty coloring}$
+    \FORALL{$v \in V(G)$}
+        \FORALL{$c \in C$}
+            \IF {$c \neq Col(n) \textbf{for all $n \in N_G(v)$ } $}
+                \STATE $Col \leftarrow \textbf{Updated coloring where $Col(v) =
+                c$}$
+                \BREAK
+            \ENDIF
+        \ENDFOR
+    \ENDFOR
+  \end{algorithmic}
+\end{algorithm}
+\subsection{Dsatur}
+
+Dsatur is an algorithm that is similar to Greedy, in that it walks through every
+vertex and assigns it the first available color. The difference in mostly for
+how this traversal is constructed. In greedy, this traversal is an arbitary
+order, but for Dsatur this traversal is constructed in a deterministic fashion,
+by using the saturation degree.
+
+\begin{definition}[Saturation degree]
+    The saturation degree $sat(v)$ for a vertex $v \in V$ for a graph $G =
+    (V,E)$ and a partial coloring $Col$ to the set of colors $C$, is the amount of unique colors among
+    it's colored neighbours, that is $sat(v) = |\{c  : c = Col(v), v \in V \}|$.
+\end{definition}
+
+The vertex are colored so that the vertex with the highest saturation degree is
+colored first.
+
+\begin{algorithm}[H]
+  \caption{Dsatur}
+  \label{alg:modmin}
+  \algsetup{linenodelimiter=}
+  \begin{algorithmic}[1]
+      \REQUIRE Graph $G = (V,E)$
+      \STATE $C \leftarrow \textbf{List of all possible colors in any order}$
+      \STATE $Col \leftarrow \textbf{Initial empty coloring}$
+
+      \FOR{$i$ between $0$ and $|V|$}
+
+        \STATE $v \leftarrow$ uncolored vertex in $V$, such that $sat(v)$ is
+        minimal. In case of ties, minimize $deg(v)$ for the subgraph of $G$
+        induced by the uncolored vertices.
+        \STATE $Col \leftarrow$ updated coloring where $Col(v)$ is the first
+        available color in regards to $C$.
+      \ENDFOR
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Recursive largest first}
+
+Recursive largest first is more complicated than both Greedy and Dsatur, in both
+execution and runtime. 
+
+The idea behind Recursive largest first, is to create a partition of the
+vertices of the graph, where the vertices in the different parts are all
+non-adjecent to each other. This ensures that every partition can share the
+same color. 
+
+This construction is made by adding the vertex with the highest degree in the
+induced subgraph of unpartitioned vertices to the current module, and when no
+such vertex exist, create a new empty part in the partition and continue. When
+all of the vertices have been partitioned, the coloring is extracted by
+assigning every partition a unique color, and every vertex in that part the same
+color.
 
 
-\subsection{dsatur}
-
-
-\subsection{Recursive largets first}
 
 
 \section{Strategies}
-
+\label{sec:Strategies}
 In the case where the whole graph doesn't contain any prime modules, coloring
 can is easy (REFERENS), it is when coloring prime modules where we have to apply
 the heuristics, and these different methods are described in this part.
@@ -314,7 +459,8 @@ $G[X]$.
 
 %formal description
 
-\subsection{Data}
+\section{Data}
+\label{sec:Data}
 
 The test sets used are part graphs from the DIMACS benchmark set (REFERENS), 
 and part graphs generated that aren't prime.
@@ -338,12 +484,13 @@ doesn't contain a prime module as the root, but still contains prime modules.
 This means that the training set are split into three parts, the DIMACS standard
 benchmark, cographs, and graphs formed from these cographs with prime modules.
 
-\subsection{Results and evaluation}
-
+\section{Results and evaluation}
+\label{sec:Result}
 Every graph in the training set is colored using all the different combinations
 of heuristic and strategy, and the result can be found in (TABEL).
 
 \includegraphics[width=\textwidth]{Results.png}
 
+\printbibliography
 
 \end{document}
