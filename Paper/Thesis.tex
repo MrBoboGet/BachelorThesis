@@ -117,6 +117,8 @@
 
 \section{Abstract}
 
+Lorem ipsum
+
 \section{Introduction}
 
 In this paper, we investigate a new heuristic using the modular decomposition of
@@ -136,9 +138,7 @@ method. The question examined here, if one can still utilize the
 modular decomposition, with graph coloring heuristics for the prime modules.
 The modular decomposition might still color some parts of the graph optimally,
 and the structure it provides might provide a hint for how to apply the
-heuristics on the prime parts.
-
-For this purpose
+heuristics on the prime parts, improving performance for other heuristics.
 
 %kanske rätt onödigt?
 In \autoref{sec:Definitions} all of the required terminology and definitions is
@@ -186,8 +186,10 @@ Finally, the results are presented in \autoref{sec:Result}.
 
 \end{definition}
 
-In many cases, one is interested in some parts of the graph. And of of the most
-common ways 
+In many cases, one is interested in some parts of the graph, and one of the
+most common ways to subset a graph is through the induced subgraph. The induced
+subgraph is the graph constructed from another graph, by only including vertices
+and edges within those vertices. 
 
 \begin{definition}[Induced subgraph]
     
@@ -198,6 +200,25 @@ common ways
 
 \end{definition}
 
+Another common operation, is the graph complement. The graph complement for a
+is in some sense the inverse of the original graph, it contains the same
+vertices as the original graph, but the vertices are adjecent only of they where
+not adjecent in the original graph.
+
+\begin{definition}[Graph complement]
+    The graph compliment $\widetilde{G}$ of a graph $G = (V,E)$ as a new graph 
+    $(V,\{ (u,v) : u \in V,v \in V, (u,v) \notin E,(v,u) \notin E\})$.
+\end{definition}
+
+Some other common operations, is how to combine two distinct graphs. Two common,
+and especially relevant for the modular decomposition further down, is the
+disjoint union and graph join. The disjoint union is the most simple way to
+combine graphs, and just forms a new graph that just contains it's components
+and nothing more. 
+The graph join is similar, in that it produces a new graph with all of it's
+subcomponents parts, edges and vertices, but also for every vertex in the one
+component adds a new edge to the other component.
+
 \begin{definition}[Disjoint union]
     The disjoint union $\bigcup_i G_i$ for graphs $G_i = (V_i,E_i)$ where 
     $\bigcap_i V_i = \varnothing $ , is a new graph
@@ -206,14 +227,15 @@ common ways
 
 \begin{definition}[Graph join]
     The graph join $\nabla G_i$ for graphs $G_i = (V_i,E_i)$ where 
-    $\bigcap_i V_i = \varnothing$, is the new graph $G = (\{ $
+    $\bigcap_i V_i = \varnothing$, is the new graph $G = (\{\bigcup_i V_i,
+    \bigcup_i E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \}$
 \end{definition}
 
 
 \begin{definition}[Graph coloring]
     A graph coloring $Col$ for a graph $G = (V,E)$
     is function from $V$ to $C$, where $C$ is a set of colors. We say that 
-    we have a $k$ coloring if $k \neq |C$.
+    we have a $k$ coloring if $k \leq |C|$.
 \end{definition}
 
 Finding a coloring for a graph is easy, one could for example use 
@@ -231,10 +253,10 @@ optimal, have been created.
 \label{sec:GraphModules}
 
 \begin{definition}[Cograph]
-    
+    The set of cographs $Co$, is a set containing $K_1$ that is closed under 
+    graph join and disjoint union. A graph $G$ is a cograph of $G \in Co$.
 \end{definition}
 
-\subsection{Modular decomposition}
 
 \begin{definition}[Graph module]
     Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $X \subset V$
@@ -265,19 +287,14 @@ optimal, have been created.
 
 Note, a label being series in modular decomposition tree with associated module
 $X$ means that the induced subgraph $G[X]$ can be constructed through graph
-union on the induced subgraphs of its childrens associated modules, and it being
-parallell means that $G[X]$ can be constructed through graph join on the
+union on the induced subgraphs of its children's associated modules, and it being
+parallel means that $G[X]$ can be constructed through graph join on the
 induced subgraphs of its childrens associated modules. (REFERENS)
 
 The modular decomposition of a graph is unique (REFERENS), which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
 the heuristic.
 
-
-\begin{definition}[Partially color graphed]
-
-
-\end{definition}
 
 \section{General coloring algorithm}
 
@@ -291,7 +308,7 @@ heuristic is applied. The different combinations of strategies and heuristic are
 then compared against the baseline of applying the same heuristic on the whole
 graph.
 
-\begin{algorithm}[t]
+\begin{algorithm}[H]
   \caption{Modularly-minimal coloring a graph $G$ with MD tree $(T,t)$.}
   \label{alg:modmin}
   \algsetup{linenodelimiter=}
@@ -330,21 +347,14 @@ necessarily give an optimal coloring, but uses various methods to approximate a
 good coloring. There are numerous graph coloring algorithms (REFERNENS) and is
 one of the most well studies parts of graph theory (REFERENS). 
 
-However, in order of be useful for the different STRATEGIES, a slightly
-different problem is solved by these algorithms, and that is to colorize a
-partially colored graph.
-
-The algorithms used are therefore slightly modified versions of the 
-Greedy (REFERENS), dsatur (REFERENS) and Recursive largest first (REFERENS). For
-completeness, the algorithms are described fully here, with their modifications.
-
-
-
 (REFERENS)
 \subsection{Greedy}
 \label{alg:greedy}
-The classic greedy algorithm, most likely the the most simple heuristic. Greedy
-starts 
+The classic greedy algorithm, most likely the most simple heuristic. Greedy
+walks over all of the vertices in the graph in an arbitrary order, and for every
+vertex assigns the first colored not shared amongst it's neighbours. Being
+relatively simple, it also has fast runtime, with a time complexity 
+of (REFERENS)
 
 \begin{algorithm}[H]
   \caption{Greedy coloring of graph}
@@ -381,7 +391,10 @@ by using the saturation degree.
 \end{definition}
 
 The vertex are colored so that the vertex with the highest saturation degree is
-colored first.
+colored first, alternatively maximizing the degree. Compared to Greedy, this
+algorithm does multiple passes over every vertex as every new coloring changes
+the saturation degree for the remainging vertices. This means that the runtime
+fo  the algorithm as a consequence has a higher runtime of (REFERENS).
 
 \begin{algorithm}[H]
   \caption{Dsatur}
@@ -413,7 +426,8 @@ vertices of the graph, where the vertices in the different parts are all
 non-adjecent to each other. This ensures that every partition can share the
 same color. 
 
-This construction is made by adding the vertex with the highest degree in the induced subgraph of unpartitioned vertices to the current module, and when no
+This construction is made by adding the vertex with the highest degree in the
+induced subgraph of unpartitioned vertices to the current module, and when no
 such vertex exist, create a new empty part in the partition and continue. When
 all of the vertices have been partitioned, the coloring is extracted by
 assigning every partition a unique color, and every vertex in that part the same
@@ -456,6 +470,37 @@ color.
   \end{algorithmic}
 \end{algorithm}
 
+\subsection{TabuCol}
+
+TabuCol is a graph algorithm that unlike the previous algorithms, doesn't
+construct a coloring in a deterministic fashion, but instead tries to find a
+coloring for a specific number target colors.
+
+TabuCol first forms a random coloring of the vertexes with colors from the
+allowed set, and then modifies this coloring by looking at the vertexes that
+forms a clash, that is have neighbours with the same colors. For these vertices,
+new coloring are evaluated in how many clashes they would produce. Then vertex
+recoloring that has the lowest new number of clashes, even if positive, is
+applied.
+
+This can however introduce cycles, certain recolorings leading into each other
+ad infitum. To prevent this, the Tabu list is used. A tabu list is a list 
+of vertex-color pairs $(v,u)$. Whenever a new vertex recoloring is made, it is
+added to the tabu list. A new vertex recoloring is only considered if it's not a
+part of the tabu list. This tabu list have a set size, so that the first element
+is remvoved when a new vertex-color pair is added.
+
+Tabu moves are however allowed in some scenarious, specifically if applying that
+coloring would create a better recoloring than any previously encountered for
+the current number of clashes, which is commonly refered to as the aspiration.
+An aspiration map is constructed, that initially has clashes set so that a 
+$Aspiration[ClashCount] = ClashCount-1$, that is, the coloring has to produce a
+lower clash count. For a given vertex-recoloring, if the new number of clashes
+is lower that the aspiration for the current number of clashes, so is that move
+allowed even if it's on the tabu list.
+
+This process of picking a new vertex recoloring is repeated until a coloring
+with zero clashes is produced, or a predtermined number of moves have been made. 
 
 \section{Strategies}
 \label{sec:Strategies}
@@ -524,12 +569,86 @@ doesn't contain a prime module as the root, but still contains prime modules.
 This means that the training set are split into three parts, the DIMACS standard
 benchmark, cographs, and graphs formed from these cographs with prime modules.
 
+
+\subsection{Random graph generation}
+
+\begin{algorithm}[H]
+    \caption{Construct cograph}
+    \label{alg:modmin}
+    \algsetup{linenodelimiter=}
+    \begin{algorithmic}[1]
+        \REQUIRE Vertex labeled tree $T$
+        \IF{$|V(T)| = 1$}
+            \RETURN{$(V(T),\emptyset)$}
+        \ENDIF
+        \STATE $G \leftarrow \textbf{empty graph $(\emptyset,\emptyset)$}$
+        \FORALL{$v \in N_T(root(T))$}
+            \IF{Label of $root(T)$ is \textit{series}}
+                \STATE $G \leftarrow \bigcup G, \text{\textbf{Construct graph} applied
+                on the subtree of $T$ with $v$ as root} $
+            \ELSIF{Label of $root(T)$ is \textit{parallel}}
+                \STATE $G \leftarrow \nabla G, \text{\textbf{Construct graph} applied
+                on the subtree of $T$ with $v$ as root}$
+            \ENDIF
+        \ENDFOR
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+    \caption{Random cograph generation}
+  \label{alg:modmin}
+  \algsetup{linenodelimiter=}
+  \begin{algorithmic}[1]
+      \REQUIRE Percent $p$ for serial, $0 \neq p \neq 1$.
+      \REQUIRE Percent $pe$ for new  edge, $0 \neq pe \neq 1$.
+      \REQUIRE Total amount of leafs $l$, $0 < l$.
+      \REQUIRE Prime modules size $ps$
+      \REQUIRE Prime modules count $pc$
+
+      \STATE $bg \leftarrow \text{Random binary graph with leaf count equal to $l$}$
+      \FORALL{$v \in bg$}
+        \STATE Randomly assign a label  \textit{series}, or \textit{parallel} to $v$, so
+        that the probability for \textit{series} is $p$.
+      \ENDFOR
+
+      \STATE $CG \leftarrow \text{\textbf{Construct graph} applied on $bg$}$
+
+      \STATE $pm \leftarrow \text{All strong modules of $CG$ such that $|cg| \geq ps$, ordered in increasing order by size}$
+      \FOR{$i \cdots pc$}
+        \STATE $cm \leftarrow \text{The module at index $i$ in $pm$}$
+        \FORALL{vertex pairs $(u,v)$ where $u,v \in V(CG[cm])$}
+            \STATE Modify $CG$ by adding edge $(u,v)$ with a chance of $pe$
+        \ENDFOR
+      \ENDFOR
+      \RETURN{$CG$}
+  \end{algorithmic}
+\end{algorithm}
+
+The cographs are disturbed in such a way that the expected amount of prime
+modules and size of these modules can be tuned beforehand. By only adding edges
+within a module, we can guarantee that only vertices in that module can be part
+of a new prime module. By specifying how many modules we want and their size, we
+can also construct modular decomposition with various percentage prime modules.
+
+
 \section{Results and evaluation}
 \label{sec:Result}
 Every graph in the training set is colored using all the different combinations
 of heuristic and strategy, and the result can be found in (TABEL).
 
 \includegraphics[width=\textwidth]{Results.png}
+
+
+\subsection{Discussion}
+
+Something that we can see from (TABLE), is that Greedy,RLF,DSatur all doesn't
+perform better when applying the algorithm on the whole graph compared to all of
+the prime modules locally. We can however see that TabuCol does on average
+perform better when applying on the local submodules.
+
+This might stem from the fact that Greedy,RLF,DSatur are all
+(GREEDY-EQUIVALENT), and therefore colors cographs optimally, while this isn't
+the case for TabuCol.
 
 \printbibliography
 

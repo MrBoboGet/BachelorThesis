@@ -19,6 +19,7 @@ class PrimeStrategy(Enum):
     WholeHeuristic = 1
     Quotient = 2
     LargestModuleFirst = 3
+    NoPrime = 4
 
 random.seed(246)        # or any integer
 numpy.random.seed(4812)
@@ -49,7 +50,7 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
     Label = MD.nodes[ModuleToColor]['MDlabel']
     ChildrenColorMap = {}
 
-    if(not Label == 'p' or (Strategy == PrimeStrategy.Quotient or Strategy == PrimeStrategy.WholeHeuristic)):
+    if(not Label == 'p' or (Strategy == PrimeStrategy.Quotient)):
         #postorder traversal
         for Child in MD.successors(ModuleToColor):
             ChildrenColorMap[Child] = Colorize_Module(OriginalGraph,MD,ColorList,Child,Heuristic,Strategy)
@@ -78,11 +79,8 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
 
         if Strategy == PrimeStrategy.WholeHeuristic:
             #remove coloring for trivial modules, these are the ones we can recolor
-            for Child in ChildrenColorMap:
-                for Color in Child:
-                    ReturnValue.add(Color)
-
             for Child in ModuleToColor:
+                ReturnValue.add(Child)
                 ColorList[Child] = -1
             ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ReturnValue)
         elif Strategy == PrimeStrategy.Quotient:
@@ -109,7 +107,9 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
                     continue
                 ColorList[Node] = -1
             ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ColorsToUse)
-
+        elif Strategy == PrimeStrategy.NoPrime:
+            for Child in ModuleToColor:
+                ReturnValue.add(Child)
     return(ReturnValue)
 
 # Returns a list of colors, and the chromatic number
@@ -252,7 +252,7 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
         ReturnValue.add(CurrentColoring[Node])
     return ReturnValue
 
-nbiter = 300
+nbiter = 1000
 rep = 30
 tabsize = 6
 def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
@@ -343,7 +343,27 @@ def BinarySearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,Col
     for Node in GraphToColor.nodes:
         CurrentColoring[Node] = ColorListVector[ BestColoring[Node]]
         UsedColors.add( ColorListVector[BestColoring[Node]])
+    return(UsedColors)
 
+def LinearSearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,ColorList):
+    DSaturColors = DSatur(GraphToColor,CurrentColoring,ColorList)
+    CurrentK = len(DSaturColors)
+    BestColoring = []
+    while True:
+        ResultColoring = CurrentColoring.copy()
+        IsPossible = KIsPossibleHeuristic(GraphToColor,ResultColoring,CurrentK)
+        if(IsPossible):
+            BestColoring = ResultColoring
+            CurrentK -= 1
+        else:
+            break
+    if(len(BestColoring) == 0):
+        return(DSaturColors)
+    UsedColors = set()
+    ColorListVector = list(ColorList)
+    for Node in GraphToColor.nodes:
+        CurrentColoring[Node] = ColorListVector[ BestColoring[Node]]
+        UsedColors.add( ColorListVector[BestColoring[Node]])
     return(UsedColors)
 
 def VerifyColoring(Graph,Coloring):
@@ -353,6 +373,31 @@ def VerifyColoring(Graph,Coloring):
             if(Coloring[Node] == Coloring[Neighour]):
                 return(False)
     return(ReturnValue)
+
+def CoColorNumber(Graph,MD,CurrentModule,Coloring):
+    ReturnValue = set()
+    if(len(CurrentModule) == 1):
+        return(set([Coloring[first(CurrentModule)]]))
+    Label = MD.nodes[CurrentModule]['MDlabel']
+    if Label == "p":
+        return(set())
+    for ChildModule in MD.successors(CurrentModule):
+        ReturnValue.update(CoColorNumber(Graph,MD,ChildModule,Coloring))
+    return(ReturnValue)
+
+def GetCoVertices(MD,CurrentModule):
+    ReturnValue = set()
+    if(len(CurrentModule) == 1):
+        return(CurrentModule)
+    Label = MD.nodes[CurrentModule]['MDlabel']
+    if Label == "p":
+        return(set())
+    for ChildModule in MD.successors(CurrentModule):
+        ReturnValue.update(GetCoVertices(MD,ChildModule))
+    return(ReturnValue)
+def GetCoGraph(Graph,MD,Root):
+    CoVertices = GetCoVertices(MD,Root)
+    return(nx.induced_subgraph(Graph,CoVertices))
 
 Test = False
 if Test:
@@ -383,26 +428,40 @@ else:
     RootType = MD.nodes[Root]['MDlabel']
     #Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
     Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur}
-    Strategys = {"WholePrime": PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient,"LargestModuleFirst": PrimeStrategy.LargestModuleFirst}
-    #Heuristics = {"Greedy": Greedy,"DSatur": DSatur}
+    Strategys = {"WholePrime": PrimeStrategy.WholeHeuristic}
+    #Strategys = {"WholePrime": PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient,"LargestModuleFirst": PrimeStrategy.LargestModuleFirst}
+    #Heuristics = {"Tabu search": partial(LinearSearchCombinator,TabuSearch)}
+
+    GreedyColors = [i for i in range(len(G.nodes))]
+    GreedyMap = Colorize_Module(G,MD,GreedyColors,Root,Greedy,PrimeStrategy.NoPrime)
+    CoColorCount = len(CoColorNumber(G,MD,Root,GreedyColors))
+
+    CoVertices = GetCoVertices(MD,Root)
+    NonPrimeColorCount = len(set( [ GreedyColors[i] for i in CoVertices]))
+
     for (Name,Function) in Heuristics.items():
         for (StrategyName,Strategy) in Strategys.items():
+            Colors = [i for i in range(len(G.nodes))]
             StartTime = time.perf_counter()
-            (Colors,ColorCount) = Colorize(G,MD,Function,Strategy)
+            ColorCount = Colorize_Module(G,MD,Colors,Root,Function,Strategy)
             EndTime = time.perf_counter()
+            CurrentCoColorCount = len(CoColorNumber(G,MD,Root,Colors))
+            TestCoColorCount = len(set([Colors[i] for i in CoVertices]))
             if(not VerifyColoring(G,Colors)):
                 print(f"Error: Heuristic {Name} with strategy {StrategyName} resulted in an invalid coloring",file=sys.stderr)
                 exit(1)
-            print(Filename,RootType,Name,StrategyName,len(ColorCount),EndTime-StartTime,sep=",")
+            print(Filename,RootType,Name,StrategyName,len(ColorCount),CurrentCoColorCount==CoColorCount,EndTime-StartTime,sep=",")
 
         HeuristicColorList = [-1 for i in  range(len(G.nodes))]
         HeuristicAllowedColors = [i for i in  range(len(G.nodes))]
         StartTime = time.perf_counter()
         HeuriticUsedColors = Function(G,HeuristicColorList,HeuristicAllowedColors)
         EndTime = time.perf_counter()
+        CurrentCoColorCount = len(CoColorNumber(G,MD,Root,HeuristicColorList))
+        TestCoColorCount = len(set([HeuristicColorList[i] for i in CoVertices]))
         if(not VerifyColoring(G,HeuristicColorList)):
             print("Error: modular coloring was an invalid coloring",file=sys.stderr)
             exit(1)
-        print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
+        print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),CurrentCoColorCount==CoColorCount,EndTime-StartTime ,sep=",")
     #print(ColorCount,len(ColorCount),Colors)
     #print(VerifyColoring(G,Colors))
