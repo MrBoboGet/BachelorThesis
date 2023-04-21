@@ -132,7 +132,7 @@ combine to form their parent module.
 
 Modular decomposition allows for coloring of graphs in linear time with optimal
 chromatic number if all of the modules are vertexes are either  series or
-parallel (REFERENS). However, if any of the vertexes are prime then optimal graph coloring 
+parallel \cite{HCL}. However, if any of the vertexes are prime then optimal graph coloring 
 is again NP-Hard, as prime vertexes cannot be recursively colored by this
 method. The question examined here, if one can still utilize the
 modular decomposition, with graph coloring heuristics for the prime modules.
@@ -167,7 +167,7 @@ Finally, the results are presented in \autoref{sec:Result}.
 \begin{definition}[Graph]
     A graph $G = (V,E)$ is a tuple, where $V$ is the set of vertices, and $E$ is
     a set of pairs of vertices, the edges, such that for all $(v,u) \in E$,
-    $v \in V$ and $u \in E$.
+    $v \in V$ and $u \in V$.
 \end{definition}
 \begin{definition}[Neighbour]
     For a graph $G = (V,E)$, we say that $v \in V$ is adjecent to 
@@ -175,7 +175,7 @@ Finally, the results are presented in \autoref{sec:Result}.
 
     The neighbourhood $N_G(v)$ for a vertex $v \in V$ in a graph $G = (V,E)$,
     is the set of vertices that are adjecent to $v$, that is 
-    $N_G(v) = \{u : (u,v) \vee (v,u) \in G\}$. If $u \in N_G(v)$, we also say
+    $N_G(v) = \{u : (u,v) \in E \vee (v,u) \in E\}$. If $u \in N_G(v)$, we also say
     that $u$ and $v$ are neighbours.
 \end{definition}
 
@@ -291,7 +291,7 @@ union on the induced subgraphs of its children's associated modules, and it bein
 parallel means that $G[X]$ can be constructed through graph join on the
 induced subgraphs of its childrens associated modules. (REFERENS)
 
-The modular decomposition of a graph is unique (REFERENS), which means that the
+The modular decomposition of a graph is unique \cite{HCL}, which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
 the heuristic.
 
@@ -354,7 +354,7 @@ The classic greedy algorithm, most likely the most simple heuristic. Greedy
 walks over all of the vertices in the graph in an arbitrary order, and for every
 vertex assigns the first colored not shared amongst it's neighbours. Being
 relatively simple, it also has fast runtime, with a time complexity 
-of (REFERENS)
+of $O(|V|+|E|)$ \cite{Constructive}
 
 \begin{algorithm}[H]
   \caption{Greedy coloring of graph}
@@ -379,7 +379,7 @@ of (REFERENS)
 \subsection{Dsatur}
 
 Dsatur is an algorithm that is similar to Greedy, in that it walks through every
-vertex and assigns it the first available color. The difference in mostly for
+vertex and assigns it the first available color. The difference is mostly in
 how this traversal is constructed. In greedy, this traversal is an arbitary
 order, but for Dsatur this traversal is constructed in a deterministic fashion,
 by using the saturation degree.
@@ -394,7 +394,8 @@ The vertex are colored so that the vertex with the highest saturation degree is
 colored first, alternatively maximizing the degree. Compared to Greedy, this
 algorithm does multiple passes over every vertex as every new coloring changes
 the saturation degree for the remainging vertices. This means that the runtime
-fo  the algorithm as a consequence has a higher runtime of (REFERENS).
+fo  the algorithm as a consequence has a higher runtime of
+$O((|V|+|E|)\log{|V|})$ \cite{Constructive}.
 
 \begin{algorithm}[H]
   \caption{Dsatur}
@@ -500,7 +501,65 @@ is lower that the aspiration for the current number of clashes, so is that move
 allowed even if it's on the tabu list.
 
 This process of picking a new vertex recoloring is repeated until a coloring
-with zero clashes is produced, or a predtermined number of moves have been made. 
+with zero clashes is produced, or a predetermined number of moves have been
+made. As the algorithm only get's a valid coloring for a specific $k$, we also
+must have a way to utilise this algorithm to get the lowest possible coloring.
+Here the method used in \cite{Constructive} is used, that is, first a coloring is made
+with Dsatur, and the amount of colors used stubtracted by one is the original
+$k$, and then we try to color it with TabuCol with that amount of colors, and
+subtract $k$ by one evertime we suceed, until we fail, at which point we say
+that the current $k$ is the lowest we can go.
+
+TabuCol has some subtle variations, and this particular definition is based on
+the presentation in \cite{1990}. Alternatives are for example whether or not all
+possible recolorings are consider, if only the first coloring with a lower clash
+count is considered, and if one allows vertices that don't have any clashes to
+be recolored.
+
+\begin{algorithm}[H]
+    \caption{TabuCol}
+    \label{alg:modmin}
+    \algsetup{linenodelimiter=}
+    \begin{algorithmic}[1]
+        \REQUIRE Graph $G = (V,E)$
+        \REQUIRE Integer $k > 0$
+        \REQUIRE Integer $MaxIt > 0$
+        \REQUIRE Integer $MaxTabu > 0$
+        \REQUIRE Integer $MaxRep > 0$
+      
+        \STATE $Asp \leftarrow \text{Map from every integer $0 < i < |V|$, such that $Asp[i] = i-1$}$
+        \STATE $Col \leftarrow \text{random non-proper coloring with $k$ colors}$
+        \STATE $CurIt \leftarrow 0$
+        \STATE $CurrentClash = \textbf{Clashes}(Col)$
+        \STATE $Tabu \leftarrow \text{Empty tabu list}$
+        \WHILE{$CurrentClash < 0 $ and $CurIt < MaxIt$}
+            \STATE $RepCount \leftarrow 0$
+            \STATE $Reps \leftarrow \emptyset$
+            \FORALL{$v \in V$}
+                \IF{$RepCount > MaxRep$}
+                    \BREAK
+                \ENDIF
+                \STATE $c \leftarrow \text{Random color $\neq Col(v)$ in $Col$}$
+                \IF{$(v,c) \notin Tabu$ or $\textbf{Clashes}$}
+                    \STATE $Reps \leftarrow Reps \cup \{(v,c)\}$
+                \ENDIF
+                \STATE $RepCount \leftarrow RepCount + 1$
+            \ENDFOR
+            \STATE $(v',u') \leftarrow \text{where $(v',u') \in Reps$ and $\textbf{Clashes}( (v',u'))$ is minimal }$
+            \STATE $NewClash \leftarrow \textbf{Clashes}( (v',u')$
+            \IF{$(v',u') \in Tabu$}
+                \STATE $Asp[CurrentClash] = NewClash$
+            \ENDIF
+            \STATE $CurrentClash \leftarrow NewClash$
+            \STATE Update $Tabu$ to contain $(v',u')$, and remove the oldest element if $|Tabu| > MaxTabu$
+            \STATE Update $Col$ so that $Col(v') = u'$
+            \IF{$CurrentClash = 0$}
+                \BREAK
+            \ENDIF
+        \ENDWHILE
+    \end{algorithmic}
+\end{algorithm}
+
 
 \section{Strategies}
 \label{sec:Strategies}
@@ -527,22 +586,13 @@ heuristics when the root in the modular decomposition isn't prime.
 
 \subsection{Quotient recoloring}
 
-With this method, all of the children for the prime vertex are first colored,
-and then the quotient graph for the child modules are constructed. This quotient
-graph is then colored. Then all of the child modules that have the same color
-are recolored to use the same colors among the largest set of colors for the
-modules.
-
-%formal description
-
-
-\subsection{Largest child first}
-
-The largest child module is first colored with the same coloring algorithm, and
-then the heuristic is applied on the partially colored induced subgraph 
-$G[X]$.
-
-%formal description
+This coloring, unlike the previous two, also attempts to colorize the prime
+modules internally. Here, every prime module is colored just like in 'Whole
+prime coloring', but only if it contains under a predetermined number of
+vertices. Otherwise, all of it's children are colored first, then the quotient
+graph for the children of the prime modules is constructed. This quotient graph
+is then colored using the heuristic, and new every child moudle with the same
+color in the quotient graph can now be recolored to use the same set of colors.
 
 \section{Data}
 \label{sec:Data}
@@ -551,20 +601,22 @@ The test sets used are part graphs from the DIMACS benchmark set (REFERENS),
 and part graphs generated that aren't prime.
 
 All of the graphs from the DIMACS benchmark sets are difficult to color graphs,
-and also have modular decomposition where the root vertex is prime. However, the
-modular decomposition might provide a more efficient way to color graphs where
-only some of the child nodes are prime. 
+and also have modular decomposition where the root vertex is prime. As they are
+commonly used benchmarks, they also provide known best current colorings for the
+different graphs. However, the modular decomposition might provide a more
+efficient way to color graphs where only some of the child nodes are prime. 
 
 The algorithm for generating these graphs is described in figure 2. First an
 ordinary binary tree is randomly generated with a specified amount of leafs
-vertexes, and then every label in this tree is given a label 0 or 1.  This then
-describes a cograph, where the leafs are the K1 bases, and a label of 1 means
-that the children are joined by (GRAPH UNION) and a label of 0 means that the
-children are joined by (GRAPH something). Then, from this the corresponding
-graph can constructed. This forms one part of the test set. From this graph, we
-also randomly add edges in predetermined number of modules and with a
-predetermined size. This then forms a graph with a module decomposition which
-doesn't contain a prime module as the root, but still contains prime modules.
+vertexes, and then every label in this tree is given a label "series" or
+"parallel".  This then describes a cograph, where the leafs are the K1 bases,
+and a label of "series" means that the children are joined by disjoint union and a label
+of "parallel" means that the children are joined by graph join. Then, from this
+the corresponding graph can constructed. This forms one part of the test set.
+From this graph, we also randomly add edges in predetermined number of modules
+and with a predetermined size. This then forms a graph with a modular
+decomposition which doesn't contain a prime module as the root, but still
+contains prime modules.
 
 This means that the training set are split into three parts, the DIMACS standard
 benchmark, cographs, and graphs formed from these cographs with prime modules.
@@ -636,7 +688,11 @@ can also construct modular decomposition with various percentage prime modules.
 Every graph in the training set is colored using all the different combinations
 of heuristic and strategy, and the result can be found in (TABEL).
 
-\includegraphics[width=\textwidth]{Results.png}
+%\includegraphics[width=\textwidth]{Results.png}
+%\includegraphics[width=\textwidth]{TestGGSave.png}
+\include{DIMACSResult.tex}
+\include{CoGraphsResult.tex}
+\include{DisturbedCoGraphsResult.tex}
 
 
 \subsection{Discussion}

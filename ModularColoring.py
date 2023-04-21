@@ -84,15 +84,21 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
                 ColorList[Child] = -1
             ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ReturnValue)
         elif Strategy == PrimeStrategy.Quotient:
-            QuotientGraph = nx.quotient_graph(OriginalGraph,[x for x in ChildrenColorMap])
-            QuotientColoring = {k: -1 for k in ChildrenColorMap}
-            AllowedColors = [i for i in range(len(ChildrenColorMap))]
-            UsedColors = Heuristic(QuotientGraph,QuotientColoring,AllowedColors)
-            ColorComponents = {c: [] for c in UsedColors}
-            for (Node,Color) in QuotientColoring.items():
-                ColorComponents[Color].append(Node)
-            for Component in ColorComponents.values():
-                ReturnValue.update(RecolorComponents(Component,ColorList,ChildrenColorMap))
+            if(len(ModuleToColor) < 50):
+                for Child in ModuleToColor:
+                    ReturnValue.add(Child)
+                    ColorList[Child] = -1
+                ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ReturnValue)
+            else:
+                QuotientGraph = nx.quotient_graph(OriginalGraph,[x for x in ChildrenColorMap])
+                QuotientColoring = {k: -1 for k in ChildrenColorMap}
+                AllowedColors = [i for i in range(len(ChildrenColorMap))]
+                UsedColors = RLF(QuotientGraph,QuotientColoring,AllowedColors)
+                ColorComponents = {c: [] for c in UsedColors}
+                for (Node,Color) in QuotientColoring.items():
+                    ColorComponents[Color].append(Node)
+                for Component in ColorComponents.values():
+                    ReturnValue.update(RecolorComponents(Component,ColorList,ChildrenColorMap))
         elif Strategy == PrimeStrategy.LargestModuleFirst:
             LargestModuleCount = -1
             LargestModule = -1
@@ -346,10 +352,10 @@ def BinarySearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,Col
     return(UsedColors)
 
 def LinearSearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,ColorList):
-    DSaturColors = DSatur(GraphToColor,CurrentColoring,ColorList)
-    CurrentK = len(DSaturColors)
+    DSaturColors = RLF(GraphToColor,CurrentColoring,ColorList)
+    CurrentK = len(DSaturColors)-1
     BestColoring = []
-    while True:
+    while True and CurrentK > 0:
         ResultColoring = CurrentColoring.copy()
         IsPossible = KIsPossibleHeuristic(GraphToColor,ResultColoring,CurrentK)
         if(IsPossible):
@@ -427,17 +433,18 @@ else:
     Root = max([module for module in MD],key=lambda x: len(x))
     RootType = MD.nodes[Root]['MDlabel']
     #Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
-    Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur}
-    Strategys = {"WholePrime": PrimeStrategy.WholeHeuristic}
+    Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur,"TabuCol": partial(LinearSearchCombinator,TabuSearch)}
+    Strategys = {"WholePrime":
+            PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient}
     #Strategys = {"WholePrime": PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient,"LargestModuleFirst": PrimeStrategy.LargestModuleFirst}
     #Heuristics = {"Tabu search": partial(LinearSearchCombinator,TabuSearch)}
 
-    GreedyColors = [i for i in range(len(G.nodes))]
-    GreedyMap = Colorize_Module(G,MD,GreedyColors,Root,Greedy,PrimeStrategy.NoPrime)
-    CoColorCount = len(CoColorNumber(G,MD,Root,GreedyColors))
+    #GreedyColors = [i for i in range(len(G.nodes))]
+    #GreedyMap = Colorize_Module(G,MD,GreedyColors,Root,Greedy,PrimeStrategy.NoPrime)
+    #CoColorCount = len(CoColorNumber(G,MD,Root,GreedyColors))
 
-    CoVertices = GetCoVertices(MD,Root)
-    NonPrimeColorCount = len(set( [ GreedyColors[i] for i in CoVertices]))
+    #CoVertices = GetCoVertices(MD,Root)
+    #NonPrimeColorCount = len(set( [ GreedyColors[i] for i in CoVertices]))
 
     for (Name,Function) in Heuristics.items():
         for (StrategyName,Strategy) in Strategys.items():
@@ -445,23 +452,23 @@ else:
             StartTime = time.perf_counter()
             ColorCount = Colorize_Module(G,MD,Colors,Root,Function,Strategy)
             EndTime = time.perf_counter()
-            CurrentCoColorCount = len(CoColorNumber(G,MD,Root,Colors))
-            TestCoColorCount = len(set([Colors[i] for i in CoVertices]))
+            #CurrentCoColorCount = len(CoColorNumber(G,MD,Root,Colors))
+            #TestCoColorCount = len(set([Colors[i] for i in CoVertices]))
             if(not VerifyColoring(G,Colors)):
                 print(f"Error: Heuristic {Name} with strategy {StrategyName} resulted in an invalid coloring",file=sys.stderr)
                 exit(1)
-            print(Filename,RootType,Name,StrategyName,len(ColorCount),CurrentCoColorCount==CoColorCount,EndTime-StartTime,sep=",")
+            print(Filename,RootType,Name,StrategyName,len(ColorCount),EndTime-StartTime,sep=",")
 
         HeuristicColorList = [-1 for i in  range(len(G.nodes))]
         HeuristicAllowedColors = [i for i in  range(len(G.nodes))]
         StartTime = time.perf_counter()
         HeuriticUsedColors = Function(G,HeuristicColorList,HeuristicAllowedColors)
         EndTime = time.perf_counter()
-        CurrentCoColorCount = len(CoColorNumber(G,MD,Root,HeuristicColorList))
-        TestCoColorCount = len(set([HeuristicColorList[i] for i in CoVertices]))
+        #CurrentCoColorCount = len(CoColorNumber(G,MD,Root,HeuristicColorList))
+        #TestCoColorCount = len(set([HeuristicColorList[i] for i in CoVertices]))
         if(not VerifyColoring(G,HeuristicColorList)):
             print("Error: modular coloring was an invalid coloring",file=sys.stderr)
             exit(1)
-        print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),CurrentCoColorCount==CoColorCount,EndTime-StartTime ,sep=",")
+        print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
     #print(ColorCount,len(ColorCount),Colors)
     #print(VerifyColoring(G,Colors))
