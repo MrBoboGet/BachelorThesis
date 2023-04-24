@@ -103,12 +103,13 @@
 
 
 \usepackage[backend=bibtex]{biblatex}
+\usepackage{todonotes}
 \addbibresource{References.bib}
 
 
 \newcommand{\algorithmicbreak}{\textbf{break}}
 \newcommand{\BREAK}{\STATE \algorithmicbreak}
-
+\newcommand{\algorithmautorefname}{Algorithm}
 \author{Emanuel Berggren}
 \title{Graph coloring using modular decomposition}
 
@@ -154,7 +155,7 @@ these heuristics applied, and how the structure of the modular decomposition is
 utilised.
 
 In \autoref{sec:Data} the test graphs and benchmarking methods are described. The data
-used is both from standard DIMACS benchmarks (REFERENS), and custom generated data.
+used is both from standard DIMACS benchmarks \cite{DIMACS}, and custom generated data.
 
 Finally, the results are presented in \autoref{sec:Result}.
 
@@ -238,12 +239,11 @@ component adds a new edge to the other component.
     we have a $k$ coloring if $k \leq |C|$.
 \end{definition}
 
-Finding a coloring for a graph is easy, one could for example use 
-\autoref{alg:greedy}. Finding an optimal coloring, a coloring using the fewest
-possible colors is NP-Hard (REFERENS), which means that it's "difficult", takes
-a long time. For this purpose, multiple different heuristics, algorithms
-providing a proper coloring with as few colors as possible but not necessarily
-optimal, have been created.
+Finding a coloring for a graph is easy, one could for example use
+\autoref{alg:greedy}. Finding an optimal coloring hwoever, a coloring using the
+fewest possible colors is NP-Hard (REFERENS). For this purpose, multiple
+different heuristics, algorithms providing a proper coloring with as few colors
+as possible but not necessarily optimal, have been created.
 
 \begin{definition}[Quotient graph]
 
@@ -265,7 +265,9 @@ optimal, have been created.
     strong if it does not overlap with any other module $M'$, i.e, if 
     $M \cap M' \in \{M,M',\emptyset \}$.
 \end{definition}
-   
+  
+
+\todo[noline]{Update definition}
 %modular decomposition
 \begin{definition}[Modular decomposition]
     For a graph $G = (V,E)$, let $PMax(G) = \{M_1,\cdots,M_k\}$ be a partition of the vertex set $V$ 
@@ -291,6 +293,9 @@ union on the induced subgraphs of its children's associated modules, and it bein
 parallel means that $G[X]$ can be constructed through graph join on the
 induced subgraphs of its childrens associated modules. (REFERENS)
 
+This also means that modular decomposition without prime modules is a cograph, as 
+it is Recursively constructed by graph join and graph union on $K_1$.
+
 The modular decomposition of a graph is unique \cite{HCL}, which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
 the heuristic.
@@ -310,7 +315,7 @@ graph.
 
 \begin{algorithm}[H]
   \caption{Modularly-minimal coloring a graph $G$ with MD tree $(T,t)$.}
-  \label{alg:modmin}
+  \label{alg:generic}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
     \REQUIRE Graph $G$ and MD tree $(\T,\t)$
@@ -330,7 +335,7 @@ graph.
        \ELSIF{$u$ is \emph{prime}} 
           \STATE Construct a modularly-minimal coloring of $G(u)$
               with colors contained in $\sigma(G(u))$
-              and adjust $\sigma$ accordingly \label{alg:prime-color}
+              and adjust $\sigma$ accordingly 
        \ENDIF
     \ENDFOR
   \end{algorithmic}
@@ -344,12 +349,9 @@ graph.
 %ska man ta med sånt alla vet
 A graph coloring heuristic is an algorithm for coloring a graph, that doesn't
 necessarily give an optimal coloring, but uses various methods to approximate a
-good coloring. There are numerous graph coloring algorithms (REFERNENS) and is
-one of the most well studies parts of graph theory (REFERENS). 
+good coloring.
 
-(REFERENS)
 \subsection{Greedy}
-\label{alg:greedy}
 The classic greedy algorithm, most likely the most simple heuristic. Greedy
 walks over all of the vertices in the graph in an arbitrary order, and for every
 vertex assigns the first colored not shared amongst it's neighbours. Being
@@ -357,8 +359,8 @@ relatively simple, it also has fast runtime, with a time complexity
 of $O(|V|+|E|)$ \cite{Constructive}
 
 \begin{algorithm}[H]
-  \caption{Greedy coloring of graph}
-  \label{alg:modmin}
+  \caption{Greedy}
+  \label{alg:greedy}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
     \REQUIRE Graph $G$
@@ -397,9 +399,11 @@ the saturation degree for the remainging vertices. This means that the runtime
 fo  the algorithm as a consequence has a higher runtime of
 $O((|V|+|E|)\log{|V|})$ \cite{Constructive}.
 
+DSatur being an well studied algorithm also means that it has some variations in 
+the litterature, and this presentation is based on \cite{Constructive}.
+
 \begin{algorithm}[H]
   \caption{Dsatur}
-  \label{alg:modmin}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
@@ -434,10 +438,9 @@ all of the vertices have been partitioned, the coloring is extracted by
 assigning every partition a unique color, and every vertex in that part the same
 color.
 
-
+This presentation of the algorithm is based on \cite{Constructive}.
 \begin{algorithm}[H]
     \caption{Recursive largest first (RLF)}
-  \label{alg:modmin}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
@@ -485,11 +488,11 @@ recoloring that has the lowest new number of clashes, even if positive, is
 applied.
 
 This can however introduce cycles, certain recolorings leading into each other
-ad infitum. To prevent this, the Tabu list is used. A tabu list is a list 
+ad infinitum. To prevent this, the Tabu list is used. A tabu list is a list 
 of vertex-color pairs $(v,u)$. Whenever a new vertex recoloring is made, it is
 added to the tabu list. A new vertex recoloring is only considered if it's not a
 part of the tabu list. This tabu list have a set size, so that the first element
-is remvoved when a new vertex-color pair is added.
+is removed when a new vertex-color pair is added.
 
 Tabu moves are however allowed in some scenarious, specifically if applying that
 coloring would create a better recoloring than any previously encountered for
@@ -497,7 +500,7 @@ the current number of clashes, which is commonly refered to as the aspiration.
 An aspiration map is constructed, that initially has clashes set so that a 
 $Aspiration[ClashCount] = ClashCount-1$, that is, the coloring has to produce a
 lower clash count. For a given vertex-recoloring, if the new number of clashes
-is lower that the aspiration for the current number of clashes, so is that move
+is lower than the aspiration for the current number of clashes, so is that move
 allowed even if it's on the tabu list.
 
 This process of picking a new vertex recoloring is repeated until a coloring
@@ -518,7 +521,6 @@ be recolored.
 
 \begin{algorithm}[H]
     \caption{TabuCol}
-    \label{alg:modmin}
     \algsetup{linenodelimiter=}
     \begin{algorithmic}[1]
         \REQUIRE Graph $G = (V,E)$
@@ -564,8 +566,9 @@ be recolored.
 \section{Strategies}
 \label{sec:Strategies}
 In the case where the whole graph doesn't contain any prime modules, coloring
-can is easy (REFERENS), it is when coloring prime modules where we have to apply
-the heuristics, and these different methods are described in this part.
+with \autoref{alg:generic} is in linear time. It is when coloring prime modules
+that we have to apply the heuristics, and these different methods are
+described in this part.
 
 \subsection{Whole graph}
 
@@ -594,10 +597,12 @@ graph for the children of the prime modules is constructed. This quotient graph
 is then colored using the heuristic, and new every child moudle with the same
 color in the quotient graph can now be recolored to use the same set of colors.
 
+\todo[noline]{Add pseudocode}
+
 \section{Data}
 \label{sec:Data}
 
-The test sets used are part graphs from the DIMACS benchmark set (REFERENS), 
+The test sets used are part graphs from the DIMACS benchmark set \cite{DIMACS}, 
 and part graphs generated that aren't prime.
 
 All of the graphs from the DIMACS benchmark sets are difficult to color graphs,
@@ -626,7 +631,6 @@ benchmark, cographs, and graphs formed from these cographs with prime modules.
 
 \begin{algorithm}[H]
     \caption{Construct cograph}
-    \label{alg:modmin}
     \algsetup{linenodelimiter=}
     \begin{algorithmic}[1]
         \REQUIRE Vertex labeled tree $T$
@@ -648,7 +652,6 @@ benchmark, cographs, and graphs formed from these cographs with prime modules.
 
 \begin{algorithm}[H]
     \caption{Random cograph generation}
-  \label{alg:modmin}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
       \REQUIRE Percent $p$ for serial, $0 \neq p \neq 1$.
@@ -697,7 +700,7 @@ of heuristic and strategy, and the result can be found in (TABEL).
 
 \subsection{Discussion}
 
-Something that we can see from (TABLE), is that Greedy,RLF,DSatur all doesn't
+Something that we can see from (TABLE), is that Greedy, RLF, DSatur all doesn't
 perform better when applying the algorithm on the whole graph compared to all of
 the prime modules locally. We can however see that TabuCol does on average
 perform better when applying on the local submodules.
