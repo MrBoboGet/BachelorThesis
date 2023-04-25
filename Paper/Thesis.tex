@@ -132,10 +132,10 @@ the top module. Every parent vertex also has a type, that determine how its subm
 combine to form their parent module.
 
 Modular decomposition allows for coloring of graphs in linear time with optimal
-chromatic number if all of the modules are vertexes are either  series or
+chromatic number if all of the modules are either  series or
 parallel \cite{HCL}. However, if any of the vertexes are prime then optimal graph coloring 
 is again NP-Hard, as prime vertexes cannot be recursively colored by this
-method. The question examined here, if one can still utilize the
+method. The question examined here, is if one can still utilize the
 modular decomposition, with graph coloring heuristics for the prime modules.
 The modular decomposition might still color some parts of the graph optimally,
 and the structure it provides might provide a hint for how to apply the
@@ -148,10 +148,10 @@ familiar to most people that have worked with graphs, and
 \autoref{sec:GraphModules} provide the definitions that are more specific to
 this paper.
 
-In \autoref{sec:Heuristics} the heuristics used are described.
+In \autoref{sec:Heuristics} the graph coloring heuristics used are described.
 
 In \autoref{sec:Strategies} the combination strategies are described, that is how are
-these heuristics applied, and how the structure of the modular decomposition is
+these heuristics applied, and how is the structure of the modular decomposition
 utilised.
 
 In \autoref{sec:Data} the test graphs and benchmarking methods are described. The data
@@ -171,43 +171,42 @@ Finally, the results are presented in \autoref{sec:Result}.
     $v \in V$ and $u \in V$.
 \end{definition}
 \begin{definition}[Neighbour]
-    For a graph $G = (V,E)$, we say that $v \in V$ is adjecent to 
+    For a graph $G = (V,E)$, we say that $v \in V$ is adjacent to 
     $u \in V$ if $(v,u) \in E$ or $(u,v) \in E$. 
 
     The neighbourhood $N_G(v)$ for a vertex $v \in V$ in a graph $G = (V,E)$,
-    is the set of vertices that are adjecent to $v$, that is 
+    is the set of vertices that are adjacent to $v$, that is 
     $N_G(v) = \{u : (u,v) \in E \vee (v,u) \in E\}$. If $u \in N_G(v)$, we also say
     that $u$ and $v$ are neighbours.
 \end{definition}
-
 \begin{definition}[Degree]
     The degree for a vertex $v \in V$ in a graph $G = (V,E)$, denoted by 
     $deg(v)$, is the number of neighbours for $v$ in $G$, that is 
     $deg(v) = |N_G(v)|$.
-
 \end{definition}
 
 In many cases, one is interested in some parts of the graph, and one of the
 most common ways to subset a graph is through the induced subgraph. The induced
-subgraph is the graph constructed from another graph, by only including vertices
-and edges within those vertices. 
+subgraph is the graph constructed from another graph, by only including a subset
+of it's vertices, and edges between them.
 
 \begin{definition}[Induced subgraph]
     
     For a graph $G = (V,E)$, the induced subgraph $G[X]$ for $X \subset V$, is
-    an a new graph $(\{v \in X\},\{(u,v) : (u,v) \in E, u \in V,v \in V\})$. That
+    an a new graph $(X,\{(u,v) : (u,v) \in E, u \in X,v \in X\})$. That
     is, a new graph only containing the vertices in $X$, and only edges between
     these vertices.
 
 \end{definition}
 
-Another common operation, is the graph complement. The graph complement for a
-is in some sense the inverse of the original graph, it contains the same
-vertices as the original graph, but the vertices are adjecent only of they where
-not adjecent in the original graph.
+Another common operation, is the graph complement. The graph complement of a
+graph is graph that contains the same vertices as the original graph, but the
+vertices are adjacent only of they where not adjacent in the original graph.
+This also means that the union of their edge sets contains all possible edges
+between the vertices.
 
 \begin{definition}[Graph complement]
-    The graph compliment $\widetilde{G}$ of a graph $G = (V,E)$ as a new graph 
+    The graph compliment $\overline{G}$ of a graph $G = (V,E)$ as a new graph 
     $(V,\{ (u,v) : u \in V,v \in V, (u,v) \notin E,(v,u) \notin E\})$.
 \end{definition}
 
@@ -222,39 +221,71 @@ component adds a new edge to the other component.
 
 \begin{definition}[Disjoint union]
     The disjoint union $\bigcup_i G_i$ for graphs $G_i = (V_i,E_i)$ where 
-    $\bigcap_i V_i = \varnothing $ , is a new graph
-    $G = \left( \bigcup_i V_i,\bigcup_i E_i \right)$.
+    $\bigcap V_i = \varnothing $ , is a new graph
+    $G = \left( \bigcup V_i,\bigcup E_i \right)$.
 \end{definition}
 
 \begin{definition}[Graph join]
     The graph join $\nabla G_i$ for graphs $G_i = (V_i,E_i)$ where 
-    $\bigcap_i V_i = \varnothing$, is the new graph $G = (\{\bigcup_i V_i,
-    \bigcup_i E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \}$
+    $\bigcap_i V_i = \varnothing$, is the new graph $G = (\{\bigcup V_i,
+    \bigcup E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \}$
 \end{definition}
 
 
+Another property of interest in graphs, is whether or not a graph is connected. A
+graph being connected means that one can connect every vertex in the graph by
+only moving between vertices that are neighbours. Especially important in the
+case of graph coloring is that disconnected graph are split into parts that can
+be colored separately, and therefore graph coloring can be restricted to only
+deal with graphs that are connected.
+
+\begin{definition}[Path]
+    A path $p$ in graph $G = (V,E)$ is a sequence of vertices $p = (v_1\cdots
+    v_i)$, such that the next vertex is a neighbour to the previous, 
+    that is $\forall i(0 < i \leq |p| \to v_i \in N_G(v_{i-1})$.
+\end{definition}
+
+\begin{definition}[Connected graph]
+    A graph $G = (V,E)$ is connected, if there exists a path between any two
+    vertices in the graph. We say that a graph is disconnected if this isn't the
+    case.
+\end{definition}
+
+The central problem in this thesis, is the efficient coloring of a graph.
+Coloring graph means that one assigns every vertex a color, an arbitrary value,
+such that no vertices that are neighbours have the same color. A classic
+example of this problem is when coloring a map and wants to avoid giving
+neighbouring countries the same color.  Every country can be represented by a
+vertex, and edges are added if two countries share a border.
+
 \begin{definition}[Graph coloring]
-    A graph coloring $Col$ for a graph $G = (V,E)$
-    is function from $V$ to $C$, where $C$ is a set of colors. We say that 
-    we have a $k$ coloring if $k \leq |C|$.
+    A graph coloring $Col$ for a graph $G = (V,E)$ is function from $V$ to $C$,
+    where $C$ is a set of colors, such that no neighbours share the same color,
+    that is $|\{(u,v) : (u,v) \in E,Col(u) = Col(v)\}| = 0$. We say that $Col$
+    is a $k$ coloring if $k \leq |C|$.
 \end{definition}
 
 Finding a coloring for a graph is easy, one could for example use
-\autoref{alg:greedy}. Finding an optimal coloring hwoever, a coloring using the
+\autoref{alg:greedy}. Finding an optimal coloring however, a coloring using the
 fewest possible colors is NP-Hard (REFERENS). For this purpose, multiple
 different heuristics, algorithms providing a proper coloring with as few colors
-as possible but not necessarily optimal, have been created.
+as possible but not necessarily optimal, have to be used.
 
-\begin{definition}[Quotient graph]
 
+\begin{definition}[Complete graph]
+    A graph $K = (V,E)$ is complete if every vertice is $v \in V$ is adjecent to
+    every other vertex, that is, $\forall v \in V,\forall u \in V(v \neq u \to v
+    \in N_K(u))$. We also denote the graph $K_i$ with the complete graph that
+    has $i$ vertices.
 \end{definition}
 
 \subsection{Graph modules and cographs}
 \label{sec:GraphModules}
 
+
 \begin{definition}[Cograph]
     The set of cographs $Co$, is a set containing $K_1$ that is closed under 
-    graph join and disjoint union. A graph $G$ is a cograph of $G \in Co$.
+    graph join and disjoint union. A graph $G$ is a cograph if $G \in Co$.
 \end{definition}
 
 
@@ -267,15 +298,22 @@ as possible but not necessarily optimal, have been created.
 \end{definition}
   
 
+Now we have sufficient terminology to describe the most central concept, the
+modular decomposition. The modular decomposition is way to partition the
+vertices of the graph into a tree structure, where the relation between
+different modules, parts in the partitions, are known. Another way to look at
+the modular decomposition, is that it's a cograph approximation of the original
+graph, where parts that don't have a cograph structure are replaced with prime
+modules.
+
 \todo[noline]{Update definition}
-%modular decomposition
 \begin{definition}[Modular decomposition]
     For a graph $G = (V,E)$, let $PMax(G) = \{M_1,\cdots,M_k\}$ be a partition of the vertex set $V$ 
     into inclusion-maximal strong modules.
     
-    The modular decomposition of the graph $G = (V,E)$ is a directed, rooted, vertex labeled tree
+    The modular decomposition of the graph $G = (V,E)$ is a rooted, vertex labeled tree
     $(\widetilde{T},t)$, where each of its vertices is associated with a strong
-    module $X \in PMax(G)$, and a label $t$ distinguishing  three cases:
+    module $X \in PMax(G) \cup \{V\}$, and a label $t$ distinguishing  three cases:
 
     \begin{enumerate}
         \item Series: $G[X]$ is disconnected.
@@ -341,7 +379,8 @@ graph.
   \end{algorithmic}
 \end{algorithm}
 
-
+Here, the last condition is of main interest, how to modularly-minimaly 
+color a prime vertex.
 
 \section{Heuristics}
 \label{sec:Heuristics}
@@ -351,12 +390,14 @@ A graph coloring heuristic is an algorithm for coloring a graph, that doesn't
 necessarily give an optimal coloring, but uses various methods to approximate a
 good coloring.
 
+
+In this section, the different heuristics used to color the graph is described,
+while \autoref{sec:strategies} describe how they are applied.
 \subsection{Greedy}
-The classic greedy algorithm, most likely the most simple heuristic. Greedy
-walks over all of the vertices in the graph in an arbitrary order, and for every
-vertex assigns the first colored not shared amongst it's neighbours. Being
-relatively simple, it also has fast runtime, with a time complexity 
-of $O(|V|+|E|)$ \cite{Constructive}
+The classic greedy algorithm. Greedy walks over all of the vertices in the graph
+in an arbitrary order, and for every vertex assigns the first colored not shared
+amongst it's neighbours. Being relatively simple, it also has fast runtime, with
+a time complexity of $O(|V|+|E|)$ \cite{Constructive}
 
 \begin{algorithm}[H]
   \caption{Greedy}
@@ -364,13 +405,13 @@ of $O(|V|+|E|)$ \cite{Constructive}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
     \REQUIRE Graph $G$
-      \STATE $V' \leftarrow \textbf{List containing all $v \in V(G)$ in any order}$
-      \STATE $C \leftarrow \textbf{List of all possible colors in any order}$
-      \STATE $Col \leftarrow \textbf{Initial empty coloring}$
+      \STATE $V' \leftarrow \text{List containing all $v \in V(G)$ in any order}$
+      \STATE $C \leftarrow \text{List of all possible colors in any order}$
+      \STATE $Col \leftarrow \text{Initial empty coloring}$
     \FORALL{$v \in V(G)$}
         \FORALL{$c \in C$}
-            \IF {$c \neq Col(n) \textbf{for all $n \in N_G(v)$ } $}
-                \STATE $Col \leftarrow \textbf{Updated coloring where $Col(v) =
+            \IF {$c \neq Col(n) \text{for all $n \in N_G(v)$ } $}
+                \STATE $Col \leftarrow \text{Updated coloring where $Col(v) =
                 c$}$
                 \BREAK
             \ENDIF
@@ -382,7 +423,7 @@ of $O(|V|+|E|)$ \cite{Constructive}
 
 Dsatur is an algorithm that is similar to Greedy, in that it walks through every
 vertex and assigns it the first available color. The difference is mostly in
-how this traversal is constructed. In greedy, this traversal is an arbitary
+how this traversal is constructed. In greedy, this traversal is an arbitrary
 order, but for Dsatur this traversal is constructed in a deterministic fashion,
 by using the saturation degree.
 
@@ -395,11 +436,11 @@ by using the saturation degree.
 The vertex are colored so that the vertex with the highest saturation degree is
 colored first, alternatively maximizing the degree. Compared to Greedy, this
 algorithm does multiple passes over every vertex as every new coloring changes
-the saturation degree for the remainging vertices. This means that the runtime
-fo  the algorithm as a consequence has a higher runtime of
+the saturation degree for the remaining vertices. This means that the runtime
+for the algorithm is higher, being
 $O((|V|+|E|)\log{|V|})$ \cite{Constructive}.
 
-DSatur being an well studied algorithm also means that it has some variations in 
+DSatur being a well studied algorithm also means that it has some variations in 
 the litterature, and this presentation is based on \cite{Constructive}.
 
 \begin{algorithm}[H]
@@ -407,8 +448,8 @@ the litterature, and this presentation is based on \cite{Constructive}.
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
-      \STATE $C \leftarrow \textbf{List of all possible colors in any order}$
-      \STATE $Col \leftarrow \textbf{Initial empty coloring}$
+      \STATE $C \leftarrow \text{List of all possible colors in any order}$
+      \STATE $Col \leftarrow \text{Initial empty coloring}$
 
       \FOR{$i$ between $0$ and $|V|$}
 
@@ -428,15 +469,16 @@ execution and runtime.
 
 The idea behind Recursive largest first, is to create a partition of the
 vertices of the graph, where the vertices in the different parts are all
-non-adjecent to each other. This ensures that every partition can share the
+non-adjacent to each other. This ensures that every partition can share the
 same color. 
 
 This construction is made by adding the vertex with the highest degree in the
-induced subgraph of unpartitioned vertices to the current module, and when no
+induced subgraph of unpartitioned vertices to the current part that
+isn't the neighbour of any vertex in the current part, and when no
 such vertex exist, create a new empty part in the partition and continue. When
-all of the vertices have been partitioned, the coloring is extracted by
-assigning every partition a unique color, and every vertex in that part the same
-color.
+all of the vertices have been partitioned so is the coloring extracted by
+assigning every part in the partition a unique color, and every vertex in that
+part the same color.
 
 This presentation of the algorithm is based on \cite{Constructive}.
 \begin{algorithm}[H]
@@ -444,30 +486,30 @@ This presentation of the algorithm is based on \cite{Constructive}.
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
-      \STATE $\textbf{Partition} \leftarrow \{\}$
-      \STATE $C \leftarrow \textbf{List of all possible colors in any order}$
+      \STATE $\text{Partition} \leftarrow \{\}$
+      \STATE $C \leftarrow \text{List of all possible colors in any order}$
       \STATE $M \leftarrow \{\}$
       \STATE $S \leftarrow V$
       \WHILE{$|S| > 0$}
-        \STATE $v \leftarrow \textbf{the vertex maximizing $deg(v)$ for G[S]} $
+        \STATE $v \leftarrow \text{the vertex maximizing $deg(v)$ for G[S]} $
         \STATE $M \leftarrow \{v\}$
         \WHILE{TRUE}
             \STATE Candidates $\leftarrow \{\}$
             \FORALL{$v' \in G[S]$}
-                \IF{$v' \neq m \wedge v' \notin N_{G[S]}(m) \textbf{for all $m \in
+                \IF{$v' \neq m \wedge v' \notin N_{G[S]}(m) \text{for all $m \in
                 M$}$}
-                    \STATE $\textbf{Candidates} \leftarrow \textbf{Candidates}
+                    \STATE $\text{Candidates} \leftarrow \text{Candidates}
                     \cup \{v'\}$
                 \ENDIF
             \ENDFOR
-            \IF{$|\textbf{Candidates}| = 0$}
+            \IF{$|\text{Candidates}| = 0$}
                 \BREAK
             \ENDIF
-            \STATE $n \leftarrow \textbf{the $n \in \textbf{Candidates}$ maximizing $deg(n)$ in $G[S]$}$ 
+            \STATE $n \leftarrow \text{the $n \in \text{Candidates}$ maximizing $deg(n)$ in $G[S]$}$ 
             \STATE $M \leftarrow M \cup \{n\}$
             \STATE $S \leftarrow S \setminus \{n\}$
         \ENDWHILE
-        \STATE Partition $\leftarrow \textbf{Partition} \cup \{M\}$ 
+        \STATE Partition $\leftarrow \text{Partition} \cup \{M\}$ 
       \ENDWHILE
       \STATE Assign consecutive colors from $C$ to the partitions in Partitions,
       and then color every vertex in that partition with that color.
@@ -477,40 +519,39 @@ This presentation of the algorithm is based on \cite{Constructive}.
 \subsection{TabuCol}
 
 TabuCol is a graph algorithm that unlike the previous algorithms, doesn't
-construct a coloring in a deterministic fashion, but instead tries to find a
+construct a coloring in a constructive fashion, but instead tries to find a
 coloring for a specific number target colors.
 
-TabuCol first forms a random coloring of the vertexes with colors from the
-allowed set, and then modifies this coloring by looking at the vertexes that
-forms a clash, that is have neighbours with the same colors. For these vertices,
-new coloring are evaluated in how many clashes they would produce. Then vertex
-recoloring that has the lowest new number of clashes, even if positive, is
-applied.
+TabuCol first forms a random coloring, which most likely is not a proper
+coloring, of the vertexes with colors from the allowed set, and then modifies
+this coloring by looking at the vertexes that forms a clash, that is have
+neighbours with the same colors. For these vertices, new coloring are evaluated
+in how many clashes they would produce. Then vertex recoloring that has the
+lowest new number of clashes, even if positive, is applied.
 
 This can however introduce cycles, certain recolorings leading into each other
-ad infinitum. To prevent this, the Tabu list is used. A tabu list is a list 
+ad infinitum. To prevent this, the Tabu list is used. A Tabu list is a list 
 of vertex-color pairs $(v,u)$. Whenever a new vertex recoloring is made, it is
-added to the tabu list. A new vertex recoloring is only considered if it's not a
-part of the tabu list. This tabu list have a set size, so that the first element
+added to the Tabu list. A new vertex recoloring is only considered if it's not a
+part of the Tabu list. This tabu list have a set size, so that the first element
 is removed when a new vertex-color pair is added.
 
-Tabu moves are however allowed in some scenarious, specifically if applying that
+Tabu moves are however allowed in some scenarios, specifically if applying that
 coloring would create a better recoloring than any previously encountered for
-the current number of clashes, which is commonly refered to as the aspiration.
-An aspiration map is constructed, that initially has clashes set so that a 
-$Aspiration[ClashCount] = ClashCount-1$, that is, the coloring has to produce a
-lower clash count. For a given vertex-recoloring, if the new number of clashes
-is lower than the aspiration for the current number of clashes, so is that move
-allowed even if it's on the tabu list.
+the current number of clashes, which is commonly referred to as the aspiration.
+An aspiration map is constructed, that initially has clashes set so that a
+$Aspiration[ClashCount] = ClashCount-1$. For a given vertex-recoloring, if the
+new number of clashes is lower than the aspiration for the current number of
+clashes, so is that move allowed even if it's on the tabu list.
 
 This process of picking a new vertex recoloring is repeated until a coloring
 with zero clashes is produced, or a predetermined number of moves have been
 made. As the algorithm only get's a valid coloring for a specific $k$, we also
 must have a way to utilise this algorithm to get the lowest possible coloring.
 Here the method used in \cite{Constructive} is used, that is, first a coloring is made
-with Dsatur, and the amount of colors used stubtracted by one is the original
-$k$, and then we try to color it with TabuCol with that amount of colors, and
-subtract $k$ by one evertime we suceed, until we fail, at which point we say
+with Dsatur, and we call that number $k$. The then we try to color it with
+TabuCol with that amount of colors minus one, and
+subtract $k$ by one overtime we succeed, until we fail, at which point we say
 that the current $k$ is the lowest we can go.
 
 TabuCol has some subtle variations, and this particular definition is based on
@@ -542,19 +583,22 @@ be recolored.
                     \BREAK
                 \ENDIF
                 \STATE $c \leftarrow \text{Random color $\neq Col(v)$ in $Col$}$
-                \IF{$(v,c) \notin Tabu$ or $\textbf{Clashes}$}
+                \IF{$(v,c) \notin Tabu$ or $\textbf{Clashes} \text{ with $(v,c)$
+                applied}\leq Asp[CurrentClash]$}
                     \STATE $Reps \leftarrow Reps \cup \{(v,c)\}$
                 \ENDIF
                 \STATE $RepCount \leftarrow RepCount + 1$
             \ENDFOR
-            \STATE $(v',u') \leftarrow \text{where $(v',u') \in Reps$ and $\textbf{Clashes}( (v',u'))$ is minimal }$
+            \STATE $(v',u') \leftarrow \text{where $(v',u') \in Reps$ and
+            \textbf{Clashes} with $(v',u')$ applied is minimal }$
             \STATE $NewClash \leftarrow \textbf{Clashes}( (v',u')$
             \IF{$(v',u') \in Tabu$}
-                \STATE $Asp[CurrentClash] = NewClash$
+                \STATE $Asp[CurrentClash] = NewClash-1$
             \ENDIF
             \STATE $CurrentClash \leftarrow NewClash$
             \STATE Update $Tabu$ to contain $(v',u')$, and remove the oldest element if $|Tabu| > MaxTabu$
             \STATE Update $Col$ so that $Col(v') = u'$
+            \STATE $CurIt \leftarrow CurIt + 1$
             \IF{$CurrentClash = 0$}
                 \BREAK
             \ENDIF
@@ -597,6 +641,20 @@ graph for the children of the prime modules is constructed. This quotient graph
 is then colored using the heuristic, and new every child moudle with the same
 color in the quotient graph can now be recolored to use the same set of colors.
 
+The quotient graph is graph describing whether or not vertex partitions of a
+graph are adjecent or not, instead of individual vertices. Two vertex
+partitions are adjecent in the quotient graph if there exists an edge between
+any vertice, where one end is in the first partition, and the other end in the
+other partition. A quotient graph where the partition is just the original
+vertices, is therefore homomorphic to the original graph.
+
+\begin{definition}[Quotient graph]
+    The quotient graph $Q$ for a graph $G = (V,E)$ over partition 
+    $P = \{P_1 \cdots P_i\}$  of the vertices $V$, is a graph 
+    $Q = \{P, \{(P_i,P_j) : j\neq i, \exists v \in P_i,\exists u \in P_j( (u,v)
+    \in E)   \}   $
+\end{definition}
+
 \todo[noline]{Add pseudocode}
 
 \section{Data}
@@ -611,7 +669,7 @@ commonly used benchmarks, they also provide known best current colorings for the
 different graphs. However, the modular decomposition might provide a more
 efficient way to color graphs where only some of the child nodes are prime. 
 
-The algorithm for generating these graphs is described in figure 2. First an
+The algorithm for generating these graphs is described in \autoref{alg:RDCG}. First an
 ordinary binary tree is randomly generated with a specified amount of leafs
 vertexes, and then every label in this tree is given a label "series" or
 "parallel".  This then describes a cograph, where the leafs are the K1 bases,
@@ -637,13 +695,13 @@ benchmark, cographs, and graphs formed from these cographs with prime modules.
         \IF{$|V(T)| = 1$}
             \RETURN{$(V(T),\emptyset)$}
         \ENDIF
-        \STATE $G \leftarrow \textbf{empty graph $(\emptyset,\emptyset)$}$
+        \STATE $G \leftarrow \text{empty graph $(\emptyset,\emptyset)$}$
         \FORALL{$v \in N_T(root(T))$}
             \IF{Label of $root(T)$ is \textit{series}}
-                \STATE $G \leftarrow \bigcup G, \text{\textbf{Construct graph} applied
+                \STATE $G \leftarrow \bigcup G, \text{\text{Construct cograph} applied
                 on the subtree of $T$ with $v$ as root} $
             \ELSIF{Label of $root(T)$ is \textit{parallel}}
-                \STATE $G \leftarrow \nabla G, \text{\textbf{Construct graph} applied
+                \STATE $G \leftarrow \nabla G, \text{\text{Construct cograph} applied
                 on the subtree of $T$ with $v$ as root}$
             \ENDIF
         \ENDFOR
@@ -651,8 +709,9 @@ benchmark, cographs, and graphs formed from these cographs with prime modules.
 \end{algorithm}
 
 \begin{algorithm}[H]
-    \caption{Random cograph generation}
+    \caption{Random disturbed cograph generation}
   \algsetup{linenodelimiter=}
+  \label{alg:RDCG}
   \begin{algorithmic}[1]
       \REQUIRE Percent $p$ for serial, $0 \neq p \neq 1$.
       \REQUIRE Percent $pe$ for new  edge, $0 \neq pe \neq 1$.
@@ -668,7 +727,7 @@ benchmark, cographs, and graphs formed from these cographs with prime modules.
 
       \STATE $CG \leftarrow \text{\textbf{Construct graph} applied on $bg$}$
 
-      \STATE $pm \leftarrow \text{All strong modules of $CG$ such that $|cg| \geq ps$, ordered in increasing order by size}$
+      \STATE $pm \leftarrow \text{All strong modules $M$ of $CG$ such that $|M| \geq ps$, ordered in increasing order by size}$
       \FOR{$i \cdots pc$}
         \STATE $cm \leftarrow \text{The module at index $i$ in $pm$}$
         \FORALL{vertex pairs $(u,v)$ where $u,v \in V(CG[cm])$}
@@ -688,26 +747,23 @@ can also construct modular decomposition with various percentage prime modules.
 
 \section{Results and evaluation}
 \label{sec:Result}
+\todo[noline]{More everything, very unfinished}
 Every graph in the training set is colored using all the different combinations
 of heuristic and strategy, and the result can be found in (TABEL).
 
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
-\include{DIMACSResult.tex}
-\include{CoGraphsResult.tex}
-\include{DisturbedCoGraphsResult.tex}
+\subsection{DIMACS}
+\input{DIMACSResult.tex}
+\subsection{CoGraphs}
+\input{CoGraphsResult.tex}
+\subsection{Disturbed cographs}
+\input{DisturbedCoGraphsResult.tex}
 
 
 \subsection{Discussion}
 
-Something that we can see from (TABLE), is that Greedy, RLF, DSatur all doesn't
-perform better when applying the algorithm on the whole graph compared to all of
-the prime modules locally. We can however see that TabuCol does on average
-perform better when applying on the local submodules.
-
-This might stem from the fact that Greedy,RLF,DSatur are all
-(GREEDY-EQUIVALENT), and therefore colors cographs optimally, while this isn't
-the case for TabuCol.
+Lorem ipsum
 
 \printbibliography
 
