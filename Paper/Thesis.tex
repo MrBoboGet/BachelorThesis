@@ -122,19 +122,19 @@ Lorem ipsum
 
 \section{Introduction}
 
-In this paper, we investigate a new heuristic using the modular decomposition of
+In this thesis, we investigate a new heuristic using the modular decomposition of
 a graph, and if it can be combined with other heuristics. 
 
 The modular decomposition of a graph describes the structure of the graph, by
 recursively splitting it into distinct modules. These modules contain some
-vertexes from the graph, and can be further split into modules that partition
+vertices from the graph, and can be further split into modules that partition
 the top module. Every parent vertex also has a type, that determine how its submodules
 combine to form their parent module.
 
 Modular decomposition allows for coloring of graphs in linear time with optimal
 chromatic number if all of the modules are either  series or
-parallel \cite{HCL}. However, if any of the vertexes are prime then optimal graph coloring 
-is again NP-Hard, as prime vertexes cannot be recursively colored by this
+parallel \cite{HCL}. However, if any of the vertices are prime then optimal graph coloring 
+is again NP-Hard, as prime vertices cannot be recursively colored by this
 method. The question examined here, is if one can still utilize the
 modular decomposition, with graph coloring heuristics for the prime modules.
 The modular decomposition might still color some parts of the graph optimally,
@@ -146,7 +146,7 @@ In \autoref{sec:Definitions} all of the required terminology and definitions is
 provided, and is split into two parts, \autoref{sec:GraphBasics} has definitions that might be
 familiar to most people that have worked with graphs, and
 \autoref{sec:GraphModules} provide the definitions that are more specific to
-this paper.
+this thesis.
 
 In \autoref{sec:Heuristics} the graph coloring heuristics used are described.
 
@@ -187,13 +187,18 @@ Finally, the results are presented in \autoref{sec:Result}.
 
 In many cases, one is interested in some parts of the graph, and one of the
 most common ways to subset a graph is through the induced subgraph. The induced
-subgraph is the graph constructed from another graph, by only including a subset
-of it's vertices, and edges between them.
+subgraph is a graph constructed by only including a subset of the original
+graphs vertices, and edges between them.
+
+\begin{definition}[Subgraph]
+    A subgraph $S = (V',E')$ of a graph $G = (V,E)$, is a graph such that
+    $V' \subset V$, $E' \subset E$.
+\end{definition}
 
 \begin{definition}[Induced subgraph]
     
     For a graph $G = (V,E)$, the induced subgraph $G[X]$ for $X \subset V$, is
-    an a new graph $(X,\{(u,v) : (u,v) \in E, u \in X,v \in X\})$. That
+    the subgraph $(X,\{(u,v) : (u,v) \in E, u \in X,v \in X\})$. That
     is, a new graph only containing the vertices in $X$, and only edges between
     these vertices.
 
@@ -201,33 +206,33 @@ of it's vertices, and edges between them.
 
 Another common operation, is the graph complement. The graph complement of a
 graph is graph that contains the same vertices as the original graph, but the
-vertices are adjacent only of they where not adjacent in the original graph.
+vertices are adjacent only if they where not adjacent in the original graph.
 This also means that the union of their edge sets contains all possible edges
 between the vertices.
 
 \begin{definition}[Graph complement]
-    The graph compliment $\overline{G}$ of a graph $G = (V,E)$ as a new graph 
-    $(V,\{ (u,v) : u \in V,v \in V, (u,v) \notin E,(v,u) \notin E\})$.
+    The graph compliment $\overline{G}$ of a graph $G = (V,E)$ is the graph 
+    $(V,\{ (u,v) : u \in V,v \in V, u \notin N_G(v) \})$.
 \end{definition}
 
 Some other common operations, is how to combine two distinct graphs. Two common,
 and especially relevant for the modular decomposition further down, is the
 disjoint union and graph join. The disjoint union is the most simple way to
-combine graphs, and just forms a new graph that just contains it's components
+combine graphs, and just forms a new graph that just contains the original graphs
 and nothing more. 
-The graph join is similar, in that it produces a new graph with all of it's
-subcomponents parts, edges and vertices, but also for every vertex in the one
-component adds a new edge to the other component.
+The graph join is similar, in that it produces a new graph with all of edges
+and vertices from the original graphs, but also for every vertex in a
+input graph adds a new edge to the other input graphs.
 
 \begin{definition}[Disjoint union]
     The disjoint union $\bigcup_i G_i$ for graphs $G_i = (V_i,E_i)$ where 
-    $\bigcap V_i = \varnothing $ , is a new graph
+    $\bigcap V_i = \varnothing $ , is the graph
     $G = \left( \bigcup V_i,\bigcup E_i \right)$.
 \end{definition}
 
 \begin{definition}[Graph join]
     The graph join $\nabla G_i$ for graphs $G_i = (V_i,E_i)$ where 
-    $\bigcap_i V_i = \varnothing$, is the new graph $G = (\{\bigcup V_i,
+    $\bigcap_i V_i = \varnothing$, is the graph $G = (\{\bigcup V_i,
     \bigcup E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \}$
 \end{definition}
 
@@ -247,22 +252,21 @@ deal with graphs that are connected.
 
 \begin{definition}[Connected graph]
     A graph $G = (V,E)$ is connected, if there exists a path between any two
-    vertices in the graph. We say that a graph is disconnected if this isn't the
-    case.
+    vertices in the graph. Otherwise, we say that a graph is disconnected.
 \end{definition}
 
 The central problem in this thesis, is the efficient coloring of a graph.
-Coloring graph means that one assigns every vertex a color, an arbitrary value,
-such that no vertices that are neighbours have the same color. A classic
+Coloring graph means that one assigns to every vertex a color, an arbitrary
+value, such that no vertices that are neighbours have the same color. A classic
 example of this problem is when coloring a map and wants to avoid giving
 neighbouring countries the same color.  Every country can be represented by a
 vertex, and edges are added if two countries share a border.
 
 \begin{definition}[Graph coloring]
-    A graph coloring $Col$ for a graph $G = (V,E)$ is function from $V$ to $C$,
+    A graph coloring $Col$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
     where $C$ is a set of colors, such that no neighbours share the same color,
-    that is $|\{(u,v) : (u,v) \in E,Col(u) = Col(v)\}| = 0$. We say that $Col$
-    is a $k$ coloring if $k \leq |C|$.
+    that is $(u,v) \in E \to Col(u) \neq Col(v)$. We say that $Col$
+    is a $k$ coloring if $|C| \leq k$.
 \end{definition}
 
 Finding a coloring for a graph is easy, one could for example use
@@ -273,15 +277,18 @@ as possible but not necessarily optimal, have to be used.
 
 
 \begin{definition}[Complete graph]
-    A graph $K = (V,E)$ is complete if every vertice is $v \in V$ is adjecent to
-    every other vertex, that is, $\forall v \in V,\forall u \in V(v \neq u \to v
-    \in N_K(u))$. We also denote the graph $K_i$ with the complete graph that
-    has $i$ vertices.
+    A graph $K = (V,E)$ is complete if every vertex in $v \in V$ is adjacent to
+    every other vertex, that is, $ (u,v) \in E \iff v \neq u$. We also denote the graph $K_n$ with the complete graph that
+    has $n$ vertices.
 \end{definition}
 
 \subsection{Graph modules and cographs}
 \label{sec:GraphModules}
 
+\begin{definition}[Closure]
+    A set $S$ is closed under some operator $P$, if 
+    $ P(v_1,\cdots v_i) \in S$ when $v_1,\cdots v_i \in S$.
+\end{definition}
 
 \begin{definition}[Cograph]
     The set of cographs $Co$, is a set containing $K_1$ that is closed under 
@@ -290,9 +297,8 @@ as possible but not necessarily optimal, have to be used.
 
 
 \begin{definition}[Graph module]
-    Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $X \subset V$
-    is a module of $G$ if, for every $y \in V \setminus X$,  either
-    $N_G(y) \cap X = \emptyset$ or $X \subset N_G(y)$ is true. A module $M$ is
+    Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $M \subset V$
+    is a module of $G$ if, $\forall x,y \in M (N_G(x) \setminus M = N_G(y) \setminus M)  $. A module $M$ is
     strong if it does not overlap with any other module $M'$, i.e, if 
     $M \cap M' \in \{M,M',\emptyset \}$.
 \end{definition}
@@ -331,8 +337,10 @@ union on the induced subgraphs of its children's associated modules, and it bein
 parallel means that $G[X]$ can be constructed through graph join on the
 induced subgraphs of its childrens associated modules. (REFERENS)
 
-This also means that modular decomposition without prime modules is a cograph, as 
-it is Recursively constructed by graph join and graph union on $K_1$.
+As a single vertex is a module, every leaf of the modular decomposition has
+a single vertex as a module. This means that a modular decomposition without
+prime modules is a cograph, as it is Recursively constructed by graph join and
+graph union on $K_1$.
 
 The modular decomposition of a graph is unique \cite{HCL}, which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
@@ -406,13 +414,12 @@ a time complexity of $O(|V|+|E|)$ \cite{Constructive}
   \begin{algorithmic}[1]
     \REQUIRE Graph $G$
       \STATE $V' \leftarrow \text{List containing all $v \in V(G)$ in any order}$
-      \STATE $C \leftarrow \text{List of all possible colors in any order}$
+      \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots |V(G)| \}$ }$
       \STATE $Col \leftarrow \text{Initial empty coloring}$
     \FORALL{$v \in V(G)$}
         \FORALL{$c \in C$}
             \IF {$c \neq Col(n) \text{for all $n \in N_G(v)$ } $}
-                \STATE $Col \leftarrow \text{Updated coloring where $Col(v) =
-                c$}$
+                \STATE Update $Col$ so that $Col(v) = c$.
                 \BREAK
             \ENDIF
         \ENDFOR
@@ -430,7 +437,7 @@ by using the saturation degree.
 \begin{definition}[Saturation degree]
     The saturation degree $sat(v)$ for a vertex $v \in V$ for a graph $G =
     (V,E)$ and a partial coloring $Col$ to the set of colors $C$, is the amount of unique colors among
-    it's colored neighbours, that is $sat(v) = |\{c  : c = Col(v), v \in V \}|$.
+    it's colored neighbours, that is $sat(v) = |\{c  : c = Col(u), u \in N_G(v) \}|$.
 \end{definition}
 
 The vertex are colored so that the vertex with the highest saturation degree is
@@ -448,14 +455,14 @@ the litterature, and this presentation is based on \cite{Constructive}.
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
-      \STATE $C \leftarrow \text{List of all possible colors in any order}$
+      \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots |V(G)| \}$ }$
       \STATE $Col \leftarrow \text{Initial empty coloring}$
 
       \FOR{$i$ between $0$ and $|V|$}
 
         \STATE $v \leftarrow$ uncolored vertex in $V$, such that $sat(v)$ is
-        minimal. In case of ties, minimize $deg(v)$ for the subgraph of $G$
-        induced by the uncolored vertices.
+        minimal. In case of ties, choose the $v$ that also minimizes $deg(v)$
+        for the subgraph of $G$ induced by the uncolored vertices.
         \STATE $Col \leftarrow$ updated coloring where $Col(v)$ is the first
         available color in regards to $C$.
       \ENDFOR
@@ -487,7 +494,7 @@ This presentation of the algorithm is based on \cite{Constructive}.
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
       \STATE $\text{Partition} \leftarrow \{\}$
-      \STATE $C \leftarrow \text{List of all possible colors in any order}$
+      \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots |V(G)| \}$ }$
       \STATE $M \leftarrow \{\}$
       \STATE $S \leftarrow V$
       \WHILE{$|S| > 0$}
@@ -523,8 +530,8 @@ construct a coloring in a constructive fashion, but instead tries to find a
 coloring for a specific number target colors.
 
 TabuCol first forms a random coloring, which most likely is not a proper
-coloring, of the vertexes with colors from the allowed set, and then modifies
-this coloring by looking at the vertexes that forms a clash, that is have
+coloring, of the vertices with colors from the allowed set, and then modifies
+this coloring by looking at the vertices that forms a clash, that is have
 neighbours with the same colors. For these vertices, new coloring are evaluated
 in how many clashes they would produce. Then vertex recoloring that has the
 lowest new number of clashes, even if positive, is applied.
@@ -548,11 +555,11 @@ This process of picking a new vertex recoloring is repeated until a coloring
 with zero clashes is produced, or a predetermined number of moves have been
 made. As the algorithm only get's a valid coloring for a specific $k$, we also
 must have a way to utilise this algorithm to get the lowest possible coloring.
-Here the method used in \cite{Constructive} is used, that is, first a coloring is made
-with Dsatur, and we call that number $k$. The then we try to color it with
-TabuCol with that amount of colors minus one, and
-subtract $k$ by one overtime we succeed, until we fail, at which point we say
-that the current $k$ is the lowest we can go.
+Here the method used in \cite{Constructive} is used, that is, first a coloring
+is made with Dsatur, and assign then number of colors in that coloring to $k$ .
+The then we try to color it with TabuCol with that amount of colors minus one,
+and subtract $k$ by one overtime we succeed, until we fail, at which point we
+say that the current $k$ is the lowest we can go.
 
 TabuCol has some subtle variations, and this particular definition is based on
 the presentation in \cite{1990}. Alternatives are for example whether or not all
@@ -671,7 +678,7 @@ efficient way to color graphs where only some of the child nodes are prime.
 
 The algorithm for generating these graphs is described in \autoref{alg:RDCG}. First an
 ordinary binary tree is randomly generated with a specified amount of leafs
-vertexes, and then every label in this tree is given a label "series" or
+vertices, and then every label in this tree is given a label "series" or
 "parallel".  This then describes a cograph, where the leafs are the K1 bases,
 and a label of "series" means that the children are joined by disjoint union and a label
 of "parallel" means that the children are joined by graph join. Then, from this
