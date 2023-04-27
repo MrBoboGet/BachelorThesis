@@ -2,6 +2,7 @@ import networkx as nx
 import random
 import numpy 
 import sys
+import os
 from tralda.datastructures import Tree, LCA
 
 random.seed(246)        # or any integer
@@ -62,7 +63,7 @@ def LabeledCotree(InputGraph : nx.DiGraph,RootID,SeriesProb):
     while len(NodesToExamine) > 0:
         CurrentNode = NodesToExamine.pop()
         ChildNodes = list(InputGraph.successors(CurrentNode))
-        InputGraph.nodes[CurrentNode]["Label"] = random.randint(0,1)
+        InputGraph.nodes[CurrentNode]["Label"] = random.uniform(0,1) < SeriesProb
         NodesToExamine.extend(ChildNodes)
 
 
@@ -107,9 +108,33 @@ def DisturbedGraphFromTree(InputGraph,RootID,EdgeProb=0.05,SeriesProb=0.50,Prime
 #(NxGraph,RootNode) = tree.to_nx()
 #print(NxGraph.nodes)
 for i in range(15):
-    (OriginalTree,RootID) = Tree.random_tree(500,True).to_nx()
-    LabeledCotree(OriginalTree,RootID,0.5)
+    GraphSize = 500
+    SeriesProb = 0.5
+    EdgeProb = 0.3
+    ModuleCount = 10
+    ModuleSize = 20
+    OutDir = "CoGraphs"
+    if(len(sys.argv) > 1):
+        for j in range(1,len(sys.argv)):
+            if(j == 1):
+                GraphSize = int(sys.argv[1])
+            if(j == 2):
+                SeriesProb = float(sys.argv[2])
+            if(j == 3):
+                EdgeProb = float(sys.argv[3])
+            if(j == 4):
+                ModuleCount = int(sys.argv[4])
+            if(j == 5):
+                ModuleSize = int(sys.argv[5])
+            if(j == 6):
+                OutDir = sys.argv[6]
+    if(not os.path.exists(f"{OutDir}")):
+        os.makedirs(f"{OutDir}")
+    if(not os.path.exists(f"Disturbed{OutDir}")):
+        os.makedirs(f"Disturbed{OutDir}")
+    (OriginalTree,RootID) = Tree.random_tree(GraphSize,True).to_nx()
+    LabeledCotree(OriginalTree,RootID,SeriesProb)
     (CotreeGraph,VertexMap) = GetCotreeGraph(OriginalTree,RootID)
-    nx.write_edgelist(CotreeGraph,f"CoGraphs/{i}.edge")
-    DisturbGraph(CotreeGraph,VertexMap,0.30,10,20)
-    nx.write_edgelist(CotreeGraph,f"DisturbedCoGraphs/{i}.edge")
+    nx.write_edgelist(CotreeGraph,f"{OutDir}/{i}.edge")
+    DisturbGraph(CotreeGraph,VertexMap,EdgeProb,ModuleCount,ModuleSize)
+    nx.write_edgelist(CotreeGraph,f"Disturbed{OutDir}/{i}.edge")

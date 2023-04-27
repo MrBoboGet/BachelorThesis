@@ -165,18 +165,21 @@ Finally, the results are presented in \autoref{sec:Result}.
 \subsection{Graph basics}
 \label{sec:GraphBasics}
 
+The definitions used here is based of the definitions in 
+\cite{GraphBasics}.
+
 \begin{definition}[Graph]
     A graph $G = (V,E)$ is a tuple, where $V$ is the set of vertices, and $E$ is
-    a set of pairs of vertices, the edges, such that for all $(v,u) \in E$,
-    $v \in V$ and $u \in V$.
+    a set of unordered pairs, the edges, such that for all $(v,u) \in E$,
+    $v \neq u$, $v \in V$ and $u \in V$.
 \end{definition}
 \begin{definition}[Neighbour]
     For a graph $G = (V,E)$, we say that $v \in V$ is adjacent to 
-    $u \in V$ if $(v,u) \in E$ or $(u,v) \in E$. 
+    $u \in V$ if $(v,u) \in E$. 
 
     The neighbourhood $N_G(v)$ for a vertex $v \in V$ in a graph $G = (V,E)$,
     is the set of vertices that are adjacent to $v$, that is 
-    $N_G(v) = \{u : (u,v) \in E \vee (v,u) \in E\}$. If $u \in N_G(v)$, we also say
+    $N_G(v) = \{u : (u,v) \in E \}$. If $u \in N_G(v)$, we also say
     that $u$ and $v$ are neighbours.
 \end{definition}
 \begin{definition}[Degree]
@@ -212,7 +215,7 @@ between the vertices.
 
 \begin{definition}[Graph complement]
     The graph compliment $\overline{G}$ of a graph $G = (V,E)$ is the graph 
-    $(V,\{ (u,v) : u \in V,v \in V, u \notin N_G(v) \})$.
+    $(V,\{ (u,v) : u \neq v, u \in V,v \in V, u \notin N_G(v) \})$.
 \end{definition}
 
 Some other common operations, is how to combine two distinct graphs. Two common,
@@ -233,7 +236,7 @@ input graph adds a new edge to the other input graphs.
 \begin{definition}[Graph join]
     The graph join $\nabla G_i$ for graphs $G_i = (V_i,E_i)$ where 
     $\bigcap_i V_i = \varnothing$, is the graph $G = (\{\bigcup V_i,
-    \bigcup E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \}$
+    \bigcup E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \})$
 \end{definition}
 
 
@@ -246,8 +249,8 @@ deal with graphs that are connected.
 
 \begin{definition}[Path]
     A path $p$ in graph $G = (V,E)$ is a sequence of vertices $p = (v_1\cdots
-    v_i)$, such that the next vertex is a neighbour to the previous, 
-    that is $\forall i(0 < i \leq |p| \to v_i \in N_G(v_{i-1})$.
+    v_i)$, such that $(v_j,v_{j+1}) \in E$ for $1 \leq j \leq i-1$ and $v_j \neq v_k$ 
+    for $0 \leq j,k \leq i-1$ when $j \neq k$.
 \end{definition}
 
 \begin{definition}[Connected graph]
@@ -271,10 +274,9 @@ vertex, and edges are added if two countries share a border.
 
 Finding a coloring for a graph is easy, one could for example use
 \autoref{alg:greedy}. Finding an optimal coloring however, a coloring using the
-fewest possible colors is NP-Hard (REFERENS). For this purpose, multiple
+fewest possible colors is NP-Hard \cite{NPHard}. For this purpose, multiple
 different heuristics, algorithms providing a proper coloring with as few colors
 as possible but not necessarily optimal, have to be used.
-
 
 \begin{definition}[Complete graph]
     A graph $K = (V,E)$ is complete if every vertex in $v \in V$ is adjacent to
@@ -291,8 +293,8 @@ as possible but not necessarily optimal, have to be used.
 \end{definition}
 
 \begin{definition}[Cograph]
-    The set of cographs $Co$, is a set containing $K_1$ that is closed under 
-    graph join and disjoint union. A graph $G$ is a cograph if $G \in Co$.
+    The set of cographs $\textbf{Co}$, is a set containing $K_1$ that is closed under 
+    graph join and disjoint union. A graph $G$ is a cograph if $G \in \textbf{Co}$.
 \end{definition}
 
 
@@ -335,14 +337,14 @@ Note, a label being series in modular decomposition tree with associated module
 $X$ means that the induced subgraph $G[X]$ can be constructed through graph
 union on the induced subgraphs of its children's associated modules, and it being
 parallel means that $G[X]$ can be constructed through graph join on the
-induced subgraphs of its childrens associated modules. (REFERENS)
+induced subgraphs of its childrens associated modules \cite{HCL}.
 
 As a single vertex is a module, every leaf of the modular decomposition has
 a single vertex as a module. This means that a modular decomposition without
 prime modules is a cograph, as it is Recursively constructed by graph join and
 graph union on $K_1$.
 
-The modular decomposition of a graph is unique \cite{HCL}, which means that the
+The modular decomposition of a graph is unique \cite{MDUnique}, which means that the
 construction of the modular decomposition doesn't vary and need not be a part of
 the heuristic.
 
@@ -400,7 +402,7 @@ good coloring.
 
 
 In this section, the different heuristics used to color the graph is described,
-while \autoref{sec:strategies} describe how they are applied.
+while \autoref{sec:Strategies} describe how they are applied.
 \subsection{Greedy}
 The classic greedy algorithm. Greedy walks over all of the vertices in the graph
 in an arbitrary order, and for every vertex assigns the first colored not shared
