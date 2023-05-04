@@ -123,18 +123,24 @@ Lorem ipsum
 \section{Introduction}
 
 In this thesis, we investigate a new heuristic using the modular decomposition of
-a graph, and if it can be combined with other heuristics. 
+a graph, that is used alongside other traditional graph coloring heuristics.
 
 The modular decomposition of a graph describes the structure of the graph, by
-recursively splitting it into distinct modules. These modules contain some
-vertices from the graph, and can be further split into modules that partition
-the top module. Every parent vertex also has a type, that determine how its submodules
-combine to form their parent module.
+recursively splitting it into distinct modules. A module is a set of vertices in
+a graph, which share a common neighbourhood of vertices among vertices outside
+of the module. Modules also form a hierarchy, which means that modules can be
+further subdivided into smaller modules. This representation of a graph can be
+described with a tree, where every vertex has one of three possible labels
+describing how it's child modules can be combined to form the graph induced by
+it's parent module. A module being series means that the parent is constructed
+with a disjoint union of it's children, a module being parallel means that it
+can be constructed through graph join on it's children, and prime means that the
+construction is not straightforwad, having an arbitrary internal structure.
 
 Modular decomposition allows for coloring of graphs in linear time with optimal
 chromatic number if all of the modules are either  series or
 parallel \cite{HCL}. However, if any of the vertices are prime then optimal graph coloring 
-is again NP-Hard, as prime vertices cannot be recursively colored by this
+is again NP-Hard\cite{NPHard}, as prime vertices cannot be recursively colored by this
 method. The question examined here, is if one can still utilize the
 modular decomposition, with graph coloring heuristics for the prime modules.
 The modular decomposition might still color some parts of the graph optimally,
@@ -239,13 +245,7 @@ input graph adds a new edge to the other input graphs.
     \bigcup E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \})$
 \end{definition}
 
-
-Another property of interest in graphs, is whether or not a graph is connected. A
-graph being connected means that one can connect every vertex in the graph by
-only moving between vertices that are neighbours. Especially important in the
-case of graph coloring is that disconnected graph are split into parts that can
-be colored separately, and therefore graph coloring can be restricted to only
-deal with graphs that are connected.
+\todo[noline]{Fix description of connected component}
 
 \begin{definition}[Path]
     A path $p$ in graph $G = (V,E)$ is a sequence of vertices $p = (v_1\cdots
@@ -266,11 +266,17 @@ neighbouring countries the same color.  Every country can be represented by a
 vertex, and edges are added if two countries share a border.
 
 \begin{definition}[Graph coloring]
-    A graph coloring $Col$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
+    A graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
     where $C$ is a set of colors, such that no neighbours share the same color,
-    that is $(u,v) \in E \to Col(u) \neq Col(v)$. We say that $Col$
+    that is $(u,v) \in E \to \sigma(u) \neq \sigma(v)$. We say that $\sigma$
     is a $k$ coloring if $|C| \leq k$.
 \end{definition}
+\begin{definition}[Chromatic number]
+    The chromatic number of a graph $G = (V,E)$, denoted by $\chi(G)$,
+    is the least amount of colors needed to color the graph. 
+\end{definition}
+For convenience, we also use $\chi$ to denote the amount of colors used by a
+graph for a specific coloring, not neccesarilly meaning the optimal.
 
 Finding a coloring for a graph is easy, one could for example use
 \autoref{alg:greedy}. Finding an optimal coloring however, a coloring using the
@@ -417,11 +423,11 @@ a time complexity of $O(|V|+|E|)$ \cite{Constructive}
     \REQUIRE Graph $G$
       \STATE $V' \leftarrow \text{List containing all $v \in V(G)$ in any order}$
       \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots |V(G)| \}$ }$
-      \STATE $Col \leftarrow \text{Initial empty coloring}$
+      \STATE $\sigma \leftarrow \text{Initial empty coloring}$
     \FORALL{$v \in V(G)$}
         \FORALL{$c \in C$}
-            \IF {$c \neq Col(n) \text{for all $n \in N_G(v)$ } $}
-                \STATE Update $Col$ so that $Col(v) = c$.
+            \IF {$c \neq \sigma(n) \text{for all $n \in N_G(v)$ } $}
+                \STATE Update $\sigma$ so that $\sigma(v) = c$.
                 \BREAK
             \ENDIF
         \ENDFOR
@@ -438,8 +444,8 @@ by using the saturation degree.
 
 \begin{definition}[Saturation degree]
     The saturation degree $sat(v)$ for a vertex $v \in V$ for a graph $G =
-    (V,E)$ and a partial coloring $Col$ to the set of colors $C$, is the amount of unique colors among
-    it's colored neighbours, that is $sat(v) = |\{c  : c = Col(u), u \in N_G(v) \}|$.
+    (V,E)$ and a partial coloring $\sigma$ to the set of colors $C$, is the amount of unique colors among
+    it's colored neighbours, that is $sat(v) = |\{c  : c = \sigma(u), u \in N_G(v) \}|$.
 \end{definition}
 
 The vertex are colored so that the vertex with the highest saturation degree is
@@ -458,14 +464,14 @@ the litterature, and this presentation is based on \cite{Constructive}.
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
       \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots |V(G)| \}$ }$
-      \STATE $Col \leftarrow \text{Initial empty coloring}$
+      \STATE $\sigma \leftarrow \text{Initial empty coloring}$
 
       \FOR{$i$ between $0$ and $|V|$}
 
         \STATE $v \leftarrow$ uncolored vertex in $V$, such that $sat(v)$ is
         minimal. In case of ties, choose the $v$ that also minimizes $deg(v)$
         for the subgraph of $G$ induced by the uncolored vertices.
-        \STATE $Col \leftarrow$ updated coloring where $Col(v)$ is the first
+        \STATE $\sigma \leftarrow$ updated coloring where $\sigma(v)$ is the first
         available color in regards to $C$.
       \ENDFOR
   \end{algorithmic}
@@ -569,6 +575,7 @@ possible recolorings are consider, if only the first coloring with a lower clash
 count is considered, and if one allows vertices that don't have any clashes to
 be recolored.
 
+\todo[noline]{Define clashes}
 \begin{algorithm}[H]
     \caption{TabuCol}
     \algsetup{linenodelimiter=}
@@ -580,9 +587,9 @@ be recolored.
         \REQUIRE Integer $MaxRep > 0$
       
         \STATE $Asp \leftarrow \text{Map from every integer $0 < i < |V|$, such that $Asp[i] = i-1$}$
-        \STATE $Col \leftarrow \text{random non-proper coloring with $k$ colors}$
+        \STATE $\sigma \leftarrow \text{random non-proper coloring with $k$ colors}$
         \STATE $CurIt \leftarrow 0$
-        \STATE $CurrentClash = \textbf{Clashes}(Col)$
+        \STATE $CurrentClash = \textbf{Clashes}(\sigma)$
         \STATE $Tabu \leftarrow \text{Empty tabu list}$
         \WHILE{$CurrentClash < 0 $ and $CurIt < MaxIt$}
             \STATE $RepCount \leftarrow 0$
@@ -591,7 +598,7 @@ be recolored.
                 \IF{$RepCount > MaxRep$}
                     \BREAK
                 \ENDIF
-                \STATE $c \leftarrow \text{Random color $\neq Col(v)$ in $Col$}$
+                \STATE $c \leftarrow \text{Random color $\neq \sigma(v)$ in $\sigma$}$
                 \IF{$(v,c) \notin Tabu$ or $\textbf{Clashes} \text{ with $(v,c)$
                 applied}\leq Asp[CurrentClash]$}
                     \STATE $Reps \leftarrow Reps \cup \{(v,c)\}$
@@ -606,7 +613,7 @@ be recolored.
             \ENDIF
             \STATE $CurrentClash \leftarrow NewClash$
             \STATE Update $Tabu$ to contain $(v',u')$, and remove the oldest element if $|Tabu| > MaxTabu$
-            \STATE Update $Col$ so that $Col(v') = u'$
+            \STATE Update $\sigma$ so that $\sigma(v') = u'$
             \STATE $CurIt \leftarrow CurIt + 1$
             \IF{$CurrentClash = 0$}
                 \BREAK
@@ -665,6 +672,39 @@ vertices, is therefore homomorphic to the original graph.
 \end{definition}
 
 \todo[noline]{Add pseudocode}
+\begin{algorithm}[H]
+  \caption{Quotient color prime module}
+  \algsetup{linenodelimiter=}
+  \begin{algorithmic}[1]
+    \REQUIRE Graph $G$
+    \REQUIRE Modular decomposition $MD$
+    \REQUIRE Module to color $M$
+    \REQUIRE Threshold for heuristic $T$
+
+    \IF{$|M| \leq T$}
+        \RETURN{Color $M$ with an arbitrary color}
+    \ENDIF
+    \FORALL {child module $m$ of $M$ in $MD$}
+        \STATE Apply \textbf{Quotient color prime module} on $m$
+    \ENDFOR
+    \STATE $Q \leftarrow $ quotient graph of $G[M]$ where the child modules of $M$ in $MD$ is the partition
+    \STATE Color $Q$ with another heuristic
+
+    \FORALL{$c \in \chi(Q)$}
+        \STATE $Q_c \leftarrow \{ v : v \in V(Q), \sigma(v) = c\}$
+        \STATE $m' \leftarrow$ the module in $Q_c$ with the most colors
+        \STATE $S \leftarrow$ coloring used by $m'$, $\sigma(G[m'])$
+        \FORALL {$m \in Q_c \setminus \{m'\} $}
+            \STATE randomly choose an injective map $\phi:\sigma(m)\to S$
+            \FORALL{$x \in m$}
+                \STATE $\sigma(x) \leftarrow \phi(\sigma(x))$
+            \ENDFOR
+        \ENDFOR
+    \ENDFOR
+
+  \end{algorithmic}
+\end{algorithm}
+\subsection{Dsatur}
 
 \section{Data}
 \label{sec:Data}
@@ -765,14 +805,39 @@ of heuristic and strategy, and the result can be found in (TABEL).
 \subsection{DIMACS}
 \input{DIMACSResult.tex}
 \subsection{CoGraphs}
-\input{CoGraphsResult.tex}
+\input{DisturbedCoGraphs_500_07_05Result.tex}
 \subsection{Disturbed cographs}
-\input{DisturbedCoGraphsResult.tex}
+\input{DisturbedCoGraphs_1000_70_50Result.tex}
 
 
 \subsection{Discussion}
 
-Lorem ipsum
+Something that we can see immediately from the tabels, is that applying a
+heuristic locally on prime modules doesn't significantly affect the resulting
+color. While the result can be seen to vary slightly from case to case, so is
+the average basically unaffected, except in the case for RLF.
+
+For RLF, the performance when applying locally on prime modules was
+significantly worse compared to applying it on the whole graph. This is not the
+case for DSatur, which also doesn't perform a (LOCAL SEARCH). The difference is
+also not negligable, averaging on about 15\%.  This also means that there seems
+to be no obvious connection between perfectly coloring a cograph and
+performance when only coloring prime modules. 
+
+Something that these result do showcase however, is that there might exist a
+possible performance gain when using the modular decomposition. For even the
+simplest constructive algorithm (GREEDY) we can see an increase in speed when
+applying only on prime modules, without worse resulting color. This might be
+expected from algorithms where the runtime scales non-linearly with the amount
+of vertices. Another advantage of the modular decomposition is that the
+coloring can easily be made parallel. Prime modules have no overlapping
+vertices, and using a algorithm like TabuCol with high base runtime can be
+alleviated by the fact that the prime modules can be colored in parallel, which
+is not a trivial extension to most coloring algorithms.
+
+This application does however assume a fast modular decomposition implementation.
+While modular decomposition can be done in linear time (REFERENS), implementing
+this has proven to be difficult in practice (REFERENS).
 
 \printbibliography
 

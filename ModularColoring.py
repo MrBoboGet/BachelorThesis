@@ -84,7 +84,7 @@ def Colorize_Module(OriginalGraph,MD,ColorList,ModuleToColor,Heuristic,Strategy 
                 ColorList[Child] = -1
             ReturnValue = Heuristic(nx.induced_subgraph(OriginalGraph,ModuleToColor),ColorList,ReturnValue)
         elif Strategy == PrimeStrategy.Quotient:
-            if(len(ModuleToColor) < 50):
+            if(len(ModuleToColor) < 20):
                 for Child in ModuleToColor:
                     ReturnValue.add(Child)
                     ColorList[Child] = -1
@@ -258,9 +258,9 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
         ReturnValue.add(CurrentColoring[Node])
     return ReturnValue
 
-nbiter = 1000
-rep = 30
-tabsize = 6
+nbiter = 1500
+rep = 100
+tabsize = 7
 def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
     Aspirations = {}
     TabuList = deque()
