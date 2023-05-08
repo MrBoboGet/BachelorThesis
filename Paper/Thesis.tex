@@ -118,6 +118,10 @@
 
 \section{Abstract}
 
+\todo[noline]{Execution time is difficult to measure, but the difference in
+results here are quite large, so probably something worth measuring. Might need
+to update my implementation however}
+
 Graph coloring is one of the most common and studied problems in computer
 science. It has application in many different areas, such as (EXAMPLES), but
 being NP-Hard means that optimal solutions are infeasible, meaning that most
@@ -126,8 +130,12 @@ heuristic based on the modular decomposition of a graph, a way to split the grab
 into distinct partitions of vertices where some parts can be colored optimally,
 and some parts require other heuristics. This strategy of coloring with the
 modular decomposition was however not found to improve the amount of colors used
-from these heuristics, but the modular decomposition could have applicability in
-designing parallel coloring algorithms or to improve execution time.
+from these heuristics.
+%but the modular decomposition could have applicability in
+%designing parallel coloring algorithms or to improve execution time with a
+%practical linear time modular decomposition algorithm.
+
+
 
 \section{Introduction}
 
@@ -345,21 +353,30 @@ modules.
 
 \todo[noline]{Update definition}
 \begin{definition}[Modular decomposition]
-    For a graph $G = (V,E)$, let $PMax(G) = \{M_1,\cdots,M_k\}$ be a partition of the vertex set $V$ 
-    into inclusion-maximal strong modules.
-    
-    The modular decomposition of the graph $G = (V,E)$ is a rooted, vertex labeled tree
-    $(\widetilde{T},t)$, where each of its vertices is associated with a strong
-    module $X \in PMax(G) \cup \{V\}$, and a label $t$ distinguishing  three cases:
+    The modular decomposition MD for a graph $G =(V,E)$, is the set of all
+    strong modules of the graph.
+\end{definition}
 
+The modular decomposition of a graph has a number of useful properties. The
+modular decomposition of a graph forms a hierarchy (REFERENS), meaning that strong modules
+can be partioned into other strong modules. This hierarchy of modules has a
+natural representation as a tree, the modular decomposition tree.
+
+This tree describes the original graph in terms of a tree, where every vertex 
+in the tree represents a strong module, with the root being the strong module
+containing all vertices. This tree also describes how the indueced subgraph of the
+module can be constructed from the indueced subgraphs of it's children.
+\begin{definition}[Modular decomposition tree]
+    The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
+    vertex labeled tree such that every vertex is associated with a strong
+    module $X$ in $G$, and with a label distinguishing 3 cases.
     \begin{enumerate}
         \item Series: $G[X]$ is disconnected.
         \item Parallel: $\overline{G[X]}$ is disconnected.
         \item Prime: $G[X]$ and $\overline{G[X]}$ is disconnected.
     \end{enumerate}
-
-    And where $V = X'$ when $X'$ is the strong component associated with the
-    root node of the modular decomposition.
+    And such that the root of the tree has $V$ as the associated vertex, and all 
+    strong modules are a part of the tree.
 \end{definition}
 
 Note, a label being series in modular decomposition tree with associated module
@@ -370,7 +387,7 @@ induced subgraphs of its childrens associated modules \cite{HCL}.
 
 As a single vertex is a module, every leaf of the modular decomposition has
 a single vertex as a module. This means that a modular decomposition without
-prime modules is a cograph, as it is Recursively constructed by graph join and
+prime modules is a cograph, as it is recursively constructed by graph join and
 graph union on $K_1$.
 
 The modular decomposition of a graph is unique \cite{MDUnique}, which means that the
@@ -838,11 +855,9 @@ every different test set.
 
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
-\subsection{DIMACS}
+\subsection{Results}
 \input{DIMACSResult.tex}
-\subsection{CoGraphs}
 \input{DisturbedCoGraphs_500_07_05Result.tex}
-\subsection{Disturbed cographs}
 \input{DisturbedCoGraphs_1000_70_50Result.tex}
 
 
@@ -850,7 +865,7 @@ every different test set.
 
 Something that we can see immediately from the tables, is that applying a
 heuristic locally on prime modules doesn't significantly affect the resulting
-color. While the result can be seen to vary slightly from case to case, so is
+color. While the result vary vary slightly from case to case, so is
 the average basically unaffected, except in the case for RLF.
 
 For RLF, the performance when applying locally on prime modules was
@@ -865,15 +880,18 @@ possible performance gain when using the modular decomposition. For even the
 simplest constructive algorithm (GREEDY) we can see an increase in speed when
 applying only on prime modules, without worse resulting color. This might be
 expected from algorithms where the runtime scales non-linearly with the amount
-of vertices. Another advantage of the modular decomposition is that the
-coloring can easily be made parallel. Prime modules have no overlapping
-vertices, and using a algorithm like TabuCol with high base runtime can be
-alleviated by the fact that the prime modules can be colored in parallel, which
-is not a trivial extension to most coloring algorithms.
+of vertices. Another advantage of the modular decomposition is that the coloring
+can easily be made parallel. Prime modules have no overlapping vertices, and
+using a algorithm like TabuCol with high base runtime can be alleviated by the
+fact that the prime modules can be colored in parallel, which is not a trivial
+extension to most coloring algorithms. The time displayed for coloring doesn't
+acount for creating the modular decomposition in the first case.
 
-This application does however assume a fast modular decomposition implementation.
+This application assumes a fast modular decomposition implementation.
 While modular decomposition can be done in linear time (REFERENS), implementing
-this has proven to be difficult in practice (REFERENS).
+this has proven to be difficult in practice (REFERENS). The baseline time for
+creating the modular decomposition would most likely only be offset for larger
+graphs, which is also where a linear time algorithm is required to save time.
 
 \printbibliography
 
