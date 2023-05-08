@@ -405,6 +405,17 @@ def GetCoGraph(Graph,MD,Root):
     CoVertices = GetCoVertices(MD,Root)
     return(nx.induced_subgraph(Graph,CoVertices))
 
+def CalculateOptimal(G,MD,Root):
+    if(len(Root) == 1):
+        return(1)
+    if(MD.nodes[Root]['MDlabel'] == "1"):
+        Children = MD.successors(Root)
+        return sum([CalculateOptimal(G,MD,Child) for Child in Children])
+    elif(MD.nodes[Root]['MDlabel'] == "0"):
+        Children = MD.successors(Root)
+        return max([CalculateOptimal(G,MD,Child) for Child in Children])
+    else:
+        return(gp.chromatic_number(nx.induced_subgraph(G,Root)))
 Test = False
 if Test:
     edge_prob = 0.1
@@ -445,7 +456,7 @@ else:
 
     #CoVertices = GetCoVertices(MD,Root)
     #NonPrimeColorCount = len(set( [ GreedyColors[i] for i in CoVertices]))
-
+    #print("Optimal value: ",CalculateOptimal(G,MD,Root),file=sys.stderr)
     for (Name,Function) in Heuristics.items():
         for (StrategyName,Strategy) in Strategys.items():
             Colors = [i for i in range(len(G.nodes))]

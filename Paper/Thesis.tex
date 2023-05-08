@@ -118,7 +118,16 @@
 
 \section{Abstract}
 
-Lorem ipsum
+Graph coloring is one of the most common and studied problems in computer
+science. It has application in many different areas, such as (EXAMPLES), but
+being NP-Hard means that optimal solutions are infeasible, meaning that most
+practical problems require the use of heuristics. This thesis examines a
+heuristic based on the modular decomposition of a graph, a way to split the grab
+into distinct partitions of vertices where some parts can be colored optimally,
+and some parts require other heuristics. This strategy of coloring with the
+modular decomposition was however not found to improve the amount of colors used
+from these heuristics, but the modular decomposition could have applicability in
+designing parallel coloring algorithms or to improve execution time.
 
 \section{Introduction}
 
@@ -135,7 +144,7 @@ describing how it's child modules can be combined to form the graph induced by
 it's parent module. A module being series means that the parent is constructed
 with a disjoint union of it's children, a module being parallel means that it
 can be constructed through graph join on it's children, and prime means that the
-construction is not straightforwad, having an arbitrary internal structure.
+construction is not straightforward, having an arbitrary internal structure.
 
 Modular decomposition allows for coloring of graphs in linear time with optimal
 chromatic number if all of the modules are either  series or
@@ -247,6 +256,12 @@ input graph adds a new edge to the other input graphs.
 
 \todo[noline]{Fix description of connected component}
 
+One of the original applications of graph theory was to describe different ways
+to walk in city (REFERENS), so the concept of a path has been central for a long
+time.  A path is a sequence vertices, so that the next vertex in the sequence is
+connected to the previous by an edge, and so that vertices are not repeated.
+One can then imagine "walking" between vertices by moving on edges.
+
 \begin{definition}[Path]
     A path $p$ in graph $G = (V,E)$ is a sequence of vertices $p = (v_1\cdots
     v_i)$, such that $(v_j,v_{j+1}) \in E$ for $1 \leq j \leq i-1$ and $v_j \neq v_k$ 
@@ -271,12 +286,20 @@ vertex, and edges are added if two countries share a border.
     that is $(u,v) \in E \to \sigma(u) \neq \sigma(v)$. We say that $\sigma$
     is a $k$ coloring if $|C| \leq k$.
 \end{definition}
+\begin{definition}[Partial coloring]
+    A partial graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
+    where $C$ is a set of colors, with the special 'EMPTY' color, such that no
+    neighbours share the same color, unless that coloring is empty, that is
+    $((u,v) \in E \to \sigma(u) \neq \sigma(v) \vee \sigma(u) = EMPTY$. 
+\end{definition}
+\begin{definition}[Improper coloring]
+    An improper graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
+    where $C$ is a set of colors, allowing for clashes in coloring.
+\end{definition}
 \begin{definition}[Chromatic number]
     The chromatic number of a graph $G = (V,E)$, denoted by $\chi(G)$,
     is the least amount of colors needed to color the graph. 
 \end{definition}
-For convenience, we also use $\chi$ to denote the amount of colors used by a
-graph for a specific coloring, not neccesarilly meaning the optimal.
 
 Finding a coloring for a graph is easy, one could for example use
 \autoref{alg:greedy}. Finding an optimal coloring however, a coloring using the
@@ -445,7 +468,7 @@ by using the saturation degree.
 \begin{definition}[Saturation degree]
     The saturation degree $sat(v)$ for a vertex $v \in V$ for a graph $G =
     (V,E)$ and a partial coloring $\sigma$ to the set of colors $C$, is the amount of unique colors among
-    it's colored neighbours, that is $sat(v) = |\{c  : c = \sigma(u), u \in N_G(v) \}|$.
+    it's colored neighbours, that is $sat(v) = |\{c  : c = \sigma(u), u \in N_G(v),c \neq EMPTY  \}|$.
 \end{definition}
 
 The vertex are colored so that the vertex with the highest saturation degree is
@@ -577,6 +600,16 @@ be recolored.
 
 \todo[noline]{Define clashes}
 \begin{algorithm}[H]
+    \caption{Clashes}
+    \algsetup{linenodelimiter=}
+    \begin{algorithmic}[1]
+        \REQUIRE Improper coloring $\sigma$
+        \REQUIRE Graph $G = (V,E)$
+        \RETURN{$|\{(u,v) :(u,v) \in E, \sigma(u) = \sigma(v)\}|$}
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
     \caption{TabuCol}
     \algsetup{linenodelimiter=}
     \begin{algorithmic}[1]
@@ -587,9 +620,9 @@ be recolored.
         \REQUIRE Integer $MaxRep > 0$
       
         \STATE $Asp \leftarrow \text{Map from every integer $0 < i < |V|$, such that $Asp[i] = i-1$}$
-        \STATE $\sigma \leftarrow \text{random non-proper coloring with $k$ colors}$
+        \STATE $\sigma \leftarrow \text{random improper coloring with $k$ colors}$
         \STATE $CurIt \leftarrow 0$
-        \STATE $CurrentClash = \textbf{Clashes}(\sigma)$
+        \STATE $CurrentClash = \textbf{Clashes}(\sigma,G)$
         \STATE $Tabu \leftarrow \text{Empty tabu list}$
         \WHILE{$CurrentClash < 0 $ and $CurIt < MaxIt$}
             \STATE $RepCount \leftarrow 0$
@@ -599,21 +632,21 @@ be recolored.
                     \BREAK
                 \ENDIF
                 \STATE $c \leftarrow \text{Random color $\neq \sigma(v)$ in $\sigma$}$
-                \IF{$(v,c) \notin Tabu$ or $\textbf{Clashes} \text{ with $(v,c)$
+                \IF{$(v,c) \notin Tabu$ or $\textbf{Clashes}(\sigma,G) \text{ with $(v,c)$
                 applied}\leq Asp[CurrentClash]$}
                     \STATE $Reps \leftarrow Reps \cup \{(v,c)\}$
                 \ENDIF
                 \STATE $RepCount \leftarrow RepCount + 1$
             \ENDFOR
             \STATE $(v',u') \leftarrow \text{where $(v',u') \in Reps$ and
-            \textbf{Clashes} with $(v',u')$ applied is minimal }$
-            \STATE $NewClash \leftarrow \textbf{Clashes}( (v',u')$
+            $\textbf{Clashes}(\sigma,G)$ with $(v',u')$ applied is minimal }$
+            \STATE Update $\sigma$ so that $\sigma(v') = u'$
+            \STATE $NewClash \leftarrow \textbf{Clashes}(\sigma,G)$
             \IF{$(v',u') \in Tabu$}
                 \STATE $Asp[CurrentClash] = NewClash-1$
             \ENDIF
             \STATE $CurrentClash \leftarrow NewClash$
             \STATE Update $Tabu$ to contain $(v',u')$, and remove the oldest element if $|Tabu| > MaxTabu$
-            \STATE Update $\sigma$ so that $\sigma(v') = u'$
             \STATE $CurIt \leftarrow CurIt + 1$
             \IF{$CurrentClash = 0$}
                 \BREAK
@@ -704,6 +737,8 @@ vertices, is therefore homomorphic to the original graph.
 
   \end{algorithmic}
 \end{algorithm}
+
+The threshold used for the test is 20 vertices.
 \subsection{Dsatur}
 
 \section{Data}
@@ -797,8 +832,9 @@ can also construct modular decomposition with various percentage prime modules.
 \section{Results and evaluation}
 \label{sec:Result}
 \todo[noline]{More everything, very unfinished}
-Every graph in the training set is colored using all the different combinations
-of heuristic and strategy, and the result can be found in (TABEL).
+Every graph in the test set is colored using all the different combinations
+of heuristic and strategy, and the result is split into three tables, one for
+every different test set.
 
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
@@ -812,7 +848,7 @@ of heuristic and strategy, and the result can be found in (TABEL).
 
 \subsection{Discussion}
 
-Something that we can see immediately from the tabels, is that applying a
+Something that we can see immediately from the tables, is that applying a
 heuristic locally on prime modules doesn't significantly affect the resulting
 color. While the result can be seen to vary slightly from case to case, so is
 the average basically unaffected, except in the case for RLF.
@@ -820,7 +856,7 @@ the average basically unaffected, except in the case for RLF.
 For RLF, the performance when applying locally on prime modules was
 significantly worse compared to applying it on the whole graph. This is not the
 case for DSatur, which also doesn't perform a (LOCAL SEARCH). The difference is
-also not negligable, averaging on about 15\%.  This also means that there seems
+also not negligible, averaging on about 15\%.  This also means that there seems
 to be no obvious connection between perfectly coloring a cograph and
 performance when only coloring prime modules. 
 
