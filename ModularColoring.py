@@ -246,7 +246,7 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
         TotalNodes = TotalNodes.difference(ComponentNodes)
         #resetting state
         ComponentNodes = set()
-        for i in range(len(IsAdjecent)):
+        for i in IsAdjecent:
             IsAdjecent[i] = False
         CurrentColor += 1
     #lazy
@@ -258,9 +258,9 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
         ReturnValue.add(CurrentColoring[Node])
     return ReturnValue
 
-nbiter = 1500
-rep = 100
-tabsize = 7
+nbiter = 3000
+rep = 200
+tabsize = 6
 def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
     Aspirations = {}
     TabuList = deque()
