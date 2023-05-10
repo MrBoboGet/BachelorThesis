@@ -14,6 +14,7 @@ from math import *
 from functools import partial
 import os
 import time
+import heapq as hp
 
 class PrimeStrategy(Enum):
     WholeHeuristic = 1
@@ -150,33 +151,42 @@ def DSatur(GraphToColor:  nx.DiGraph,CurrentColoring,ColorList):
     ReturnValue = set()
     DeegreeSortedVertexes = [Node for Node in GraphToColor.nodes]
     DeegreeSortedVertexes.sort(key=lambda node: GraphToColor.degree[node])
-    #only assign the first color given that we have not already colored the nodes
-    if len([x for x in CurrentColoring if not x == -1]) == 0:
-        CurrentColoring[first(DeegreeSortedVertexes)] = first(ColorList)
-        ReturnValue.add(first(ColorList))
 
-    for Offset in range(0,len(DeegreeSortedVertexes)):
-        MaxIndex = 0
-        MaxSatDegree = -1
-        for NewOffset in range(0,len(DeegreeSortedVertexes)):
-            if(CurrentColoring[DeegreeSortedVertexes[NewOffset]] != -1):
-                ReturnValue.add(CurrentColoring[DeegreeSortedVertexes[NewOffset]])
-                continue
-            SatDegree = len([x for x in GraphToColor.adj[DeegreeSortedVertexes[NewOffset]] if not CurrentColoring[x] == -1])
-            if SatDegree > MaxSatDegree:
-                MaxIndex = NewOffset
-                MaxSatDegree  =SatDegree
+    DegreeMap = {v: GraphToColor.degree[v] for v in GraphToColor.nodes}
+    ColorMap = {v: set() for v in GraphToColor.nodes}
+    UncoloredVertexes = [(-0,-DegreeMap[v],v) for v in GraphToColor.nodes]
+    hp.heapify(UncoloredVertexes)
+    #to improve
+    DeletedEntries = set()
+    while(len(UncoloredVertexes) > 0):
+        CurrentElement = hp.heappop(UncoloredVertexes)
+        while(CurrentElement in DeletedEntries and len(UncoloredVertexes) > 0):
+            DeletedEntries.remove(CurrentElement)
+            CurrentElement = hp.heappop(UncoloredVertexes)
+        if(CurrentElement in DeletedEntries):
+            break
+        VertexToColor = CurrentElement[2]
+        UsedColor = None
+        # First available color
         for Color in ColorList:
             ColorIsValid = True
-            for Neighbour in GraphToColor.adj[DeegreeSortedVertexes[MaxIndex]]:
+            for Neighbour in GraphToColor.adj[VertexToColor]:
                 if(CurrentColoring[Neighbour] == Color):
                     ColorIsValid = False
                     break
             if(ColorIsValid):
-                CurrentColoring[DeegreeSortedVertexes[MaxIndex]] = Color
+                CurrentColoring[VertexToColor] = Color
                 ReturnValue.add(Color)
+                UsedColor = Color
                 break
-            
+        #Update neighbours
+        for Neigbour in GraphToColor.adj[VertexToColor]:
+            if(CurrentColoring[Neigbour] == -1):
+                DeletedEntries.add( (-len(ColorMap[Neigbour]),-DegreeMap[Neigbour],Neigbour))
+                ColorMap[Neigbour].add(UsedColor)
+                DegreeMap[Neigbour] -= 1
+                hp.heappush( UncoloredVertexes,(-len(ColorMap[Neigbour]),-DegreeMap[Neigbour],Neigbour))
+
     return(ReturnValue);
 
 def GetMaxIndex(Iteratable):
@@ -416,70 +426,38 @@ def CalculateOptimal(G,MD,Root):
         return max([CalculateOptimal(G,MD,Child) for Child in Children])
     else:
         return(gp.chromatic_number(nx.induced_subgraph(G,Root)))
-Test = False
-if Test:
-    edge_prob = 0.1
-    #G = nx.fast_gnp_random_graph(20, edge_prob)
-    G = nx.connected_watts_strogatz_graph(20,5,0.1)
-    MD = md.modularDecomposition(G)
-    (Colors,ColorCount) = Colorize(G,MD,Greedy)
-    print(ColorCount,len(ColorCount),Colors)
-    print(VerifyColoring(G,Colors))
 
-    nx.write_adjlist(G,"ADJList.txt")
-    print(gp.chromatic_number(G))
-    nx.draw(G)
-    plt.show()
-else:
-    Filename = os.path.basename(sys.argv[1])
-    G = nx.read_edgelist(sys.argv[1],nodetype=int)
-    #add any edges lost in translation
-    TotalEdges = set(G.nodes)
-    MaxNode = max(TotalEdges)
-    for i in range(MaxNode):
-        if i not in TotalEdges:
-            G.add_node(i)
-    
-    MD = md.modularDecomposition(G)
-    Root = max([module for module in MD],key=lambda x: len(x))
-    RootType = MD.nodes[Root]['MDlabel']
-    #Heuristics = {"Tabu search": partial(BinarySearchCombinator,TabuSearch),"Greedy": Greedy,"DSatur": DSatur}
-    Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur,"TabuCol": partial(LinearSearchCombinator,TabuSearch)}
-    Strategys = {"WholePrime":
-            PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient}
-    #Strategys = {"WholePrime": PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient,"LargestModuleFirst": PrimeStrategy.LargestModuleFirst}
-    #Heuristics = {"Tabu search": partial(LinearSearchCombinator,TabuSearch)}
-
-    #GreedyColors = [i for i in range(len(G.nodes))]
-    #GreedyMap = Colorize_Module(G,MD,GreedyColors,Root,Greedy,PrimeStrategy.NoPrime)
-    #CoColorCount = len(CoColorNumber(G,MD,Root,GreedyColors))
-
-    #CoVertices = GetCoVertices(MD,Root)
-    #NonPrimeColorCount = len(set( [ GreedyColors[i] for i in CoVertices]))
-    #print("Optimal value: ",CalculateOptimal(G,MD,Root),file=sys.stderr)
-    for (Name,Function) in Heuristics.items():
-        for (StrategyName,Strategy) in Strategys.items():
-            Colors = [i for i in range(len(G.nodes))]
-            StartTime = time.perf_counter()
-            ColorCount = Colorize_Module(G,MD,Colors,Root,Function,Strategy)
-            EndTime = time.perf_counter()
-            #CurrentCoColorCount = len(CoColorNumber(G,MD,Root,Colors))
-            #TestCoColorCount = len(set([Colors[i] for i in CoVertices]))
-            if(not VerifyColoring(G,Colors)):
-                print(f"Error: Heuristic {Name} with strategy {StrategyName} resulted in an invalid coloring",file=sys.stderr)
-                exit(1)
-            print(Filename,RootType,Name,StrategyName,len(ColorCount),EndTime-StartTime,sep=",")
-
-        HeuristicColorList = [-1 for i in  range(len(G.nodes))]
-        HeuristicAllowedColors = [i for i in  range(len(G.nodes))]
+Filename = os.path.basename(sys.argv[1])
+G = nx.read_edgelist(sys.argv[1],nodetype=int)
+#add any edges lost in translation
+TotalEdges = set(G.nodes)
+MaxNode = max(TotalEdges)
+for i in range(MaxNode):
+    if i not in TotalEdges:
+        G.add_node(i)
+MD = md.modularDecomposition(G)
+Root = max([module for module in MD],key=lambda x: len(x))
+RootType = MD.nodes[Root]['MDlabel']
+Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur,"TabuCol": partial(LinearSearchCombinator,TabuSearch)}
+Strategys = {"WholePrime":
+        PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient}
+for (Name,Function) in Heuristics.items():
+    for (StrategyName,Strategy) in Strategys.items():
+        Colors = [i for i in range(len(G.nodes))]
         StartTime = time.perf_counter()
-        HeuriticUsedColors = Function(G,HeuristicColorList,HeuristicAllowedColors)
+        ColorCount = Colorize_Module(G,MD,Colors,Root,Function,Strategy)
         EndTime = time.perf_counter()
-        #CurrentCoColorCount = len(CoColorNumber(G,MD,Root,HeuristicColorList))
-        #TestCoColorCount = len(set([HeuristicColorList[i] for i in CoVertices]))
-        if(not VerifyColoring(G,HeuristicColorList)):
-            print("Error: modular coloring was an invalid coloring",file=sys.stderr)
+        if(not VerifyColoring(G,Colors)):
+            print(f"Error: Heuristic {Name} with strategy {StrategyName} resulted in an invalid coloring",file=sys.stderr)
             exit(1)
-        print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
-    #print(ColorCount,len(ColorCount),Colors)
-    #print(VerifyColoring(G,Colors))
+        print(Filename,RootType,Name,StrategyName,len(ColorCount),EndTime-StartTime,sep=",")
+
+    HeuristicColorList = [-1 for i in  range(len(G.nodes))]
+    HeuristicAllowedColors = [i for i in  range(len(G.nodes))]
+    StartTime = time.perf_counter()
+    HeuriticUsedColors = Function(G,HeuristicColorList,HeuristicAllowedColors)
+    EndTime = time.perf_counter()
+    if(not VerifyColoring(G,HeuristicColorList)):
+        print("Error: modular coloring was an invalid coloring",file=sys.stderr)
+        exit(1)
+    print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
