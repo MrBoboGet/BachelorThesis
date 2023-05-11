@@ -119,9 +119,9 @@ for i in range(15):
             if(j == 1):
                 GraphSize = int(sys.argv[1])
             if(j == 2):
-                SeriesProb = float(sys.argv[2])
+                SeriesProb = float(sys.argv[2])/100
             if(j == 3):
-                EdgeProb = float(sys.argv[3])
+                EdgeProb = float(sys.argv[3])/100
             if(j == 4):
                 ModuleCount = int(sys.argv[4])
             if(j == 5):
@@ -130,11 +130,8 @@ for i in range(15):
                 OutDir = sys.argv[6]
     if(not os.path.exists(f"{OutDir}")):
         os.makedirs(f"{OutDir}")
-    if(not os.path.exists(f"Disturbed{OutDir}")):
-        os.makedirs(f"Disturbed{OutDir}")
     (OriginalTree,RootID) = Tree.random_tree(GraphSize,True).to_nx()
     LabeledCotree(OriginalTree,RootID,SeriesProb)
     (CotreeGraph,VertexMap) = GetCotreeGraph(OriginalTree,RootID)
-    nx.write_edgelist(CotreeGraph,f"{OutDir}/{i}.edge")
     DisturbGraph(CotreeGraph,VertexMap,EdgeProb,ModuleCount,ModuleSize)
-    nx.write_edgelist(CotreeGraph,f"Disturbed{OutDir}/{i}.edge")
+    nx.write_edgelist(CotreeGraph,f"{OutDir}/{i}.edge")

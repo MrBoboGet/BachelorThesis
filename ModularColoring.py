@@ -268,10 +268,71 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
         ReturnValue.add(CurrentColoring[Node])
     return ReturnValue
 
-nbiter = 3000
+
+nbiter = 10000
 rep = 200
-tabsize = 6
+tabsize = 7
 def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
+    #Random K partition
+    for Node in GraphToColor:
+        CurrentColoring[Node] = random.randrange(0,K)
+    TotalConflictCount = 0
+    ConflictMatrix = []
+    TabuMatrix = []
+    for i in range(max(GraphToColor.nodes)+1):
+        ConflictMatrix.append([0]*K)
+        TabuMatrix.append([-1]*K)
+    for Edge in GraphToColor.edges:
+        ConflictMatrix[ Edge[0]][ CurrentColoring[ Edge[1]]] += 1
+        ConflictMatrix[ Edge[1]][ CurrentColoring[ Edge[0]]] += 1
+        if(CurrentColoring[Edge[0]] == CurrentColoring[Edge[1]]):
+            TotalConflictCount += 1
+    if(TotalConflictCount == 0):
+        return(True)
+    BestConflictCount = TotalConflictCount-1
+    for i in range(nbiter):
+        TiedMoves = []
+        BestMove = [100000000,0,0]
+        for Node in GraphToColor:
+            CurrentConflict = ConflictMatrix[Node][CurrentColoring[Node]]
+            if(CurrentConflict == 0):
+                continue
+            for c in range(K):
+                if(c == CurrentColoring[Node]):
+                    continue
+                NewConflict = ConflictMatrix[Node][c]-CurrentConflict
+                if  NewConflict <= BestMove[0] and (TabuMatrix[Node][c] < i or TotalConflictCount+NewConflict <= BestConflictCount):
+                    if(NewConflict < BestMove[0]):
+                        TiedMoves.clear()
+                    else:
+                        TiedMoves.append( (Node,c))
+                    BestMove[0] = NewConflict
+                    BestMove[1] = Node
+                    BestMove[2] = c
+        if(BestMove[0] == 100000000):
+            break
+        if(len(TiedMoves) > 0):
+            RandomMove = TiedMoves[ random.randrange(0,len(TiedMoves))]
+            BestMove[1] = RandomMove[0]
+            BestMove[2] = RandomMove[1]
+        NodeToColor = BestMove[1]
+        OldColoring = CurrentColoring[ BestMove[1] ]
+        NewColoring = BestMove[2]
+        TotalConflictCount += BestMove[0]
+        if(TotalConflictCount <= BestConflictCount):
+            BestConflictCount = TotalConflictCount-1
+        TabuMatrix[NodeToColor][NewColoring] = i+tabsize
+        for Neighbour in GraphToColor.adj[NodeToColor]:
+            ConflictMatrix[Neighbour][OldColoring] -= 1
+            ConflictMatrix[Neighbour][NewColoring] += 1
+        CurrentColoring[BestMove[1]] = BestMove[2]
+        if(TotalConflictCount == 0):
+            break
+    if(TotalConflictCount == 0):
+        return True
+    else:
+        return False
+def TabuSearch_Random(GraphToColor: nx.DiGraph,CurrentColoring,K):
     Aspirations = {}
     TabuList = deque()
 
@@ -439,6 +500,7 @@ MD = md.modularDecomposition(G)
 Root = max([module for module in MD],key=lambda x: len(x))
 RootType = MD.nodes[Root]['MDlabel']
 Heuristics = {"RLF": RLF,"Greedy": Greedy,"DSatur": DSatur,"TabuCol": partial(LinearSearchCombinator,TabuSearch)}
+#Heuristics = {"TabuCol": partial(LinearSearchCombinator,TabuSearch)}
 Strategys = {"WholePrime":
         PrimeStrategy.WholeHeuristic,"Quotient":  PrimeStrategy.Quotient}
 for (Name,Function) in Heuristics.items():
