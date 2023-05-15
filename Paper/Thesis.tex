@@ -1,25 +1,8 @@
 \documentclass{amsart}
-%\usepackage{amsmath} 
-%\usepackage{amssymb}
-%\usepackage{graphicx}
-%\usepackage{pictex}
-%\usepackage[noend]{algorithmic}
-%\usepackage{algorithm}
-%\renewcommand{\algorithmiccomment}[1]{\hfill$\rhd???$\textit{#1}}
-%\usepackage{mathtools}
-%\providecommand{\keywords}[1]{\textbf{\textit{Keywords: }} #1}
-%\theoremstyle{definition}
-%\newtheorem{definition}{Definition}
-
 
 % COPY PASTE
 
 \usepackage{authblk}
-%\usepackage[numbers,sort&compress]{natbib}
-%\usepackage[numbers, sort&compress]{natbib}
-
-
-
 \usepackage[colorlinks]{hyperref}
 \hypersetup{
 	citecolor=blue,
@@ -29,7 +12,6 @@
 \usepackage{amsmath, amssymb, amsfonts, amsfonts, amsthm,latexsym}
 \usepackage[noend]{algorithmic}
 \usepackage{algorithm}
-\renewcommand{\algorithmiccomment}[1]{\hfill$\rhd???$\textit{#1}}
 \usepackage{graphics}
 \usepackage{enumerate}
 \usepackage[usenames]{color}
@@ -82,34 +64,21 @@
 \newcommand{\Pmax}{\mathrm{Pmax}}
 \newcommand{\T}{\widetilde{T}}
 \renewcommand{\t}{\widetilde{t}}
-
-%\definecolor{darkorchid}{rgb}{0.6, 0.2, 0.8}
-
-%\newcommand{\TODO}[1]{\begingroup\color{red}#1\endgroup}
 \newcommand{\AX}[1]{\textnormal{#1}}
-%%\newcommand{\NEW}[1]{\begingroup\color{blue}#1\endgroup}
-%\newcommand{\dv}[1]{\begingroup\color{jade}#1\endgroup}
-%\newcommand{\OLD}[1]{\begingroup\small	\color{green}#1\endgroup}
-%\newcommand{\PFS}[1]{\begingroup\color{blue}#1\endgroup}
-%\newcommand{\mhr}[1]{\begingroup\color{darkorchid}#1\endgroup}
-%\newcommand{\mh}[1]{\begingroup\color{magenta}#1\endgroup}
-%\newcommand{\mg}[1]{\begingroup\color{cyan}#1\endgroup}
-
-%%\journal{European Journal of Combinatorics} 
-
 \providecommand{\keywords}[1]{\textbf{\textit{Keywords: }} #1}
-
  % END COPY PASTE
 
 
 \usepackage[backend=bibtex]{biblatex}
 \usepackage{todonotes}
+\usepackage{subcaption}
+\usepackage{placeins}
 \addbibresource{References.bib}
-
 
 \newcommand{\algorithmicbreak}{\textbf{break}}
 \newcommand{\BREAK}{\STATE \algorithmicbreak}
 \newcommand{\algorithmautorefname}{Algorithm}
+
 \author{Emanuel Berggren}
 \title{Graph coloring using modular decomposition}
 
@@ -124,7 +93,7 @@ to update my implementation however}
 
 Graph coloring is one of the most common and studied problems in computer
 science. It has application in many different areas, such as (EXAMPLES), but
-being NP-Hard means that optimal solutions are infeasible, meaning that most
+being NP-Hard means that optimal solutions are infeasible, and in turn that most
 practical problems require the use of heuristics. This thesis examines a
 heuristic based on the modular decomposition of a graph, a way to split the grab
 into distinct partitions of vertices where some parts can be colored optimally,
@@ -181,7 +150,8 @@ utilised.
 In \autoref{sec:Data} the test graphs and benchmarking methods are described. The data
 used is both from standard DIMACS benchmarks \cite{DIMACS}, and custom generated data.
 
-Finally, the results are presented in \autoref{sec:Result}.
+Finally, the way the data is evaluated and the results are presented in 
+\autoref{sec:Evaluation}, respectively \autoref{sec:Result}
 
 \section{Definitions}
 \label{sec:Definitions}
@@ -215,7 +185,7 @@ The definitions used here is based of the definitions in
 In many cases, one is interested in some parts of the graph, and one of the
 most common ways to subset a graph is through the induced subgraph. The induced
 subgraph is a graph constructed by only including a subset of the original
-graphs vertices, and edges between them.
+graphs vertices, and a subset of the edges between them.
 
 \begin{definition}[Subgraph]
     A subgraph $S = (V',E')$ of a graph $G = (V,E)$, is a graph such that
@@ -226,8 +196,8 @@ graphs vertices, and edges between them.
     
     For a graph $G = (V,E)$, the induced subgraph $G[X]$ for $X \subset V$, is
     the subgraph $(X,\{(u,v) : (u,v) \in E, u \in X,v \in X\})$. That
-    is, a new graph only containing the vertices in $X$, and only edges between
-    these vertices.
+    is, a new graph only containing the vertices in $X$, and all edges between
+    these vertices that were in the original graph.
 
 \end{definition}
 
@@ -266,7 +236,7 @@ input graph adds a new edge to the other input graphs.
 \todo[noline]{Fix description of connected component}
 
 One of the original applications of graph theory was to describe different ways
-to walk in city (REFERENS), so the concept of a path has been central for a long
+to walk in city (REFERENS?), so the concept of a path has been central for a long
 time.  A path is a sequence vertices, so that the next vertex in the sequence is
 connected to the previous by an edge, and so that vertices are not repeated.
 One can then imagine "walking" between vertices by moving on edges.
@@ -302,13 +272,13 @@ vertex, and edges are added if two countries share a border.
     $(u,v) \in E \to \sigma(u) \neq \sigma(v) \vee \sigma(u) = \sigma(v) = EMPTY$. 
 \end{definition}
 \begin{definition}[Improper coloring]
-    An improper graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
-    where $C$ is a set of colors, allowing for clashes in coloring.
+    An improper graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from
+    $V$ to $C$, where $C$ is a set of colors, allowing for clashes in coloring,
+    that is neighbours can share the same color.
 \end{definition}
 \begin{definition}[Chromatic number]
     The chromatic number of a graph $G = (V,E)$, denoted by $\chi(G)$,
-    is the least amount of colors needed to color the graph, that is neighbours 
-    can share the same color.
+    is the least amount of colors needed to color the graph.
 \end{definition}
 
 Finding a coloring for a graph is easy, one could for example use
@@ -392,8 +362,9 @@ a single vertex as a module. This means that a modular decomposition without
 prime modules is a cograph, as it is recursively constructed by graph join and
 graph union on $K_1$.
 
-The modular decomposition of a graph is unique \cite{MDUnique}, which means that the
-construction of the modular decomposition doesn't vary and need not be a part of
+The modular decomposition of a graph and its corresponding modular
+decomposition tree is unique \cite{MDUnique}, which means that the construction
+of the modular decomposition doesn't vary and need not be a part of
 the heuristic.
 
 
@@ -529,13 +500,14 @@ vertices of the graph, where the vertices in the different parts are all
 non-adjacent to each other. This ensures that every partition can share the
 same color. 
 
-This construction is made by adding the vertex with the highest degree in the
-induced subgraph of unpartitioned vertices to the current part that
-isn't the neighbour of any vertex in the current part, and when no
-such vertex exist, create a new empty part in the partition and continue. When
-all of the vertices have been partitioned so is the coloring extracted by
-assigning every part in the partition a unique color, and every vertex in that
-part the same color.
+This construction is made part for part in the partition.  Every part starts
+emtpy, then the vertex with the highest degree in the induced subgraph of
+unpartitioned vertices is added, such that it isn't the neighbour of any vertex
+in the current part.  This process is repeated until no such vertex exist, the
+current part is then added to the partition, and a new empty partition is the
+current partition. When all of the vertices have been partitioned so is the
+coloring extracted by assigning every part in the partition a unique color, and
+every vertex in that part the same color.
 
 This presentation of the algorithm is based on \cite{Constructive}.
 \begin{algorithm}[H]
@@ -587,36 +559,37 @@ produce. Then vertex recoloring that has the lowest new number of clashes, even
 if positive, is applied.
 
 This can however introduce cycles, certain recolorings leading into each other
-ad infinitum. To prevent this, the Tabu list is used. A Tabu list is a list 
-of vertex-color pairs $(v,u)$. Whenever a new vertex recoloring is made, it is
+ad infinitum. To prevent this, the Tabu list is used. A Tabu list is a list of
+vertex-color pairs $(v,u)$. Whenever a new vertex recoloring is made, it is
 added to the Tabu list. A new vertex recoloring is only considered if it's not a
 part of the Tabu list. This tabu list have a set size, so that the first element
-is removed when a new vertex-color pair is added. If there are more than one coloring 
-that give the lowest increase in clashes, so is that broken randomly, also to avoid cycles.
+is removed when a new vertex-color pair is added. If there are more than one
+coloring that give the lowest increase in clashes, so is that tie broken
+randomly, also in order to avoid cycles.
 
 Tabu moves are however allowed in some scenarios, specifically if applying that
 coloring would create a better recoloring than the previous best, which is
 commonly referred to as the aspiration. Whenever a new coloring is applied, the
-current number of clashes are calculated, and the aspirations is set to that
-number minus one.  A new coloring that is on the tabu list is then allowed
-given that applying that coloring would result in a new number of clashes below
-the current aspiration.
+current number of clashes are calculated, and if it is below the current
+aspiration so is the aspiration updated to that number.  A new coloring that is
+on the tabu list is then allowed given that applying that coloring would result
+in a new number of clashes below the current aspiration.
 
 This process of picking a new vertex recoloring is repeated until a coloring
 with zero clashes is produced, or a predetermined number of moves have been
 made. As the algorithm only get's a valid coloring for a specific $k$, we also
 must have a way to utilise this algorithm to get the lowest possible coloring.
-Here a similar method described in \cite{Constructive} is used, that is, first a coloring
-is made with RLF, and assign then number of colors in that coloring to $k$ .
-The then we try to color it with TabuCol with that amount of colors minus one,
-and subtract $k$ by one overtime we succeed, until we fail, at which point we
-say that the current $k$ is the lowest we can go.
+Here a similar method described in \cite{Constructive} is used, that is, first a
+coloring is made with RLF, and assign then number of colors in that coloring to
+$k$.  The then we try to color it with TabuCol with that amount of colors minus
+one, and subtract $k$ by one overtime we succeed, until we fail, at which point
+we say that the current $k$ is the lowest we can go.
 
 TabuCol has some subtle variations, and this particular definition is based on
-the presentation in \cite{Constructive}. Alternatives are for example whether or not all
-possible recolorings are consider, if only the first coloring with a lower clash
-count is considered, and if one allows vertices that don't have any clashes to
-be recolored.
+the presentation in \cite{Constructive}. Alternatives are for example whether or
+not all possible recolorings are consider, if only the first coloring with a
+lower clash count is considered, and if one allows vertices that don't have any
+clashes to be recolored.
 
 \todo[noline]{Define clashes}
 \begin{algorithm}[H]
@@ -673,7 +646,7 @@ be recolored.
 \section{Strategies}
 \label{sec:Strategies}
 In the case where the whole graph doesn't contain any prime modules, coloring
-with \autoref{alg:generic} is in linear time (REFERENS). It is when coloring prime modules
+with \autoref{alg:generic} is in linear time \cite{MDLinear}. It is when coloring prime modules
 that we have to apply the heuristics, and these different methods are
 described in this part.
 
@@ -719,7 +692,6 @@ graph.
     \in E)   \}   $
 \end{definition}
 
-\todo[noline]{Add pseudocode}
 \begin{algorithm}[H]
   \caption{Quotient color prime module}
   \algsetup{linenodelimiter=}
@@ -771,14 +743,13 @@ The algorithm for generating these graphs is described in \autoref{alg:RDCG}.
 First an ordinary binary tree is randomly generated with a specified amount of
 leafs , and then every label in this tree is given a label "series" or
 "parallel".  This then describes a cograph, where the leafs are the K1 bases,
-and a label of "series" means that the children are joined by disjoint union
-and a label of "parallel" means that the children are joined by graph join.
-From this so can the corresponding graph be constructed. From this graph, we
-also randomly add edges in predetermined number of modules and with a
-predetermined size. This then forms a graph with a modular decomposition which
-doesn't contain a prime module as the root, but still contains prime modules.
+and a label of "series" means that the children are joined by disjoint union and
+a label of "parallel" means that the children are joined by graph join.  From
+this so can the corresponding graph be constructed. From this graph, we also
+randomly add edges in predetermined number of modules and with a predetermined
+size. This then forms a graph with a modular decomposition which doesn't contain
+a prime module as the root, but still most likely contains some prime modules.
 
-\subsection{Random graph generation}
 
 \begin{algorithm}[H]
     \caption{Construct cograph}
@@ -813,7 +784,7 @@ doesn't contain a prime module as the root, but still contains prime modules.
       \REQUIRE Prime modules count $mc$
 
       \STATE $bg \leftarrow \text{Random binary graph with leaf count equal to $l$}$
-      \FORALL{$v \in bg$}
+      \FORALL{$v \in V(bg)$}
         \STATE Randomly assign a label  \textit{series}, or \textit{parallel} to $v$, so
         that the probability for \textit{series} is $p$.
       \ENDFOR
@@ -823,7 +794,7 @@ doesn't contain a prime module as the root, but still contains prime modules.
       \STATE $pm \leftarrow \text{All strong modules $M$ of $CG$ such that $|M| \geq ms$, ordered in increasing order by size}$
       \FOR{$i \cdots mc$}
         \STATE $cm \leftarrow \text{The module at index $i$ in $pm$}$
-        \FORALL{vertex pairs $(u,v)$ where $u,v \in V(CG[cm])$}
+        \FORALL{vertex pairs $(u,v) \in E(CG[cm])$}
             \STATE Modify $CG$ by adding edge $(u,v)$ with a chance of $pe$
         \ENDFOR
       \ENDFOR
@@ -839,26 +810,29 @@ can also construct modular decomposition with various percentage prime modules.
 
 
 \section{Evaluation}
-
+\label{sec:Evaluation}
 There are a number of parameters that affect the generated graph, mainly the
 number of vertices in the generate graph, the percent of "serial" when generatin
 a random cograph, and the percent for edges within a module, and finally the
-amount and size of the prime modules.
+amount and size of the prime modules. The heuristics used also have som
+parameters that can be tuned.
+
+\subsection{data}
 
 The graphs generated where of four different sizes, 250, 500, 750 and 1000. 
 Within these categories so were also a few different configurations of graphs
-tested. Whether or not many smaller or fewer large prime modules is better 
-when applying locally is tested by having either 10 or 5 prime modules, with a
-size so that amount*size is half of the size of the graph. The edge probability
-within modules is a  constant
-50\%, so that the different modules have roughly the same egde
-density. The final split is with serial percent. A higher serial percent yields
-a graph with more edges, and lower a graph with fewer  edges. The serial percent
-tested where 35\% and 70\%, resulting in a total of 16 different combinations,
-aswell as the DIMACS test set. The naming convention of the graphs are such that 
-the first number represents the size, the second the serial percent,
-and the third the amount of prime modules. All categories contain 15 graphs, 
-so that they can be colored in paralell efficiently.
+tested. Whether or not many smaller or fewer large prime modules is better when
+applying locally is tested by having either 10 or 5 prime modules, with a module
+size so that $amount \cdot module size$ is half of the size of the graph. The
+edge probability within modules is a  constant 50\%, so that the different
+modules have roughly the same egde density. The final split is with serial
+percent. A higher serial percent yields a graph with more edges, and lower a
+graph with fewer  edges. The serial percent tested where 35\% and 70\%,
+resulting in a total of 16 different combinations, aswell as the DIMACS test
+set. The naming convention of the graphs are such that the first number
+represents the size, the second the serial percent, and the third the amount of
+prime modules. All categories contain 15 graphs, so that they can be colored in
+paralell efficiently.
 
 The average time it took to color the graph is also displayed. Note however that
 system load may vary between different runs, and that because of the long
@@ -866,8 +840,18 @@ runtime for some test sets so are the tests not repeated to ensure statistical
 significance. The time should therefore be seen as accurate only when displaying
 large relative differences in time taken.
 
-Finally so does TabuCol contain some parameters that can be tuned. The amount of
-iterations allowed was for these test were set to 10000.
+\subsection{Heuristics}
+TabuCol contain some parameters that can be tuned. The amount of
+iterations allowed was for these test were set to 10000, making it the slowest
+algorithm to apply, while still being reasonably fast. The size of the tabu list 
+was also set to 7, as recommended by \cite{1990}.
+
+The threshold for the prime modules to color directly with a heuristic with
+the quotient coloring was set to a constant 20. The heuristic used to in turn
+color the quotient graph was set to RLF. It is reasonably fast with good
+performance. The reason the same heuristic was not used is because it would in
+the case of TabuCol possibly result in very excessive computations times, as the 
+modules can be deeply nested.
 
 \section{Results and evaluation}
 \label{sec:Result}
@@ -880,31 +864,142 @@ graphs is also included.
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
 \subsection{Results}
-\input{Tables/DIMACSResult.tex}
-\input{Tables/DisturbedCoGraph_1000_35_10Result.tex}
-\input{Tables/DisturbedCoGraph_1000_35_5Result.tex}
-\input{Tables/DisturbedCoGraph_1000_70_10Result.tex}
-\input{Tables/DisturbedCoGraph_1000_70_5Result.tex}
-\input{Tables/DisturbedCoGraph_250_35_10Result.tex}
-\input{Tables/DisturbedCoGraph_250_35_5Result.tex}
-\input{Tables/DisturbedCoGraph_250_70_10Result.tex}
-\input{Tables/DisturbedCoGraph_250_70_5Result.tex}
-\input{Tables/DisturbedCoGraph_500_35_10Result.tex}
-\input{Tables/DisturbedCoGraph_500_35_5Result.tex}
-\input{Tables/DisturbedCoGraph_500_70_10Result.tex}
-\input{Tables/DisturbedCoGraph_500_70_5Result.tex}
-\input{Tables/DisturbedCoGraph_750_35_10Result.tex}
-\input{Tables/DisturbedCoGraph_750_35_5Result.tex}
-\input{Tables/DisturbedCoGraph_750_70_10Result.tex}
-\input{Tables/DisturbedCoGraph_750_70_5Result.tex}
+\newpage
+\begin{table}[h]
+    \centering
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_1000_35_10Result.tex}
+        \caption{1000 35 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_1000_35_5Result.tex}
+        \caption{1000 35 5}
+    \end{subtable}
+    \hfill
+    \vfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_1000_70_10Result.tex}
+        \caption{1000 70 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_1000_70_5Result.tex}
+        \caption{1000 70 5}
+    \end{subtable}
+    \caption{Disturbed cograph 1000 vertices}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_750_35_10Result.tex}
+        \caption{750 35 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_750_35_5Result.tex}
+        \caption{750 35 5}
+    \end{subtable}
+    \hfill
+    \vfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_750_70_10Result.tex}
+        \caption{750 70 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_750_70_5Result.tex}
+        \caption{750 70 5}
+    \end{subtable}
+    \caption{Disturbed cograph 750 vertices}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_500_35_10Result.tex}
+        \caption{500 35 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_500_35_5Result.tex}
+        \caption{500 35 5}
+    \end{subtable}
+    \hfill
+    \vfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_500_70_10Result.tex}
+        \caption{500 70 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_500_70_5Result.tex}
+        \caption{500 70 5}
+    \end{subtable}
+    \caption{Disturbed cograph 500 vertices}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_250_35_10Result.tex}
+        \caption{250 35 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_250_35_5Result.tex}
+        \caption{250 35 5}
+    \end{subtable}
+    \hfill
+    \vfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_250_70_10Result.tex}
+        \caption{250 70 10}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DisturbedCoGraph_250_70_5Result.tex}
+        \caption{250 70 5}
+    \end{subtable}
+    \caption{Disturbed cograph 250 vertices}
+\end{table}
 
+\begin{table}[h]
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/DIMACSResult.tex}
+        \caption{DIMACS}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.30\textwidth}
+        \centering
+        \input{Tables/CombinedResult.tex}
+        \caption{Combined DisturbedCoGraph results}
+    \end{subtable}
+    \caption{Dimacs and combined disturbed cographs}
+\end{table}
+
+\FloatBarrier
 \subsection{Discussion}
 
-Something that we can see immediately from the tables, is that applying a
-heuristic locally on prime modules doesn't significantly affect the resulting
-color for RLF,Greedy and DSatur. It does however seem to give a minor
-improvement for tabucol. The increase in performance is minor however, but does
-seem to scale with the complexity of the graph.
+Something that we can see from the tables, most easily from the table combining
+the results, is that applying a heuristic locally on prime modules doesn't
+significantly affect the resulting color for RLF,Greedy and DSatur. It does
+however seem to give a minor improvement for tabucol. 
 
 When it comes to performance, we can see that for RLF, DSatur and Greedy, that
 the runtime when applying locally on prime modules decreases with the size of
@@ -924,11 +1019,10 @@ decomposition tree be colored in paralell, which might for example compensate
 for the increased runtime when for example using TabuCol.
 
 Using the modular decomposition for a speed increase would however require a
-fast modular decomposition implementation.  While modular decomposition can be
-done in linear time (REFERENS), implementing this has proven to be difficult in
-practice (REFERENS). The baseline time for creating the modular decomposition
-would most likely only be offset for larger graphs, which is also where a
-linear time algorithm is required to save time.
+linear modular decomposition implementation, such as (REFERENS).  The baseline
+time for creating the modular decomposition would most likely only be offset for
+larger graphs, which is also where a linear time algorithm is required to save
+time.
 
 \printbibliography
 

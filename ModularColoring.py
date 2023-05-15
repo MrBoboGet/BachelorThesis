@@ -30,7 +30,6 @@ def first(Iterable):
         return(x)
 
 
-
 def RecolorComponents(ComponentsToRecolor,OutColoring,NodeColorMap):
     MaxMap = max( [NodeColorMap[x] for x in ComponentsToRecolor],key=lambda x: len(x))
     for NodeList in ComponentsToRecolor:
@@ -201,12 +200,6 @@ def GetMaxIndex(Iteratable):
     return ReturnValue
 
 def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
-    #Supporting coloring other stuff requires map
-    #MaxIndex = max(GraphToColor.nodes)+1
-    #IsAdjecent = [False]*MaxIndex
-    #Degree = [0]*MaxIndex
-    #TotalNodes = set(GraphToColor.nodes)
-    #ComponentNodes = set()
     IsAdjecent = {i: False for i in GraphToColor.nodes}
     Degree = {i: 0 for i in GraphToColor.nodes}
     TotalNodes = set(GraphToColor.nodes)
@@ -270,7 +263,6 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
 
 
 nbiter = 10000
-rep = 200
 tabsize = 7
 def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
     #Random K partition
@@ -332,95 +324,6 @@ def TabuSearch(GraphToColor: nx.DiGraph,CurrentColoring,K):
         return True
     else:
         return False
-def TabuSearch_Random(GraphToColor: nx.DiGraph,CurrentColoring,K):
-    Aspirations = {}
-    TabuList = deque()
-
-    #Random K partition
-    for Node in GraphToColor:
-        CurrentColoring[Node] = random.randrange(0,K)
-    
-    TotalConflictCount = 0
-    
-    for Edge in GraphToColor.edges:
-        if(CurrentColoring[Edge[0]] == CurrentColoring[Edge[1]]):
-            TotalConflictCount += 1
-    if(TotalConflictCount == 0):
-        return(True)
-    for i in range(nbiter):
-        RepCount = 0
-        BestMove = (100000000,0,0)
-        for Node in GraphToColor:
-            if(RepCount >= rep):
-                break
-            ConflictCount = 0
-            for Neighbour in GraphToColor.adj[Node]:
-                if(CurrentColoring[Node] == CurrentColoring[Neighbour]):
-                    ConflictCount += 1
-            if(ConflictCount != 0):
-                #Calculate new S for the move
-                NewColor = random.randrange(0,K)
-                #not completely uniform, but whatever
-                if(NewColor == CurrentColoring[Node]):
-                    NewColor = (NewColor+1) % K
-                #calculate the conflict count this new coloring would give
-                NewConflict = 0
-                for Neigbour in GraphToColor.adj[Node]:
-                    if(NewColor == CurrentColoring[Neigbour]):
-                        NewConflict += 1
-                # This moves total new conflicts
-                NewTotalConflict = TotalConflictCount-ConflictCount+NewConflict
-
-                # Check in in tabu
-                if( (Node,NewColor) in TabuList):
-                    if(not (NewTotalConflict <= Aspirations.setdefault(TotalConflictCount,TotalConflictCount-1))):
-                        continue
-                if(NewTotalConflict < BestMove[0]):
-                    BestMove = (NewTotalConflict,Node,NewColor)
-                RepCount += 1
-                if(NewTotalConflict < TotalConflictCount):
-                    break
-        if(BestMove[0] == 100000000):
-            break
-        Aspirations[TotalConflictCount] = BestMove[0]-1
-        TotalConflictCount = BestMove[0]
-        TabuList.append( (BestMove[1],BestMove[2]))
-        if( len(TabuList) > tabsize):
-            TabuList.popleft()
-        CurrentColoring[BestMove[1]] = BestMove[2]
-
-        if(TotalConflictCount == 0):
-            break
-
-    if(TotalConflictCount == 0):
-        return True
-    else:
-        return False
-
-
-def BinarySearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,ColorList):
-    Max = len(ColorList)-1
-    Min = 0
-    BestColoring = []
-    while( Max != Min):
-        CurrentGuess = floor( (Min+Max)/2)
-        ResultColoring = CurrentColoring.copy()
-        IsPossible = KIsPossibleHeuristic(GraphToColor,ResultColoring,CurrentGuess)
-        if( IsPossible):
-            BestColoring = ResultColoring
-            Max = CurrentGuess-1
-        else:
-            Min = CurrentGuess+1
-    if(len(BestColoring) == 0):
-        raise Exception("BinarySearchCombinator unable to create a coloring")
-    #The coloring a always uses colors 0-len(ColorList)-1, recolor the graph to use the 
-    #colors we were allowed to use
-    UsedColors = set()
-    ColorListVector = list(ColorList)
-    for Node in GraphToColor.nodes:
-        CurrentColoring[Node] = ColorListVector[ BestColoring[Node]]
-        UsedColors.add( ColorListVector[BestColoring[Node]])
-    return(UsedColors)
 
 def LinearSearchCombinator(KIsPossibleHeuristic,GraphToColor,CurrentColoring,ColorList):
     DSaturColors = RLF(GraphToColor,CurrentColoring,ColorList)
@@ -450,43 +353,6 @@ def VerifyColoring(Graph,Coloring):
             if(Coloring[Node] == Coloring[Neighour]):
                 return(False)
     return(ReturnValue)
-
-def CoColorNumber(Graph,MD,CurrentModule,Coloring):
-    ReturnValue = set()
-    if(len(CurrentModule) == 1):
-        return(set([Coloring[first(CurrentModule)]]))
-    Label = MD.nodes[CurrentModule]['MDlabel']
-    if Label == "p":
-        return(set())
-    for ChildModule in MD.successors(CurrentModule):
-        ReturnValue.update(CoColorNumber(Graph,MD,ChildModule,Coloring))
-    return(ReturnValue)
-
-def GetCoVertices(MD,CurrentModule):
-    ReturnValue = set()
-    if(len(CurrentModule) == 1):
-        return(CurrentModule)
-    Label = MD.nodes[CurrentModule]['MDlabel']
-    if Label == "p":
-        return(set())
-    for ChildModule in MD.successors(CurrentModule):
-        ReturnValue.update(GetCoVertices(MD,ChildModule))
-    return(ReturnValue)
-def GetCoGraph(Graph,MD,Root):
-    CoVertices = GetCoVertices(MD,Root)
-    return(nx.induced_subgraph(Graph,CoVertices))
-
-def CalculateOptimal(G,MD,Root):
-    if(len(Root) == 1):
-        return(1)
-    if(MD.nodes[Root]['MDlabel'] == "1"):
-        Children = MD.successors(Root)
-        return sum([CalculateOptimal(G,MD,Child) for Child in Children])
-    elif(MD.nodes[Root]['MDlabel'] == "0"):
-        Children = MD.successors(Root)
-        return max([CalculateOptimal(G,MD,Child) for Child in Children])
-    else:
-        return(gp.chromatic_number(nx.induced_subgraph(G,Root)))
 
 Filename = os.path.basename(sys.argv[1])
 G = nx.read_edgelist(sys.argv[1],nodetype=int)
