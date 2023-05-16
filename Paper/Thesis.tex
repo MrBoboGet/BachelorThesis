@@ -1,4 +1,6 @@
-\documentclass{amsart}
+%\documentclass{amsart}
+%\documentclass[11pt, a4paper, two-sided,]{scrreport}
+\documentclass[a4paper]{article}
 
 % COPY PASTE
 
@@ -81,16 +83,49 @@
 
 \author{Emanuel Berggren}
 \title{Graph coloring using modular decomposition}
+%template
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{eso-pic}
+\usepackage{graphicx}
+\renewcommand{\familydefault}{\sfdefault}
+\setlength{\parindent}{0pt}
+\pagestyle{empty}
+%\setlength{\headsep}{5cm}
+%\setlength{\oddsidemargin}{5mm}
+
+\newcommand{\Framsida}{\AddToShipoutPicture*{\put(0,0){\includegraphics{kandidatfram.pdf}}}}
+
+\newcommand{\Baksida}{\AddToShipoutPicture*{\put(0,0){\includegraphics{kandidatbak.pdf}}}}
+%template
+
+
+\usepackage{datetime}
+\newdateformat{monthyeardate}{%
+      \monthname[\THEMONTH], \THEYEAR}
+
+%
+%\begin{document}
+%\maketitle
 
 \begin{document}
-\maketitle
 
-\section{Abstract}
+\Framsida 
+\vspace*{4cm}
+\Huge{Fin titel}\\\\ %Fyll i titel
+\Large{Emanuel Berggren} %Fyll i författare
 
-\todo[noline]{Execution time is difficult to measure, but the difference in
-results here are quite large, so probably something worth measuring. Might need
-to update my implementation however}
+\vspace*{12cm}
+\Large{Handledare: Marc Hellmuth} \\ 
+\Large{Examinator: } \\ 
+\Large{Inlämningsdatum: \today}\\
 
+%\section{Abstract}
+\begin{center}
+	\textbf{Abstract}
+\end{center}
+\textit{
 Graph coloring is one of the most common and studied problems in computer
 science. It has application in many different areas, such as (EXAMPLES), but
 being NP-Hard means that optimal solutions are infeasible, and in turn that most
@@ -100,6 +135,7 @@ into distinct partitions of vertices where some parts can be colored optimally,
 and some parts require other heuristics. This strategy of coloring with the
 modular decomposition was found to give a small increase in performance for the
 TabuCol heuristic, but no increase for the other tested heuristics.
+}
 
 %but the modular decomposition could have applicability in
 %designing parallel coloring algorithms or to improve execution time with a
@@ -185,7 +221,7 @@ The definitions used here is based of the definitions in
 In many cases, one is interested in some parts of the graph, and one of the
 most common ways to subset a graph is through the induced subgraph. The induced
 subgraph is a graph constructed by only including a subset of the original
-graphs vertices, and a subset of the edges between them.
+graphs vertices, and all edges between these vertices.
 
 \begin{definition}[Subgraph]
     A subgraph $S = (V',E')$ of a graph $G = (V,E)$, is a graph such that
@@ -331,13 +367,13 @@ modules.
 
 The modular decomposition of a graph has a number of useful properties. The
 modular decomposition of a graph forms a hierarchy (REFERENS), meaning that strong modules
-can be partioned into other strong modules. This hierarchy of modules has a
+can be partitioned into other strong modules. This hierarchy of modules has a
 natural representation as a tree, the modular decomposition tree.
 
 This tree describes the original graph in terms of a tree, where every vertex 
 in the tree represents a strong module, with the root being the strong module
-containing all vertices. This tree also describes how the indueced subgraph of the
-module can be constructed from the indueced subgraphs of it's children.
+containing all vertices. This tree also describes how the induced subgraph of the
+module can be constructed from the induced subgraphs of it's children.
 \begin{definition}[Modular decomposition tree]
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
     vertex labeled tree such that every vertex is associated with a strong
@@ -408,7 +444,7 @@ graph.
   \end{algorithmic}
 \end{algorithm}
 
-Here, the last condition is of main interest, how to modularly-minimaly 
+Here, the last condition is of main interest, how to modularly-minimally 
 color a prime vertex.
 
 \section{Heuristics}
@@ -469,7 +505,7 @@ for the algorithm is higher, being
 $O((|V|+|E|)\log{|V|})$ \cite{Constructive}.
 
 DSatur being a well studied algorithm also means that it has some variations in 
-the litterature, and this presentation is based on \cite{Constructive}.
+the literature, and this presentation is based on \cite{Constructive}.
 
 \begin{algorithm}[H]
   \caption{Dsatur}
@@ -501,8 +537,8 @@ non-adjacent to each other. This ensures that every partition can share the
 same color. 
 
 This construction is made part for part in the partition.  Every part starts
-emtpy, then the vertex with the highest degree in the induced subgraph of
-unpartitioned vertices is added, such that it isn't the neighbour of any vertex
+empty, then the vertex with the highest degree in the induced subgraph of
+npartitioned vertices is added, such that it isn't the neighbour of any vertex
 in the current part.  This process is repeated until no such vertex exist, the
 current part is then added to the partition, and a new empty partition is the
 current partition. When all of the vertices have been partitioned so is the
@@ -626,8 +662,7 @@ clashes to be recolored.
                     \ENDIF
                 \ENDFOR
             \ENDFOR
-            \STATE $(v',u') \leftarrow \text{where $(v',u') \in Reps$ and
-            $\textbf{Clashes}(\sigma,G)$ with $(v',u')$ applied is minimal, choose randomly among ties }$
+            \STATE $(v',u') \leftarrow $ where $(v',u') \in Reps$ and $\textbf{Clashes}(\sigma,G)$ with $(v',u')$ applied is minimal, ties broken randomly
             \STATE Update $\sigma$ so that $\sigma(v') = u'$
             \STATE $CurrentClash \leftarrow \textbf{Clashes}(\sigma,G)$
             \IF{$CurrentClash \leq Asp $}
@@ -678,8 +713,8 @@ is then colored using RLF, and then every child module with the same
 color in the quotient graph can now be recolored to use the same set of colors.
 
 The quotient graph is graph describing whether or not vertex partitions of a
-graph are adjecent or not, instead of individual vertices. Two vertex
-partitions are adjecent in the quotient graph if there exists an edge between
+graph are adjacent or not, instead of individual vertices. Two vertex
+partitions are adjacent in the quotient graph if there exists an edge between
 any pair of vertices, where one part is in the first partition, and the other
 part is in the other partition. A quotient graph where the partition is all of
 the original vertices individually, is therefore homomorphic to the original
@@ -724,8 +759,6 @@ graph.
 
   \end{algorithmic}
 \end{algorithm}
-
-The threshold used for the test is 20 vertices.
 
 \section{Data generation}
 \label{sec:Data}
@@ -777,7 +810,7 @@ a prime module as the root, but still most likely contains some prime modules.
   \algsetup{linenodelimiter=}
   \label{alg:RDCG}
   \begin{algorithmic}[1]
-      \REQUIRE Percent $p$ for serial, $0 \neq p \neq 1$.
+      \REQUIRE Percent $p$ for series, $0 \neq p \neq 1$.
       \REQUIRE Percent $pe$ for new  edge, $0 \neq pe \neq 1$.
       \REQUIRE Total amount of leafs $l$, $0 < l$.
       \REQUIRE Prime modules size $ms$
@@ -812,9 +845,9 @@ can also construct modular decomposition with various percentage prime modules.
 \section{Evaluation}
 \label{sec:Evaluation}
 There are a number of parameters that affect the generated graph, mainly the
-number of vertices in the generate graph, the percent of "serial" when generatin
+number of vertices in the generate graph, the percent of "series" when generating
 a random cograph, and the percent for edges within a module, and finally the
-amount and size of the prime modules. The heuristics used also have som
+amount and size of the prime modules. The heuristics used also have some
 parameters that can be tuned.
 
 \subsection{data}
@@ -825,20 +858,15 @@ tested. Whether or not many smaller or fewer large prime modules is better when
 applying locally is tested by having either 10 or 5 prime modules, with a module
 size so that $amount \cdot module size$ is half of the size of the graph. The
 edge probability within modules is a  constant 50\%, so that the different
-modules have roughly the same egde density. The final split is with serial
-percent. A higher serial percent yields a graph with more edges, and lower a
-graph with fewer  edges. The serial percent tested where 35\% and 70\%,
-resulting in a total of 16 different combinations, aswell as the DIMACS test
+modules have roughly the same edge density. The final split is with series
+percent. A higher series percent yields a graph with more edges, and lower a
+graph with fewer  edges. The series percent tested where 35\% and 70\%,
+resulting in a total of 16 different combinations, as well as the DIMACS test
 set. The naming convention of the graphs are such that the first number
-represents the size, the second the serial percent, and the third the amount of
+represents the size, the second the series percent, and the third the amount of
 prime modules. All categories contain 15 graphs, so that they can be colored in
-paralell efficiently.
+parallel efficiently.
 
-The average time it took to color the graph is also displayed. Note however that
-system load may vary between different runs, and that because of the long
-runtime for some test sets so are the tests not repeated to ensure statistical
-significance. The time should therefore be seen as accurate only when displaying
-large relative differences in time taken.
 
 \subsection{Heuristics}
 TabuCol contain some parameters that can be tuned. The amount of
@@ -855,11 +883,16 @@ modules can be deeply nested.
 
 \section{Results and evaluation}
 \label{sec:Result}
-\todo[noline]{More everything, very unfinished}
-The tables result the averaged performance for coloring the graphs in the
+The tables contain the averaged performance for coloring the graphs in the
 respective test sets. All graphs are colored with all combinations of heuristic
 and combination strategy. A final table displaying the total average between all
-graphs is also included.
+graphs disturbed cographs, as well as the performance on DIMACS graphs.
+
+The average time it took to color a single graph is also displayed. Note
+however that system load may vary between different runs, and that because of
+the long runtime for some test sets so are the tests not repeated to ensure
+statistical significance. The time should therefore be seen as accurate only
+when displaying large relative differences in time taken.
 
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
@@ -990,7 +1023,7 @@ graphs is also included.
         \input{Tables/CombinedResult.tex}
         \caption{Combined DisturbedCoGraph results}
     \end{subtable}
-    \caption{Dimacs and combined disturbed cographs}
+    \caption{DIMACS and combined disturbed cographs}
 \end{table}
 
 \FloatBarrier
@@ -999,31 +1032,54 @@ graphs is also included.
 Something that we can see from the tables, most easily from the table combining
 the results, is that applying a heuristic locally on prime modules doesn't
 significantly affect the resulting color for RLF,Greedy and DSatur. It does
-however seem to give a minor improvement for tabucol. 
+however seem to give a minor improvement for TabuCol. 
 
-When it comes to performance, we can see that for RLF, DSatur and Greedy, that
+Looking at the difference between series probability of 35\% versus 70\%, it
+seems like the performance for TabuCol is better for the sparser graph with
+35\% series probability. There also doesn't seem to be any direct difference
+with the number of prime modules, both 10 and 5 seem to perform similarly.
+
+The result for the quotient strategy always seems comparable to the performance
+of RLF. It can be seen to outperform is slightly for some combinations, but it
+also exhibits a much larger runtime, most notable for the DIMACS test set. The
+performance benefit most likely doesn't compensate for the increased runtime
+however, even for a more optimized implementation.
+
+When it comes to execution speed, we can see that for RLF, DSatur and Greedy that
 the runtime when applying locally on prime modules decreases with the size of
-the graph.  As the non-prime parts of the graph can be colored in linear time by
-the \autoref{alg:generic}, the prime modules left has a size smaller than the
-total graph.  Algorithms whose runtime scales nonlinearly with the size of the
-graph might can get a speed increase when applying locally only on the prime
-modules, as demonstrated here.  This was however not the case for TabuCol, which
-might be because of the high constant time setup for the algorithm, and because
-the number of applications of the algorithm doesn't neccesarilly have clear
-correlation with size of the graph.
+the graph. As the non-prime parts of the graph can be colored in linear time
+by the \autoref{alg:generic}, the prime modules left has a size smaller than
+the total graph.  Algorithms whose runtime scales nonlinearly with the size of
+the graph can get a speed increase when applying locally only on the
+prime modules, as demonstrated here.  This was however not the case for
+TabuCol, which would imply that the runtime is approximately linear in relation
+to the graph size in practice.
 
-Another advantage with the modular decomposition is that it could allow for more
-easily implemented paralellisad coloring algorithms. As the modular creates a
-partition of the graph vertices, so can the different parts of the modular
-decomposition tree be colored in paralell, which might for example compensate
-for the increased runtime when for example using TabuCol.
+Another advantage with the modular decomposition is that it could allow for
+more easily implemented parallelised coloring algorithms. As the modular
+creates a partition of the graph vertices, so can the different parts of the
+modular decomposition tree be colored in parallel, which might for example
+compensate for the increased runtime when for example using TabuCol.
 
 Using the modular decomposition for a speed increase would however require a
-linear modular decomposition implementation, such as (REFERENS).  The baseline
-time for creating the modular decomposition would most likely only be offset for
-larger graphs, which is also where a linear time algorithm is required to save
-time.
+linear modular decomposition implementation, such as that presented in
+\cite{MDLinear}.  The baseline time for creating the modular decomposition would
+most likely only be offset for larger graphs, which is also where a linear time
+algorithm would be required to save time.
 
 \printbibliography
+
+\newpage
+\Baksida %Kommentera för att bli av med loggan
+\vspace*{13cm}
+%Kandidatuppsats 2010:11\\ %Fyll i löpnummer
+Datalogi\\
+%September 2010\\\\ % Fyll i månad och år
+\monthyeardate\today\\
+www.math.su.se\\\\
+Beräkningsmatematik\\
+Matematiska institutionen\\
+Stockholms universitet\\
+106 91 Stockholm\\
 
 \end{document}
