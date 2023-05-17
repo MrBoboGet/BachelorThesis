@@ -147,6 +147,8 @@ TabuCol heuristic, but no increase for the other tested heuristics.
 
 \section{Introduction}
 
+\todo[inline]{Rewrite}
+
 In this thesis, we investigate a new heuristic using the modular decomposition of
 a graph, that is used alongside other traditional graph coloring heuristics.
 
@@ -197,7 +199,8 @@ Finally, the way the data is evaluated and the results are presented in
 \subsection{Graph basics}
 \label{sec:GraphBasics}
 
-The definitions used here is based of the definitions in 
+%The definitions used here is based of the definitions in 
+If not stated differently, the definitions here have been taken from 
 \cite{GraphBasics}.
 
 \begin{definition}[Graph]
@@ -265,6 +268,7 @@ input graph adds a new edge to the other input graphs.
     $G = \left( \bigcup V_i,\bigcup E_i \right)$.
 \end{definition}
 
+\todo[noline]{Haven't found a paper actually defining the Graph join}
 \begin{definition}[Graph join]
     The graph join $\nabla G_i$ for graphs $G_i = (V_i,E_i)$ where 
     $\bigcap_i V_i = \varnothing$, is the graph $G = (\{\bigcup V_i,
@@ -301,22 +305,22 @@ vertex, and edges are added if two countries share a border.
     A graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
     where $C$ is a set of colors, such that no neighbours share the same color,
     that is $(u,v) \in E \to \sigma(u) \neq \sigma(v)$. We say that $\sigma$
-    is a $k$ coloring if $|C| \leq k$.
+    is a $k$ coloring if $|C| \leq k$. A graph coloring is also called a proper coloring,
+    to distinguish it from a Partial coloring and an improper coloring.
 \end{definition}
-\begin{definition}[Partial coloring]
-    A partial graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
-    where $C$ is a set of colors, with the special 'EMPTY' color, such that no
-    neighbours share the same color, unless that coloring is empty, that is
-    $(u,v) \in E \to \sigma(u) \neq \sigma(v) \vee \sigma(u) = \sigma(v) = EMPTY$. 
+\begin{definition}[Partial coloring]{\cite{Constructive}}
+    A partial graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $P \subset V$ to $C$,
+    where $C$ is a set of colors, such that for every vertex in $P$ no neighbours 
+    share the same color, that is $u \in P,v \in P, (u,v) \in E  \to \sigma(u) \neq \sigma(v)$.
 \end{definition}
-\begin{definition}[Improper coloring]
+\begin{definition}[Improper coloring]{\cite{Constructive}}
     An improper graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from
     $V$ to $C$, where $C$ is a set of colors, allowing for clashes in coloring,
     that is neighbours can share the same color.
 \end{definition}
 \begin{definition}[Chromatic number]
-    The chromatic number of a graph $G = (V,E)$, denoted by $\chi(G)$,
-    is the least amount of colors needed to color the graph.
+    The chromatic number of a graph $G = (V,E)$, denoted by $\chi(G)$, is the
+    least amount of colors needed to color the graph with a proper coloring.
 \end{definition}
 
 Finding a coloring for a graph is easy, one could for example use
@@ -334,18 +338,14 @@ as possible but not necessarily optimal, have to be used.
 \subsection{Graph modules and cographs}
 \label{sec:GraphModules}
 
-\begin{definition}[Closure]
-    A set $S$ is closed under some operator $P$, if 
-    $ P(v_1,\cdots v_i) \in S$ when $v_1,\cdots v_i \in S$.
-\end{definition}
-
-\begin{definition}[Cograph]
-    The set of cographs $\textbf{Co}$, is a set containing $K_1$ that is closed under 
-    graph join and disjoint union. A graph $G$ is a cograph if $G \in \textbf{Co}$.
+\begin{definition}[Cograph]{\cite{CoGraph}}
+  A graph $G$ is a \emph{cograph} if $G=K_1$, $G$ is the disjoint union
+  $G=\bigcupdot_i G_i$ of cographs $G_i$, or $G$ is a join
+  $G=\bigjoin_i G_i$ of cographs $G_i$.
 \end{definition}
 
 
-\begin{definition}[Graph module]
+\begin{definition}[Graph module]{\cite{Module}}
     Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $M \subset V$
     is a module of $G$ if, $\forall x,y \in M (N_G(x) \setminus M = N_G(y) \setminus M)  $. A module $M$ is
     strong if it does not overlap with any other module $M'$, i.e, if 
@@ -361,8 +361,8 @@ the modular decomposition, is that it's a cograph approximation of the original
 graph, where parts that don't have a cograph structure are replaced with prime
 modules.
 
-\todo[noline]{Update definition}
-\begin{definition}[Modular decomposition]
+\todo[noline]{Update definition. Unsure which paper to cite}
+\begin{definition}[Modular decomposition]{\cite{HCL}}
     The modular decomposition MD for a graph $G =(V,E)$, is the set of all
     strong modules of the graph.
 \end{definition}
@@ -376,7 +376,9 @@ This tree describes the original graph in terms of a tree, where every vertex
 in the tree represents a strong module, with the root being the strong module
 containing all vertices. This tree also describes how the induced subgraph of the
 module can be constructed from the induced subgraphs of it's children.
-\begin{definition}[Modular decomposition tree]
+
+\todo[noline]{What could be a proper reference...}
+\begin{definition}[Modular decomposition tree]{\cite{HCL}}
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
     vertex labeled tree such that every vertex is associated with a strong
     module $X$ in $G$, and with a label distinguishing 3 cases.
@@ -493,10 +495,10 @@ how this traversal is constructed. In greedy, this traversal is an arbitrary
 order, but for Dsatur this traversal is constructed in a deterministic fashion,
 by using the saturation degree.
 
-\begin{definition}[Saturation degree]
+\begin{definition}[Saturation degree]{\cite{Constructive}}
     The saturation degree $sat(v)$ for a vertex $v \in V$ for a graph $G =
-    (V,E)$ and a partial coloring $\sigma$ to the set of colors $C$, is the amount of unique colors among
-    it's colored neighbours, that is $sat(v) = |\{c  : c = \sigma(u), u \in N_G(v),c \neq EMPTY  \}|$.
+    (V,E)$ and a partial coloring $\sigma$ from $P \subset V$ the set of colors $C$, is the amount of unique colors among
+    it's colored neighbours, that is $sat(v) = |\{c  : c = \sigma(u), u \in N_G(v),u \in P  \}|$.
 \end{definition}
 
 The vertex are colored so that the vertex with the highest saturation degree is
@@ -719,9 +721,10 @@ graph are adjacent or not, instead of individual vertices. Two vertex
 partitions are adjacent in the quotient graph if there exists an edge between
 any pair of vertices, where one part is in the first partition, and the other
 part is in the other partition. A quotient graph where the partition is all of
-the original vertices individually, is therefore homomorphic to the original
+the original vertices individually, is therefore isomorphic to the original
 graph.
 
+\todo[noline]{reference}
 \begin{definition}[Quotient graph]
     The quotient graph $Q$ for a graph $G = (V,E)$ over partition 
     $P = \{P_1 \cdots P_i\}$  of the vertices $V$, is a graph 
@@ -876,12 +879,12 @@ iterations allowed was for these test were set to 10000, making it the slowest
 algorithm to apply, while still being reasonably fast. The size of the tabu list 
 was also set to 7, as recommended by \cite{1990}.
 
-For the quotient coloring, the threshold for the prime modules to color
-directly with a heuristic with was set to a constant 20. The heuristic used to
-in turn color the quotient graph was set to RLF. It is reasonably fast with
-good performance. The reason the same heuristic was not used is because it
-would in the case of TabuCol possibly result in very excessive computation
-times, as the modules can be deeply nested.
+For the quotient coloring, the threshold for the number of vertices in a prime
+module to color directly with a heuristic was set to a constant 20. The
+heuristic used to in turn color the quotient graph was set to RLF. It is
+reasonably fast with good performance. The reason the same heuristic was not
+used is because it would in the case of TabuCol possibly result in very
+excessive computation times, as the modules can be deeply nested.
 
 \section{Results}
 \label{sec:Result}
@@ -950,7 +953,6 @@ Still trying to figure out how to center the tables...}
         \centering
         \input{Tables/DisturbedCoGraph_750_70_10Result.tex}
         \caption{750 70 10}
-
         \label{table:quotient}
     \end{subtable}
     \hfill
@@ -1029,7 +1031,6 @@ Still trying to figure out how to center the tables...}
         \centering
         \input{Tables/CombinedResult.tex}
         \caption{Combined DisturbedCoGraph results}
-
         \label{table:combined}
     \end{subtable}
     \caption{DIMACS and combined disturbed cographs}
@@ -1053,7 +1054,7 @@ with the number of prime modules, both 10 and 5 seem to perform similarly.
 
 The result for the quotient strategy always seems comparable to the performance
 of RLF. While it can be seen to outperform pure RLF very slightly for some combinations,
-such as \table{table:quotient}, 
+such as \autoref{table:quotient}, 
 \todo{More tests to ensure significance? Redundant as it's still an arbitrary test set?}
 so is the sample size to small to draw any conclusions. 
 It also exhibits a much larger runtime, most notable for the DIMACS test set.
@@ -1061,7 +1062,7 @@ The potential performance benefit most likely doesn't compensate for the
 increased runtime however, even with a more optimized implementation.
 
 
-Looking at the execution time, we can see that the modular decomposition might have a 
+Looking at the time taken to color the graphs, we can see that the modular decomposition might have a 
 use in decreasing the execution time. Graph coloring algorithms with execution time that
 doesn't scale linearly with the size of the graph could benefit from being applied
 more times on smaller subgraphs. But whether or not this is worth it in practice 
@@ -1072,7 +1073,7 @@ Another possible advantage with the modular decomposition is that it could
 allow for more easily implemented parallelised coloring algorithms. As the
 modular decomposition tree creates a partition of the graph vertices, so can
 the different parts of the modular decomposition tree be colored in parallel,
-could compensate for the increased runtime when for example using TabuCol.
+which could compensate for the increased runtime when for example using TabuCol.
 
 \printbibliography
 
