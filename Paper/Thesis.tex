@@ -113,12 +113,12 @@
 
 \Framsida 
 \vspace*{4cm}
-\Huge{Fin titel}\\\\ %Fyll i titel
+\Huge{Graph coloring using modular decomposition}\\\\ %Fyll i titel
 \Large{Emanuel Berggren} %Fyll i författare
 
 \vspace*{12cm}
 \Large{Handledare: Marc Hellmuth} \\ 
-\Large{Examinator: } \\ 
+\Large{Examinator: Marc Hellmuth} \\ 
 \Large{Inlämningsdatum: \today}\\
 
 %\section{Abstract}
@@ -130,10 +130,10 @@ Graph coloring is one of the most common and studied problems in computer
 science. It has application in many different areas, such as (EXAMPLES), but
 being NP-Hard means that optimal solutions are infeasible, and in turn that most
 practical problems require the use of heuristics. This thesis examines a
-heuristic based on the modular decomposition of a graph, a way to split the grab
+heuristic based on the modular decomposition of a graph, a way to split the graph
 into distinct partitions of vertices where some parts can be colored optimally,
 and some parts require other heuristics. This strategy of coloring with the
-modular decomposition was found to give a small increase in performance for the
+modular decomposition was found to give an increase in performance for the
 TabuCol heuristic, but no increase for the other tested heuristics.
 }
 
@@ -142,6 +142,8 @@ TabuCol heuristic, but no increase for the other tested heuristics.
 %practical linear time modular decomposition algorithm.
 
 
+
+\tableofcontents
 
 \section{Introduction}
 
@@ -319,7 +321,7 @@ vertex, and edges are added if two countries share a border.
 
 Finding a coloring for a graph is easy, one could for example use
 \autoref{alg:greedy}. Finding an optimal coloring however, a coloring using the
-fewest possible colors is NP-Hard \cite{NPHard}. For this purpose, multiple
+fewest possible colors, is NP-Hard \cite{NPHard}. For this purpose, multiple
 different heuristics, algorithms providing a proper coloring with as few colors
 as possible but not necessarily optimal, have to be used.
 
@@ -845,7 +847,7 @@ can also construct modular decomposition with various percentage prime modules.
 \section{Evaluation}
 \label{sec:Evaluation}
 There are a number of parameters that affect the generated graph, mainly the
-number of vertices in the generate graph, the percent of "series" when generating
+number of vertices in the generated graph, the percent of "series" when generating
 a random cograph, and the percent for edges within a module, and finally the
 amount and size of the prime modules. The heuristics used also have some
 parameters that can be tuned.
@@ -874,19 +876,19 @@ iterations allowed was for these test were set to 10000, making it the slowest
 algorithm to apply, while still being reasonably fast. The size of the tabu list 
 was also set to 7, as recommended by \cite{1990}.
 
-The threshold for the prime modules to color directly with a heuristic with
-the quotient coloring was set to a constant 20. The heuristic used to in turn
-color the quotient graph was set to RLF. It is reasonably fast with good
-performance. The reason the same heuristic was not used is because it would in
-the case of TabuCol possibly result in very excessive computations times, as the 
-modules can be deeply nested.
+For the quotient coloring, the threshold for the prime modules to color
+directly with a heuristic with was set to a constant 20. The heuristic used to
+in turn color the quotient graph was set to RLF. It is reasonably fast with
+good performance. The reason the same heuristic was not used is because it
+would in the case of TabuCol possibly result in very excessive computation
+times, as the modules can be deeply nested.
 
-\section{Results and evaluation}
+\section{Results}
 \label{sec:Result}
 The tables contain the averaged performance for coloring the graphs in the
 respective test sets. All graphs are colored with all combinations of heuristic
 and combination strategy. A final table displaying the total average between all
-graphs disturbed cographs, as well as the performance on DIMACS graphs.
+disturbed cographs, as well as the performance on DIMACS graphs.
 
 The average time it took to color a single graph is also displayed. Note
 however that system load may vary between different runs, and that because of
@@ -897,6 +899,9 @@ when displaying large relative differences in time taken.
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
 \subsection{Results}
+\todo[inline]{Bit unsure whether or not just dumping all the tables is appropriate.
+At the same time, just leaving out the results for aesthetics also seems silly. 
+Still trying to figure out how to center the tables...}
 \newpage
 \begin{table}[h]
     \centering
@@ -945,6 +950,8 @@ when displaying large relative differences in time taken.
         \centering
         \input{Tables/DisturbedCoGraph_750_70_10Result.tex}
         \caption{750 70 10}
+
+        \label{table:quotient}
     \end{subtable}
     \hfill
     \begin{subtable}[h]{0.30\textwidth}
@@ -1022,6 +1029,8 @@ when displaying large relative differences in time taken.
         \centering
         \input{Tables/CombinedResult.tex}
         \caption{Combined DisturbedCoGraph results}
+
+        \label{table:combined}
     \end{subtable}
     \caption{DIMACS and combined disturbed cographs}
 \end{table}
@@ -1029,10 +1038,13 @@ when displaying large relative differences in time taken.
 \FloatBarrier
 \subsection{Discussion}
 
-Something that we can see from the tables, most easily from the table combining
-the results, is that applying a heuristic locally on prime modules doesn't
-significantly affect the resulting color for RLF,Greedy and DSatur. It does
-however seem to give a minor improvement for TabuCol. 
+Something that we can see from the tables, most easily from
+\autoref{table:combined}, is that applying a heuristic locally on prime modules
+doesn't significantly affect the resulting color for RLF,Greedy and DSatur. It
+does however seem to give a minor improvement for TabuCol. In situations where
+one would consider using TabuCol with it's comparably larger execution time in
+the first place, so could it be reasonable to use the modular decomposition for
+increased performance.
 
 Looking at the difference between series probability of 35\% versus 70\%, it
 seems like the performance for TabuCol is better for the sparser graph with
@@ -1040,32 +1052,27 @@ seems like the performance for TabuCol is better for the sparser graph with
 with the number of prime modules, both 10 and 5 seem to perform similarly.
 
 The result for the quotient strategy always seems comparable to the performance
-of RLF. It can be seen to outperform is slightly for some combinations, but it
-also exhibits a much larger runtime, most notable for the DIMACS test set. The
-performance benefit most likely doesn't compensate for the increased runtime
-however, even for a more optimized implementation.
+of RLF. While it can be seen to outperform pure RLF very slightly for some combinations,
+such as \table{table:quotient}, 
+\todo{More tests to ensure significance? Redundant as it's still an arbitrary test set?}
+so is the sample size to small to draw any conclusions. 
+It also exhibits a much larger runtime, most notable for the DIMACS test set.
+The potential performance benefit most likely doesn't compensate for the
+increased runtime however, even with a more optimized implementation.
 
-When it comes to execution speed, we can see that for RLF, DSatur and Greedy that
-the runtime when applying locally on prime modules decreases with the size of
-the graph. As the non-prime parts of the graph can be colored in linear time
-by the \autoref{alg:generic}, the prime modules left has a size smaller than
-the total graph.  Algorithms whose runtime scales nonlinearly with the size of
-the graph can get a speed increase when applying locally only on the
-prime modules, as demonstrated here.  This was however not the case for
-TabuCol, which would imply that the runtime is approximately linear in relation
-to the graph size in practice.
 
-Another advantage with the modular decomposition is that it could allow for
-more easily implemented parallelised coloring algorithms. As the modular
-creates a partition of the graph vertices, so can the different parts of the
-modular decomposition tree be colored in parallel, which might for example
-compensate for the increased runtime when for example using TabuCol.
+Looking at the execution time, we can see that the modular decomposition might have a 
+use in decreasing the execution time. Graph coloring algorithms with execution time that
+doesn't scale linearly with the size of the graph could benefit from being applied
+more times on smaller subgraphs. But whether or not this is worth it in practice 
+depends on the ability to implement the modular decomposition tree in linear time, 
+and if the added computations can be compensated by large enough graphs.
 
-Using the modular decomposition for a speed increase would however require a
-linear modular decomposition implementation, such as that presented in
-\cite{MDLinear}.  The baseline time for creating the modular decomposition would
-most likely only be offset for larger graphs, which is also where a linear time
-algorithm would be required to save time.
+Another possible advantage with the modular decomposition is that it could
+allow for more easily implemented parallelised coloring algorithms. As the
+modular decomposition tree creates a partition of the graph vertices, so can
+the different parts of the modular decomposition tree be colored in parallel,
+could compensate for the increased runtime when for example using TabuCol.
 
 \printbibliography
 
