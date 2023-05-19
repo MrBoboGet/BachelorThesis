@@ -998,135 +998,28 @@ when displaying large relative differences in time taken.
 At the same time, just leaving out the results for aesthetics also seems silly. 
 Still trying to figure out how to center the tables...}
 \newpage
-\begin{table}[h]
-    \centering
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_1000_35_10Result.tex}
-        \caption{1000 35 10}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_1000_35_5Result.tex}
-        \caption{1000 35 5}
-    \end{subtable}
-    \hfill
-    \vfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_1000_70_10Result.tex}
-        \caption{1000 70 10}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_1000_70_5Result.tex}
-        \caption{1000 70 5}
-    \end{subtable}
-    \caption{Disturbed cograph 1000 vertices}
-\end{table}
-\begin{table}[h]
-    \centering
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_750_35_10Result.tex}
-        \caption{750 35 10}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_750_35_5Result.tex}
-        \caption{750 35 5}
-    \end{subtable}
-    \hfill
-    \vfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_750_70_10Result.tex}
-        \caption{750 70 10}
-        \label{table:quotient}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_750_70_5Result.tex}
-        \caption{750 70 5}
-    \end{subtable}
-    \caption{Disturbed cograph 750 vertices}
-\end{table}
-\begin{table}[h]
-    \centering
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_500_35_10Result.tex}
-        \caption{500 35 10}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_500_35_5Result.tex}
-        \caption{500 35 5}
-    \end{subtable}
-    \hfill
-    \vfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_500_70_10Result.tex}
-        \caption{500 70 10}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_500_70_5Result.tex}
-        \caption{500 70 5}
-    \end{subtable}
-    \caption{Disturbed cograph 500 vertices}
-\end{table}
-\begin{table}[h]
-    \centering
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_250_35_10Result.tex}
-        \caption{250 35 10}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_250_35_5Result.tex}
-        \caption{250 35 5}
-    \end{subtable}
-    \hfill
-    \vfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_250_70_10Result.tex}
-        \caption{250 70 10}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DisturbedCoGraph_250_70_5Result.tex}
-        \caption{250 70 5}
-    \end{subtable}
-    \caption{Disturbed cograph 250 vertices}
-\end{table}
 
-\begin{table}[h]
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/DIMACSResult.tex}
-        \caption{DIMACS}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[h]{0.30\textwidth}
-        \centering
-        \input{Tables/CombinedResult.tex}
-        \caption{Combined DisturbedCoGraph results}
-        \label{table:combined}
-    \end{subtable}
-    \caption{DIMACS and combined disturbed cographs}
-\end{table}
+
+\begin{figure}[h]
+    \includegraphics[width=0.9\textwidth]{Tables/1000.png}
+    \includegraphics[width=0.9\textwidth]{Tables/1000Time.png}
+    \caption{1000 verties}
+\end{figure}
+\begin{figure}[h]
+    \includegraphics{Tables/750.png}
+    \includegraphics{Tables/750Time.png}
+    \caption{750 verties}
+\end{figure}
+\begin{figure}[h]
+    \includegraphics{Tables/500.png}
+    \includegraphics{Tables/500Time.png}
+    \caption{500 verties}
+\end{figure}
+\begin{figure}[h]
+    \includegraphics{Tables/250.png}
+    \includegraphics{Tables/250Time.png}
+    \caption{250 verties}
+\end{figure}
 
 \FloatBarrier
 \subsection{Discussion}
