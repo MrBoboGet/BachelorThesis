@@ -293,6 +293,35 @@ One can then imagine "walking" between vertices by moving on edges.
     vertices in the graph. Otherwise, we say that a graph is disconnected.
 \end{definition}
 
+
+%more definitions
+\begin{definition}[Cycle]
+    A cycle is a path $v_1 \cdots v_i$ such that $v_1 = v_i$.
+\end{definition}
+
+A cycle is a special form of path, and can informally be seen as a way to walk
+in a circle. Cycles also 
+
+\begin{definition}[Tree]{\cite{Trees}}
+    A tree is a connected graph with no cycles.
+\end{definition}
+\begin{definition}[rooted tree]
+    A rooted tree is a graph vertex pair, $(G,v)$, such that $G = (V,E)$ is a tree,
+    and  with $v \in V$. The vertex $v$ is called the root of the tree.
+\end{definition}
+
+Trees have a number of usefull properties. Among them is that between any two
+vertices so is there always an unique path \cite{Trees}. This in combination 
+with a rooted tree gives a natural way to describe graphs in terms of a
+parent-child structure.
+
+\begin{definition}[child vertex]{\cite{Trees}}
+    For a rooted tree $((V,E),v)$, a vertex $v_1 \in V$ is considered a child
+    of vertex $v_2 \in V$, if the unique path from $v_1$ to $v$ starts with
+    $v_1,v_2$. $v_2$ is in this case also called the parent of $v_1$.
+\end{definition}
+%more definitions
+
 The central problem in this thesis, is the efficient coloring of a graph.
 Coloring graph means that one assigns to every vertex a color, an arbitrary
 value, such that no vertices that are neighbours have the same color. A classic
@@ -355,10 +384,12 @@ as possible but not necessarily optimal, have to be used.
 Now we have sufficient terminology to describe the most central concept, the
 modular decomposition. The modular decomposition is way to partition the
 vertices of the graph into a tree structure, where the relation between
-different modules, parts in the partitions, are known. Another way to look at
-the modular decomposition, is that it's a cograph approximation of the original
-graph, where parts that don't have a cograph structure are replaced with prime
-modules.
+different modules, parts in the partitions, are known. 
+
+%Another way to look at
+%the modular decomposition, is that it's a cograph approximation of the original
+%graph, where parts that don't have a cograph structure are replaced with prime
+%modules.
 
 \todo[noline]{Update definition. Unsure which paper to cite}
 \begin{definition}[Modular decomposition]{\cite{HCL}}
@@ -377,6 +408,8 @@ the strong module containing all vertices. This tree also describes how the
 induced subgraph of the module can be constructed from the induced subgraphs of
 it's children.
 
+\todo[noline]{Add working example}
+\todo[noline]{Add figure}
 \todo[noline]{What could be a proper reference...}
 \begin{definition}[Modular decomposition tree]{\cite{HCL}}
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
@@ -991,6 +1024,9 @@ the long runtime for some test sets so are the tests not repeated to ensure
 statistical significance. The time should therefore be seen as accurate only
 when displaying large relative differences in time taken.
 
+The implementation and the tested graphs can be accessed as a git repository 
+at \url{https://github.com/MrBoboGet/BachelorThesis}.
+
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
 \subsection{Results}
@@ -1000,25 +1036,77 @@ Still trying to figure out how to center the tables...}
 \newpage
 
 
-\begin{figure}[h]
-    \includegraphics[width=0.9\textwidth]{Tables/1000.png}
-    \includegraphics[width=0.9\textwidth]{Tables/1000Time.png}
-    \caption{1000 verties}
+\makeatletter
+\newcommand*{\centerfloat}{%
+  \parindent \z@
+  \leftskip \z@ \@plus 1fil \@minus \textwidth
+  \rightskip\leftskip
+  \parfillskip \z@skip}
+\makeatother
+
+\begin{figure}
+\centerfloat
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/1000.png}
+      \caption{Coloring results}
+      \label{fig:1000c}
+    \end{subfigure}%
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/1000Time.png}
+      \caption{Runtime}
+      \label{fig:1000t}
+    \end{subfigure}
+\caption{1000 vertices}
+\label{fig:1000}
 \end{figure}
-\begin{figure}[h]
-    \includegraphics{Tables/750.png}
-    \includegraphics{Tables/750Time.png}
-    \caption{750 verties}
+
+\begin{figure}
+\centerfloat
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/750.png}
+      \caption{Coloring results}
+      \label{fig:750c}
+    \end{subfigure}%
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/750Time.png}
+      \caption{Runtime}
+      \label{fig:750t}
+    \end{subfigure}
+\caption{750 vertices}
+\label{fig:750}
 \end{figure}
-\begin{figure}[h]
-    \includegraphics{Tables/500.png}
-    \includegraphics{Tables/500Time.png}
-    \caption{500 verties}
+
+\begin{figure}
+\centerfloat
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/500.png}
+      \caption{Coloring results}
+      \label{fig:500c}
+    \end{subfigure}%
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/500Time.png}
+      \caption{Runtime}
+      \label{fig:500t}
+    \end{subfigure}
+\caption{500 vertices}
+\label{fig:500}
 \end{figure}
-\begin{figure}[h]
-    \includegraphics{Tables/250.png}
-    \includegraphics{Tables/250Time.png}
-    \caption{250 verties}
+
+
+\begin{figure}
+\centerfloat
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/250.png}
+      \caption{Coloring results}
+      \label{fig:250c}
+    \end{subfigure}%
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/250Time.png}
+      \caption{Runtime}
+      \label{fig:250t}
+    \end{subfigure}
+\caption{250 vertices}
+\label{fig:250}
 \end{figure}
 
 \FloatBarrier

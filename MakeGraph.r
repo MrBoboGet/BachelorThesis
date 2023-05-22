@@ -36,15 +36,21 @@ for(Graph in SplitGeneratedResults)
     ProcessedGraph <- Graph %>% 
            group_by(Heuristic,Strategy,SeriesPercent,ModuleCount) %>% 
            summarise(Time=mean(Time),ColorCount=mean(ColorCount)) %>% 
+           mutate(ModuleCount = paste0("ModuleCount ",ModuleCount))%>%
+           mutate(SeriesPercent = paste0("SeriesPercent ",SeriesPercent))%>%
            arrange(Heuristic)
     ggsave( paste0(OutDirectory,"/",max(Graph$VertexCount),".png"),
            ProcessedGraph %>%
            ggplot(aes(x=Heuristic,y=ColorCount,fill=Strategy)) + 
-           geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)))
+           geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)) +
+           theme(axis.text.x=element_text(angle = -90, hjust = 0))
+            ,width=5,height=10)
     ggsave( paste0(OutDirectory,"/",max(Graph$VertexCount),"Time.png"),
            ProcessedGraph %>%
            ggplot(aes(x=Heuristic,y=Time,fill=Strategy)) + 
-           geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)))
+           geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)) + 
+           theme(axis.text.x=element_text(angle = -90, hjust = 0))
+            ,width=5,height=10)
 }
 print(SplitGeneratedResults)
 #ResultTable <- Data %>% group_by(Heuristic,Strategy) %>% summarise(Time=mean(Time),ColorCount=mean(ColorCount)) %>% arrange(Heuristic)
