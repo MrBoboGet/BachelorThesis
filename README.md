@@ -47,7 +47,7 @@ bash RunTest.sh <input-directory> <output-file>
 
 It runs all of the coloring simultaneously, which can be cause problems on systems without a lot of RAM. 
 
-[RunAllTest.sh](/RunAllTest.sh) is the top script that colors all of the test graphs. It should be called from the root of the repository. With no arguments, it takes invokes RunTest.sh once for each directory in TestGraphs, and output the result in [ColoringResults](/ColoringResults). Invoked with arguments, it uses the arguments as the list of directories to invoke RunTest.sh on. 
+[RunAllTests.sh](/RunAllTests.sh) is the top script that colors all of the test graphs. It should be called from the root of the repository. With no arguments, it takes invokes RunTest.sh once for each directory in TestGraphs, and output the result in [ColoringResults](/ColoringResults). Invoked with arguments, it uses the arguments as the list of directories to invoke RunTest.sh on. 
 
 ## Image creation
 
