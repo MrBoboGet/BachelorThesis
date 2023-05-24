@@ -1,14 +1,13 @@
 digraph G
 {
     root [label="\N\nparallel"]
-    m1 [label="\N\nparallel"]
-    m2 [label="\N\nseries"]
-    m3 [label="\N\nprime"]
-    root [label="\N\nparallel"]
-    root -> m1;
-    root -> m2;
-    m2 -> m3;
-    m3 -> {1 2 3 4}
-    m1 -> {7 6}
-    m2 -> 5;
+    "Module 2" [label="\N\nparallel"]
+    "Module 1" [label="\N\nseries"]
+    "Module 4" [label="\N\nprime"]
+    root -> "Module 2";
+    root -> "Module 1";
+    "Module 2" -> {7 6}
+    "Module 1" -> 5
+    "Module 1" -> "Module 4";
+    "Module 4" -> {1 2 3 4}
 }

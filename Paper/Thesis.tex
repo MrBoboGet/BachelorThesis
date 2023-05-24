@@ -105,6 +105,16 @@
 \newdateformat{monthyeardate}{%
       \monthname[\THEMONTH], \THEYEAR}
 
+
+
+\makeatletter
+\newcommand*{\centerfloat}{%
+  \parindent \z@
+  \leftskip \z@ \@plus 1fil \@minus \textwidth
+  \rightskip\leftskip
+  \parfillskip \z@skip}
+\makeatother
+      
 %
 %\begin{document}
 %\maketitle
@@ -299,6 +309,7 @@ One can then imagine "walking" between vertices by moving on edges.
     A cycle is a path $v_1 \cdots v_i$ such that $v_1 = v_i$.
 \end{definition}
 
+\todo{NGL dont remember}
 A cycle is a special form of path, and can informally be seen as a way to walk
 in a circle. Cycles also 
 
@@ -310,7 +321,7 @@ in a circle. Cycles also
     and  with $v \in V$. The vertex $v$ is called the root of the tree.
 \end{definition}
 
-Trees have a number of usefull properties. Among them is that between any two
+Trees have a number of useful properties. Among them is that between any two
 vertices so is there always an unique path \cite{Trees}. This in combination 
 with a rooted tree gives a natural way to describe graphs in terms of a
 parent-child structure.
@@ -440,6 +451,75 @@ decomposition tree is unique \cite{MDUnique}, which means that the construction
 of the modular decomposition doesn't vary and need not be a part of
 the heuristic.
 
+
+\subsection{Example}
+
+Let us consider how the modular decomposition can be constructed from a graph. 
+We start with the inital graph in \autoref{fig:graph1}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Graph1.png}
+    \caption{Initial graph}
+    \label{fig:graph1}
+\end{figure}
+
+We can construct the modular decomposition, by recursively dividing up the graph
+into strong modules. We start then to look for the largest strong modules, that
+partition all of the vertices. We can see that $\{1,2,3,4,5\}$ and $\{6,7\}$
+are 2 modules, and by examining the other possible alternatives we can also
+see that they are indeed strong. This gives the partition shown in 
+\autoref{fig:graph2}. The edges between the modules have been removed for
+clarity, but their internal edges are preserved.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{Graph2.png}
+    \caption{Top child modules identified}
+    \label{fig:graph2}
+\end{figure}
+
+From this we continue to further subdivide the strong modules into smaller
+strong modules. From "Module 1" we can see that the single node 5 forms a
+module, and that the whole of $\{1,2,3,4\}$ forms another strong module.
+In module 2, 6 and 7 also forms strong, trivial, modules. This gives the
+subdivision depcited in \autoref{fig:graph3}
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{Graph3.png}
+    \caption{Modules divided recursively}
+    \label{fig:graph3}
+\end{figure}
+
+Now, the question is whether or not Module 4 can be divided into further
+submodules. But we can quickly realise that the only submodules of Module 4
+would be the trivial modules 1,2,3, and 4, and that no larger strong submodules
+of module 4 exists. We then have all the information needed to construct the
+modular decomposition tree. We first start by constructing the tree structure,
+and then assign labels. The unlabeled tree is depicted in \autoref{fig:graph4}
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{Graph4.png}
+    \caption{Unlabeled modular decomposition tree}
+    \label{fig:graph4}
+\end{figure}
+
+Here the modules only containing a single vertex have been replaced by just that
+vertex, to improve clarity. From this the tree structure of the modular
+decomposition can be seen, but it isn't yet labeled. We can add the labels by 
+looking at the induced subgraph of the vertices in the module. If that induced
+subgraph can be constructed by disjoint union on the induced subgraphs of it's
+submodules, we know that it's series, and if we can construct it by graph join on
+the induced subgraphs of it's submodules, it is parallel. If none of these are
+the case, so is the module prime. By using this method we arrive at the complete
+modular decomposition tree that can be seen in \autoref{fig:graph5}
+
+\begin{figure}[h!]
+    \includegraphics[width=\textwidth]{Graph5.png}
+    \caption{Complete modular decomposition tree}
+    \label{fig:graph5}
+\end{figure}
+
+\FloatBarrier
 
 \section{General coloring algorithm}
 
@@ -1036,13 +1116,6 @@ Still trying to figure out how to center the tables...}
 \newpage
 
 
-\makeatletter
-\newcommand*{\centerfloat}{%
-  \parindent \z@
-  \leftskip \z@ \@plus 1fil \@minus \textwidth
-  \rightskip\leftskip
-  \parfillskip \z@skip}
-\makeatother
 
 \begin{figure}
 \centerfloat

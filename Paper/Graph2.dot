@@ -12,11 +12,13 @@ graph G
     6 -- 7;
     subgraph cluster_1
     {
+        label="Module 2";
         6;
         7;
     }
     subgraph cluster_2
     {
+        label="Module 1";
         1;
         2;
         3;
