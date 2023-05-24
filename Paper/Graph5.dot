@@ -1,0 +1,14 @@
+digraph G
+{
+    root [label="\N\nparallel"]
+    m1 [label="\N\nparallel"]
+    m2 [label="\N\nseries"]
+    m3 [label="\N\nprime"]
+    root [label="\N\nparallel"]
+    root -> m1;
+    root -> m2;
+    m2 -> m3;
+    m3 -> {1 2 3 4}
+    m1 -> {7 6}
+    m2 -> 5;
+}
