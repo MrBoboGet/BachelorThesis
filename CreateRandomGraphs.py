@@ -5,9 +5,6 @@ import sys
 import os
 from tralda.datastructures import Tree, LCA
 
-random.seed(246)        # or any integer
-numpy.random.seed(4812)
-
 
 def First(Iteratable):
     for x in Iteratable:

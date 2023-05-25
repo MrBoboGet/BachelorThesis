@@ -423,15 +423,18 @@ it's children.
 \todo[noline]{What could be a proper reference...}
 \begin{definition}[Modular decomposition tree]{\cite{HCL}}
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
-    vertex labeled tree such that every vertex is associated with a strong
-    module $X$ in $G$, and with a label distinguishing 3 cases.
+    vertex labeled tree, such that every vertex is associated with a strong
+    module $X$ in $G$, such that the vertex with associated module $m_1$ is a
+    child to the vertex with associated module $m_2$ iff $m_1$ is a part of the
+    smallest partition only containing strong modules of $G$ that partitions the
+    vertices $m_2$. Every vertex also has a label distinguishing 3 cases:
     \begin{enumerate}
         \item Series: $G[X]$ is disconnected.
         \item Parallel: $\overline{G[X]}$ is disconnected.
         \item Prime: $G[X]$ and $\overline{G[X]}$ is disconnected.
     \end{enumerate}
-    And such that the root of the tree has $V$ as the associated vertex, and all 
-    strong modules are a part of the tree.
+    The root of the tree must also have $V$ as the associated strong module, and all 
+    strong modules also have to be a part of the tree.
 \end{definition}
 
 Note, a label being series in modular decomposition tree with associated module
@@ -1045,6 +1048,17 @@ graph.
 
   \end{algorithmic}
 \end{algorithm}
+
+As a quotient graph can for a graph $G = (V,E)$ can be constructed in
+$O(|V|+|E|)$ for a partition of the vertices, we can see that the pathological
+worst case for constructing the quotients, are when only on vertex is removed
+for each recursion. In that case, the construction of the quotient graphs are
+$O(|V|^2+|E|^2)$. The runtime is then dependant on the properties of the
+heuristic applied on the quotient graph to color it. The runtime of this
+algorithm is in the worst case however always slower than applying the heuristic
+directly. The time for the heuristic applied when the modules that are small
+enough can be seen as constant, as the maximal size and complexity of the graph
+is bounded. 
 
 \section{Data generation}
 \label{sec:Data}
