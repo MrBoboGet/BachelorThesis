@@ -612,9 +612,33 @@ good coloring.
 In this section, the different heuristics used to color the graphs is described,
 while \autoref{sec:Strategies} describe how they are applied.
 \subsection{Greedy}
+
+\begin{theorem}[Handshake lemma]{}
+
+\end{theorem}
+
 The classic greedy algorithm. Greedy walks over all of the vertices in the graph
 in an arbitrary order, and for every vertex assigns the first colored not shared
-amongst it's neighbours. 
+amongst it's neighbours. Assigning the first available color can trivially be done
+by for every color checking whether or not the vertex has a neighbour with that color,
+and using it if it's not the case. This method does however
+have a worst case runtime of $O(|C||E|) = O(|V|^2)$. 
+
+A more efficient way to do this assignment is with $\textbf{get first color}$,
+which uses an map from colors booleans. When coloring $v$, we examine the
+neighbours of $v$, if that neigbour has a color $c$, index $c$ in $used$ is set
+to true. After having iterated through every neighbour, we step through $used$,
+and use the first color that isn't set to true. As a maximal $deg(v)$ of
+vertices can be set to true through this process, finding the first available
+color from $used$ is therefore $|deg(v)|$. Then, we reset the $used$ map by
+going through all of the neighbours the same way and setting the index of
+$used$ to false instead, so that the next time when calling $\textbf{get first color}$ ,
+$used$ maps all colors to false. The whole process of $\textbf{get first
+color}$ is therefore $O(|deg(v)|+|deg(v)| + |deg(v)) = O(|deg(v)|)$. Using the
+famous handshake lemma, we can conclude that calling $\textbf{get first color}$
+on all vertices has a total runtime of $O(|E|)$.  $used$ however needs enough
+space to contain every color, which in the worst case is $|V|$ amount of
+colors, which means that the total runtime is $O(|V|+|E|)$.
 
 %Being relatively simple, it also has fast runtime, with a time complexity of $O(|V|+|E|)$ \cite{Constructive}
 
@@ -636,7 +660,7 @@ amongst it's neighbours.
             \ENDIF
         \ENDFOR
         \FORALL {$c \in \sigma$}
-            \IF $used(c) = false$
+            \IF{$used(c) = false$}
                 \STATE $ReturnValue \leftarrow c$
                 \BREAK
             \ENDIF
@@ -668,7 +692,6 @@ amongst it's neighbours.
   \end{algorithmic}
 \end{algorithm}
 
-At a glance, the runtime of greedy 
 \subsection{Dsatur}
 
 Dsatur is an algorithm that is similar to Greedy, in that it walks through every
@@ -684,14 +707,9 @@ by using the saturation degree.
 \end{definition}
 
 The vertex are colored so that the vertex with the highest saturation degree is
-colored first, alternatively maximizing the degree. Compared to Greedy, this
-algorithm does multiple passes over every vertex as every new coloring changes
-the saturation degree for the remaining vertices. This means that the runtime
-for the algorithm is higher, being
-$O((|V|+|E|)\log{|V|})$ \cite{Constructive}.
-
-DSatur being a well studied algorithm also means that it has some variations in 
-the literature, and this presentation is based on \cite{Constructive}.
+colored first, alternatively maximizing the degree.  DSatur being a well studied
+algorithm also means that it has some variations in the literature, and this
+presentation is based on \cite{Constructive}.
 
 \begin{algorithm}[H]
   \caption{Dsatur}
@@ -711,6 +729,24 @@ the literature, and this presentation is based on \cite{Constructive}.
       \ENDFOR
   \end{algorithmic}
 \end{algorithm}
+
+When analyzing the runtime for Dsatur, we can begin by stating that
+assigning the first available color can be done just as in greedy with
+$\textbf{get first color}$, giving us at least $O(|V|+|E|)$ runtime. 
+
+Determining which nodes has the highest saturation degree can be done with a
+priority queue.  First we initialise it by setting the saturation degree for all
+vertices to zero. With the priority queue, we can then get the vertex with the
+highest saturation degree in constant time. After having colored it, we update
+the saturation degree for it's neighbours, which implies the removal of that
+neighbour from the list, and then adding it back with the updated saturation
+degree. With appropriate data structures, the initialization can be done in
+$O(|V|log(|V|)$, and removing and inserting an element can be done in $log(|V|)$
+time. As this insertion is done for every neighbour, we can use the handshake
+lemma again and see that the total runtime for updating neighbours this way is
+$|E|log(|V|)$. This gives a total runtime of $O(|V|+|E|+|V|log(|V|)+|E|log(|V|))
+= O( (|V|+|E|)log(|V|))$. A more thorough description of this implementation can
+be found in \cite{Constructive}.
 
 \subsection{Recursive largest first}
 
@@ -783,8 +819,25 @@ This presentation of the algorithm is based on \cite{Constructive}.
       and then color every vertex in that partition with that color.
   \end{algorithmic}
 \end{algorithm}
-%runtime
-This algorithm can be implemented with a runtime of $O(|V||E|)$.
+
+Analyzing the runtime, we can see that the adding vertices to a
+part in the partition and the amount of partition is at most $O(|V|)$. The
+runtime is therefore dependant on how these vertices are chosen, and how to
+ensure that the partitions don't have any overlapping vertices. 
+
+We can ensure
+that no adjacent vertices are added to the current part, by keeping the current
+possible candidates in a hash map, and whenever we add a vertex to the current
+part remove its neighbours from the current candidates. Doing this is, with the
+handshake lemma, $O(|E|)$ when all vertices has been added, leading to at least
+a $O(|V|+|E|)$ runtime.  
+
+To also ensure that the vertex added is the vertex with the highest degree among
+the non-adjacent vertices, we have recalculate the respective degrees for the
+uncolored vertices, which can be done in $O(|E|)$ time every time a vertex is
+added, which is done $|V|$ times. The algorithm can therefore be implemented in
+$O((|V||E|)+|E|) = O(|V||E|)$ time \cite{Constructive}.
+
 \subsection{TabuCol}
 
 TabuCol is a graph algorithm that unlike the previous algorithms, doesn't
@@ -880,26 +933,34 @@ clashes to be recolored.
     \end{algorithmic}
 \end{algorithm}
 
-By utilizing a large $|V|xk$ matrix that stores how neighbours to $v$ that share
+By utilizing a large $|V| \times k$ matrix that stores how many neighbours to $v$ that share
 the color $c$ in the $(v,c)$ position of the matrix, looking up the recoloring
-that results in the lowest amount of clashes can be cone in $O(|V|k)$ time.
-Keeping this method up to date in turn requires a step of $|N_G(v)|$ for every
+that results in the lowest amount of clashes can be done by scanning through 
+the whole matrix, that is $O(|V|k)$ time.
+Keeping this method up to date in turn requires a step of $|deg(v)|$ for every
 vertex getting recolored.  As the amount of repetitions is constant, the total
-runtime of an application of TabuCol can therefore be implemented in
-$O(|V|k+|V|)$ \cite{Constructive}. This does however not account for repeated
-applications, in order to determine the coloring with the least amount of
-colors. 
+runtime of an single iteration of TabuCol can therefore be implemented in
+$O(|V|k+deg(v)) = O(|V|k+|V|) = O(|V|k)$ \cite{Constructive}. The initial
+creation of the $|V| \times k$ matrix with appropriate entries requires
+iterating through every edge, giving a runtime of $(|V|k+|E|)$, and in turn a 
+total runtime for TabuCol at $O(|E|+(|V|k)\cdot MaxIt)$. This does however
+not account for how many times one needs to apply the whole TabuCol method to
+determine the lowest color that can be achieved by it.
 
 The worst case scenario would be that the initial $k$ was the amount of vertices
 in the graph, and the lowest color achieved by repeated applications was $1$. In
-this case the runtime would be $O(|V|^2k+|V|^2)$. This is in practice often
-times a too pessimistic analysis, as the difference between the initial coloring
-and the coloring achieved by TabuCol is rarely that large.
+this case the runtime would be $O((|E|+(|V|k)\cdot MaxIt)|V|) = O( |E||V| +
+(|V|^2k\cdot MaxIt))$. This is in practice often times a too pessimistic
+analysis, as the difference between the initial coloring and the coloring
+achieved by TabuCol is rarely that large. It is also worth noting that the
+amount of repetitions needed for good results in most cases greatly outnumber of
+vertices in the graph, meaning that this heuristic in practice exhibits the
+largest runtimes.
 % Runtime?
 %Analyzing the runtime, we can see that the main point of interest is the outer
-%loop. The amount of times the loop is run can however be considered constant, as
-%the parameter $MaxIt$ does not depend on the size of the graph examined, so only
-%the inner loop has to be examined. The bulk of the 
+%loop. The amount of times the loop is run can however be considered constant,
+%as the parameter $MaxIt$ does not depend on the size of the graph examined, so
+%only the inner loop has to be examined. The bulk of the 
 
 \section{Strategies}
 \label{sec:Strategies}

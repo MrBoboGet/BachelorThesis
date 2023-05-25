@@ -201,65 +201,60 @@ def GetMaxIndex(Iteratable):
 
 def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
     IsAdjecent = {i: False for i in GraphToColor.nodes}
-    DegreeX = {i: 0 for i in GraphToColor.nodes}
-    DegreeY = {i: 0 for i in GraphToColor.nodes}
+    Degree = {i: 0 for i in GraphToColor.nodes}
     TotalNodes = set(GraphToColor.nodes)
     ComponentNodes = set()
 
     CurrentColor = 0
-    
+
     for Node in GraphToColor.nodes:
-        DegreeX[Node] = len(GraphToColor.adj[Node])
+        Degree[Node] = len(GraphToColor.adj[Node])
     while len(TotalNodes) > 0:
         MaxNode = 0
         MaxValue = -1
         for Node in TotalNodes:
-            if(DegreeX[Node] > MaxValue):
-                MaxValue = DegreeX[Node]
+            if(Degree[Node] > MaxValue):
+                MaxValue = Degree[Node]
                 MaxNode = Node
         ComponentNodes.add(MaxNode)
-        YNeighbours = set() 
         for Neighbour in GraphToColor.adj[MaxNode]:
-            IsAdjecent[Neighbour] = True
-            DegreeX[Neighbour] -= 1
-            for YNeighbour in GraphToColor.adj[Neighbour]:
-                DegreeY[YNeighbour] += 1
-                YNeighbours.add(YNeighbour)
+            Degree[Neighbour] -= 1
+            if(Neighbour in TotalNodes):
+                IsAdjecent[Neighbour] = True
+
         Candidates = set()
         for Node in TotalNodes:
             if(Node != MaxNode and not IsAdjecent[Node]):
                 Candidates.add(Node)
         while len(Candidates) > 0:
             MaxCandidate = -1
-            MaxAdjecentX = -1
             MaxAdjecent = -1
-
-            NewY = set()
+            MaxDegree = -1
             for Node in Candidates:
-                if(DegreeY[Node] > MaxAdjecent):
+                if(IsAdjecent[Node]):
+                    continue
+                AdjecentCount = 0
+                for Neighbour in GraphToColor.adj[Node]:
+                    if(IsAdjecent[Neighbour]):
+                        AdjecentCount += 1
+                if(AdjecentCount > MaxAdjecent):
                     MaxCandidate = Node
-                    MaxAdjecent = DegreeY[Node]
-                    MaxAdjecentX = DegreeX[Node]
-                elif(DegreeY[Node] == MaxAdjecent and DegreeX[Node] > MaxAdjecentX):
+                    MaxAdjecent = AdjecentCount
+                    MaxDegree = Degree[Node]
+                elif (AdjecentCount == MaxAdjecent and Degree[Node] > MaxDegree):
                     MaxCandidate = Node
-                    MaxAdjecent = DegreeY[Node]
-                    MaxAdjecentX = DegreeX[Node]
+                    MaxAdjecent = AdjecentCount
+                    MaxDegree = Degree[Node]
             if(MaxCandidate == -1):
                 break
             ComponentNodes.add(MaxCandidate)
-            NewY.add(MaxCandidate)
             for Neighbour in GraphToColor.adj[MaxCandidate]:
-                DegreeX[Neighbour] -= 1
-                IsAdjecent[Neighbour] = True
-                NewY.add(Neighbour)
-                for YNeighbour in GraphToColor.adj[Neighbour]:
-                    DegreeY[YNeighbour] += 1
-            Candidates.difference_update(NewY)
-            YNeighbours.update(NewY)
+                Degree[Neighbour] -= 1
+                if(Neighbour in TotalNodes):
+                    IsAdjecent[Neighbour] = True
+            Candidates.remove(MaxCandidate)
         for Node in ComponentNodes:
             CurrentColoring[Node] = CurrentColor
-        for Node in YNeighbours:
-            DegreeY[Node] = 0
         TotalNodes = TotalNodes.difference(ComponentNodes)
         #resetting state
         ComponentNodes = set()
@@ -274,7 +269,6 @@ def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
         CurrentColoring[Node] = ColorMap[CurrentColoring[Node]]
         ReturnValue.add(CurrentColoring[Node])
     return ReturnValue
-
 
 nbiter = 10000
 tabsize = 7
