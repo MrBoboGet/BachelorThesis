@@ -29,6 +29,10 @@ def first(Iterable):
     for x in Iterable:
         return(x)
 
+#kinda hacky, but as no threads are used this usage is safe, and
+#most importantly makes it easier to use in the same way when applying locally 
+#on     
+used = []
 
 def RecolorComponents(ComponentsToRecolor,OutColoring,NodeColorMap):
     MaxMap = max( [NodeColorMap[x] for x in ComponentsToRecolor],key=lambda x: len(x))
@@ -125,6 +129,20 @@ def Colorize(OriginalGraph,MD,Heuristic,Strategy = PrimeStrategy.WholeHeuristic)
     ColorMap = Colorize_Module(OriginalGraph,MD,Colors,Root,Heuristic,Strategy)
     return (Colors,ColorMap)
 
+def GetFirstColor(G,v,CurrentColoring,AllowedColors):
+    ReturnValue = -1
+    for u in G.adj[v]:
+        if(CurrentColoring[u] != -1):
+            used[CurrentColoring[u]] = True
+    for c in AllowedColors:
+        if(not used[c]):
+            ReturnValue = c
+            break
+    for u in G.adj[v]:
+        if(CurrentColoring[u] != -1):
+            used[CurrentColoring[u]] = False
+    return ReturnValue
+
 # hueristic, takes a induced subgraph along with already colored parts
 # and then colors the rest.
 def Greedy(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
@@ -134,16 +152,8 @@ def Greedy(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
         if(CurrentColoring[Node] != -1):
             ReturnValue.add(CurrentColoring[Node])
             continue
-        for Color in ColorList:
-            ColorIsValid = True
-            for Neighbour in GraphToColor.adj[Node]:
-                if(CurrentColoring[Neighbour] == Color):
-                    ColorIsValid = False
-                    break
-            if(ColorIsValid):
-                CurrentColoring[Node] = Color
-                ReturnValue.add(Color)
-                break
+        CurrentColoring[Node] = GetFirstColor(GraphToColor,Node,CurrentColoring,ColorList)
+        ReturnValue.add(CurrentColoring[Node])
     return(ReturnValue)
 
 def DSatur(GraphToColor:  nx.DiGraph,CurrentColoring,ColorList):
@@ -165,19 +175,9 @@ def DSatur(GraphToColor:  nx.DiGraph,CurrentColoring,ColorList):
         if(CurrentElement in DeletedEntries):
             break
         VertexToColor = CurrentElement[2]
-        UsedColor = None
-        # First available color
-        for Color in ColorList:
-            ColorIsValid = True
-            for Neighbour in GraphToColor.adj[VertexToColor]:
-                if(CurrentColoring[Neighbour] == Color):
-                    ColorIsValid = False
-                    break
-            if(ColorIsValid):
-                CurrentColoring[VertexToColor] = Color
-                ReturnValue.add(Color)
-                UsedColor = Color
-                break
+        UsedColor = GetFirstColor(GraphToColor,VertexToColor,CurrentColoring,ColorList)
+        ReturnValue.add(UsedColor)
+        CurrentColoring[VertexToColor] = UsedColor
         #Update neighbours
         for Neigbour in GraphToColor.adj[VertexToColor]:
             if(CurrentColoring[Neigbour] == -1):
@@ -201,51 +201,65 @@ def GetMaxIndex(Iteratable):
 
 def RLF(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
     IsAdjecent = {i: False for i in GraphToColor.nodes}
-    Degree = {i: 0 for i in GraphToColor.nodes}
+    DegreeX = {i: 0 for i in GraphToColor.nodes}
+    DegreeY = {i: 0 for i in GraphToColor.nodes}
     TotalNodes = set(GraphToColor.nodes)
     ComponentNodes = set()
 
     CurrentColor = 0
     
     for Node in GraphToColor.nodes:
-        Degree[Node] = len(GraphToColor.adj[Node])
+        DegreeX[Node] = len(GraphToColor.adj[Node])
     while len(TotalNodes) > 0:
         MaxNode = 0
         MaxValue = -1
         for Node in TotalNodes:
-            if(Degree[Node] > MaxValue):
-                MaxValue = Degree[Node]
+            if(DegreeX[Node] > MaxValue):
+                MaxValue = DegreeX[Node]
                 MaxNode = Node
         ComponentNodes.add(MaxNode)
+        YNeighbours = set() 
         for Neighbour in GraphToColor.adj[MaxNode]:
             IsAdjecent[Neighbour] = True
-
+            DegreeX[Neighbour] -= 1
+            for YNeighbour in GraphToColor.adj[Neighbour]:
+                DegreeY[YNeighbour] += 1
+                YNeighbours.add(YNeighbour)
         Candidates = set()
         for Node in TotalNodes:
             if(Node != MaxNode and not IsAdjecent[Node]):
                 Candidates.add(Node)
         while len(Candidates) > 0:
             MaxCandidate = -1
+            MaxAdjecentX = -1
             MaxAdjecent = -1
+
+            NewY = set()
             for Node in Candidates:
-                if(IsAdjecent[Node]):
-                    continue
-                AdjecentCount = 0
-                for Neighbour in GraphToColor.adj[Node]:
-                    if(IsAdjecent[Neighbour]):
-                        AdjecentCount += 1
-                if(AdjecentCount > MaxAdjecent):
+                if(DegreeY[Node] > MaxAdjecent):
                     MaxCandidate = Node
-                    MaxAdjecent = AdjecentCount
+                    MaxAdjecent = DegreeY[Node]
+                    MaxAdjecentX = DegreeX[Node]
+                elif(DegreeY[Node] == MaxAdjecent and DegreeX[Node] > MaxAdjecentX):
+                    MaxCandidate = Node
+                    MaxAdjecent = DegreeY[Node]
+                    MaxAdjecentX = DegreeX[Node]
             if(MaxCandidate == -1):
                 break
             ComponentNodes.add(MaxCandidate)
+            NewY.add(MaxCandidate)
             for Neighbour in GraphToColor.adj[MaxCandidate]:
-                Degree[Neighbour] -= 1
+                DegreeX[Neighbour] -= 1
                 IsAdjecent[Neighbour] = True
-            Candidates.remove(MaxCandidate)
+                NewY.add(Neighbour)
+                for YNeighbour in GraphToColor.adj[Neighbour]:
+                    DegreeY[YNeighbour] += 1
+            Candidates.difference_update(NewY)
+            YNeighbours.update(NewY)
         for Node in ComponentNodes:
             CurrentColoring[Node] = CurrentColor
+        for Node in YNeighbours:
+            DegreeY[Node] = 0
         TotalNodes = TotalNodes.difference(ComponentNodes)
         #resetting state
         ComponentNodes = set()
@@ -373,6 +387,8 @@ for (Name,Function) in Heuristics.items():
     for (StrategyName,Strategy) in Strategys.items():
         Colors = [i for i in range(len(G.nodes))]
         StartTime = time.perf_counter()
+        if(Function == Greedy or Function == DSatur):
+            used = [False]*len(G.nodes)
         ColorCount = Colorize_Module(G,MD,Colors,Root,Function,Strategy)
         EndTime = time.perf_counter()
         if(not VerifyColoring(G,Colors)):
