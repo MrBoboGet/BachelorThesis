@@ -410,7 +410,8 @@ different modules, parts in the partitions, are known.
 \end{definition}
 
 The modular decomposition of a graph has a number of useful properties. The
-modular decomposition of a graph forms a hierarchy (REFERENS), meaning that strong modules
+modular decomposition of a graph forms a hierarchy , meaning that strong modules
+%(REFERENS)
 can be partitioned into other strong modules. This hierarchy of modules has a
 natural representation as a tree, the modular decomposition tree.
 
@@ -423,7 +424,7 @@ it's children.
 \begin{definition}[Modular decomposition tree]{\cite{HCL}}
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
     vertex labeled tree, such that every vertex is associated with a strong
-    module $X$ in $G$, such that the vertex with associated module $m_1$ is a
+    module $X$ in $G$, so that the vertex with associated module $m_1$ is a
     child to the vertex with associated module $m_2$ iff $m_1$ is a part of the
     smallest partition only containing strong modules of $G$ that partitions the
     vertices $m_2$. Every vertex also has a label distinguishing 3 cases:
@@ -456,7 +457,7 @@ the heuristic.
 \subsection{Example}
 
 Let us consider how the modular decomposition can be constructed from a graph. 
-We start with the inital graph in \autoref{fig:graph1}.
+We start with the initial graph in \autoref{fig:graph1}.
 
 \begin{figure}[H]
     \centerfloat
@@ -629,7 +630,7 @@ have a worst case runtime of $O(|C||N_G(v)|) = O(|V|^2)$.
 
 A more efficient way to do this assignment is with $\textbf{get first color}$,
 which uses a map from colors booleans. When coloring $v$, we examine the
-neighbours of $v$, if a neigbour has a color $c$, index $c$ in $used$ is set to
+neighbours of $v$, if a neighbor has a color $c$, index $c$ in $used$ is set to
 true. After having iterated through every neighbour, we step through $used$,
 and use the first color that isn't set to true. As a maximal $deg(v)$ of
 vertices can be set to true through this process, finding the first available
@@ -1226,10 +1227,14 @@ deeply nested.
 
 \section{Results}
 \label{sec:Result}
+
 The tables contain the averaged performance for coloring the graphs in the
 respective test sets. All graphs are colored with all combinations of heuristic
-and combination strategy. A final table displaying the total average between all
-disturbed cographs, as well as the performance on DIMACS graphs.
+and combination strategy. A final table displaying the total average between
+all disturbed cographs, as well as the performance on DIMACS graphs. For the
+DIMACS graphs so are only the "quotient" and "whole graph" strategy displayed,
+as all of the graphs have a prime root module so is the "whole graph" strategy
+the same as the "whole prime" strategy.
 
 The average time it took to color a single graph in seconds is also displayed. Note
 however that system load may vary between different runs, and that because of
@@ -1365,7 +1370,7 @@ with the number of prime modules, both 10 and 5 seem to perform similarly.
 The result for the quotient strategy always seems comparable to the performance
 of RLF. While it can be seen to outperform pure RLF very slightly for some
 combinations, such as in \autoref{fig:dimacs}. It also exhibits a much larger
-runtime, most notable for the DIMACS test set in \autoref{fig:dimacs}.  The
+runtime, most notable for the same DIMACS test set in \autoref{fig:dimacs}.  The
 potential performance benefit most likely doesn't compensate for the increased
 runtime however, even with a more optimized implementation.
 
