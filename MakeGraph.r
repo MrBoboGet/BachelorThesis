@@ -31,27 +31,78 @@ DIMACSResult <- read_csv(DIMACSFile)
 SplitGeneratedResults <- map(c(250,500,750,1000),function (Count) { return(GeneratedResults %>% filter(VertexCount == Count))  })
 
 
-for(Graph in SplitGeneratedResults)
+MakeSummarised <- function(Graph)
 {
-    ProcessedGraph <- Graph %>% 
+    return(Graph %>% 
            group_by(Heuristic,Strategy,SeriesPercent,ModuleCount) %>% 
            summarise(Time=mean(Time),ColorCount=mean(ColorCount)) %>% 
            mutate(ModuleCount = paste0("ModuleCount ",ModuleCount))%>%
            mutate(SeriesPercent = paste0("SeriesPercent ",SeriesPercent))%>%
-           arrange(Heuristic)
-    ggsave( paste0(OutDirectory,"/",max(Graph$VertexCount),".png"),
-           ProcessedGraph %>%
+           arrange(Heuristic))
+}
+
+MakeTimePlot <- function(Graph)
+{
+    return(Graph %>% 
+       ggplot(aes(x=Heuristic,y=Time,fill=Strategy)) + 
+       geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)) + 
+       theme(axis.text.x=element_text(angle = -90, hjust = 0)))
+}
+MakeColorPlot <- function(Graph)
+{
+      return( Graph %>% 
            ggplot(aes(x=Heuristic,y=ColorCount,fill=Strategy)) + 
            geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)) +
-           theme(axis.text.x=element_text(angle = -90, hjust = 0))
+           theme(axis.text.x=element_text(angle = -90, hjust = 0)))
+}
+
+
+for(Graph in SplitGeneratedResults)
+{
+    ProcessedGraph <- MakeSummarised(Graph)
+    ggsave( paste0(OutDirectory,"/",max(Graph$VertexCount),".png"),
+            MakeColorPlot(ProcessedGraph),
             ,width=5,height=10)
     ggsave( paste0(OutDirectory,"/",max(Graph$VertexCount),"Time.png"),
-           ProcessedGraph %>%
-           ggplot(aes(x=Heuristic,y=Time,fill=Strategy)) + 
-           geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)) + 
-           theme(axis.text.x=element_text(angle = -90, hjust = 0))
+            MakeTimePlot(ProcessedGraph),
             ,width=5,height=10)
 }
-print(SplitGeneratedResults)
+MakeTotalSummarised <- function(Graph)
+{
+    return(Graph %>% 
+           group_by(Heuristic,Strategy) %>% 
+           summarise(Time=mean(Time),ColorCount=mean(ColorCount)) %>% 
+           arrange(Heuristic))
+}
+MakeTotalColorPlot <- function(Graph)
+{
+  return( Graph %>% 
+       ggplot(aes(x=Heuristic,y=ColorCount,fill=Strategy)) + 
+       geom_col(position=position_dodge()) +
+       theme(axis.text.x=element_text(angle = -90, hjust = 0)))
+}
+MakeTotalTimePlot <- function(Graph)
+{
+    return(Graph %>% 
+       ggplot(aes(x=Heuristic,y=Time,fill=Strategy)) + 
+       geom_col(position=position_dodge()) +
+       theme(axis.text.x=element_text(angle = -90, hjust = 0)))
+}
+DIMACSSummarised <- MakeTotalSummarised(DIMACSResult)
+ggsave( paste0(OutDirectory,"/DIMACS.png"),
+       MakeTotalColorPlot(DIMACSSummarised %>% filter(!(Strategy == "WholePrime"))),
+       ,width=5,height=10)
+ggsave( paste0(OutDirectory,"/DIMACSTime.png"),
+       MakeTotalTimePlot(DIMACSSummarised %>% filter(!(Strategy == "WholePrime"))),
+       ,width=5,height=10)
+GeneratedSummarised <- MakeTotalSummarised(GeneratedResults)
+ggsave( paste0(OutDirectory,"/Generated.png"),
+       MakeTotalColorPlot(GeneratedSummarised),
+       ,width=5,height=10)
+ggsave( paste0(OutDirectory,"/GeneratedTime.png"),
+       MakeTotalTimePlot(GeneratedSummarised),
+       ,width=5,height=10)
+
+
 #ResultTable <- Data %>% group_by(Heuristic,Strategy) %>% summarise(Time=mean(Time),ColorCount=mean(ColorCount)) %>% arrange(Heuristic)
 #print(xtable(ResultTable, type = "latex",caption=Caption), file = OutFile)

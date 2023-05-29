@@ -71,7 +71,7 @@
  % END COPY PASTE
 
 
-\usepackage[backend=bibtex]{biblatex}
+\usepackage[backend=bibtex,maxbibnames=99]{biblatex}
 \usepackage{todonotes}
 \usepackage{subcaption}
 \usepackage{placeins}
@@ -137,7 +137,8 @@
 \end{center}
 \textit{
 Graph coloring is one of the most common and studied problems in computer
-science. It has application in many different areas, such as (EXAMPLES), but
+science. It has applications in many different areas, such as for scheduling,
+compiler optimizations, and biological networks, but
 being NP-Hard means that optimal solutions are infeasible, and in turn that most
 practical problems require the use of heuristics. This thesis examines a
 heuristic based on the modular decomposition of a graph, a way to split the graph
@@ -157,7 +158,6 @@ TabuCol heuristic, but no increase for the other tested heuristics.
 
 \section{Introduction}
 
-\todo[inline]{Rewrite}
 
 In this thesis, we investigate a new heuristic for coloring graphs using the
 modular decomposition of a graph, that is used alongside other traditional
@@ -173,15 +173,15 @@ possible labels describing how its child modules can be combined to form the
 graph induced by it's parent module. There are 3 specific types of modules,
 series, parallel, and prime, which are defined later.
 
-Modular decomposition allows for coloring of graphs in linear time with optimal
-chromatic number if all of the modules are either  series or parallel
+Modular decomposition allows for coloring of graphs in linear time with the
+minimum required colors if all of the modules are either  series or parallel
 \cite{HCL}. However, if any of the vertices are prime then optimal graph
 coloring is in general NP-Hard\cite{NPHard}. The question examined here, is if
-one can still utilize the modular decomposition, where graph coloring heuristics
-are only applied on the prime modules. The modular decomposition might still color some parts
-of the graph optimally, and the structure it provides might provide a hint for
-how to apply the heuristics on the prime parts, improving performance for other
-heuristics.
+one can still utilize the modular decomposition, where graph coloring
+heuristics are only applied on the prime modules. The modular decomposition
+might still color some parts of the graph optimally, and the structure it
+provides might provide a hint for how to apply the heuristics on the prime
+parts, improving performance for other heuristics.
 
 %kanske rätt onödigt?
 In \autoref{sec:Definitions} all of the required terminology and definitions are
@@ -262,14 +262,13 @@ between the vertices.
 
 \begin{definition}[Disjoint union]
     The disjoint union $\bigcup_i G_i$ for graphs 
-    $(V_1,E_1) \cdots (V_k,E_k)$ where 
+    $G_1 \cdots G_n = (V_1,E_1) \cdots (V_n,E_n)$ where 
     $\bigcap V_i = \varnothing $ , is the graph
     $G = \left( \bigcup V_i,\bigcup E_i \right)$.
 \end{definition}
 
-\todo[noline]{Haven't found a paper actually defining the Graph join}
 \begin{definition}[Graph join]
-    The graph join $\nabla G_i$ for graphs $(V_1,E_1) \cdots (V_k,E_k)$ where 
+    The graph join $\nabla G_i$ for graphs $G_1 \cdots G_n = (V_1,E_1) \cdots (V_n,E_n)$ where 
     $\bigcap_i V_i = \varnothing$, is the graph $G = (\{\bigcup V_i,
     \bigcup E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \})$
 \end{definition}
@@ -282,19 +281,23 @@ that it produces a new graph with all of edges and vertices from the original
 graphs, but also for every vertex in a input graph adds a new edge to the other
 input graphs.
 
-\todo[noline]{Fix description of connected component}
 
-One of the original applications of graph theory was to describe different ways
-to walk in city (REFERENS?), so the concept of a path has been central for a long
-time.  A path is a sequence vertices, so that the next vertex in the sequence is
-connected to the previous by an edge, and so that vertices are not repeated.
-One can then imagine "walking" between vertices by moving on edges.
 
 \begin{definition}[Path]
     A path $p$ in graph $G = (V,E)$ is a sequence of vertices $p = (v_1\cdots
     v_i)$, such that $(v_j,v_{j+1}) \in E$ for $1 \leq j \leq i-1$ and $v_j \neq v_k$ 
     for $0 \leq j,k \leq i-1$ when $j \neq k$.
 \end{definition}
+
+One of the original applications of graph theory was to describe different ways
+to walk on bridges in Königsberg, so the concept of a path has been central for
+a long time.  A path is a sequence vertices, so that the next vertex in the
+sequence is connected to the previous by an edge, and so that vertices are not
+repeated.  One can then imagine "walking" between vertices by moving on edges
+connecting them.  Note that we don't allow vertices to occur more than once in
+the path, except that the first and last vertex may be the same. This ensures
+that the amount of unique paths between any 2 vertices are finite, and that
+we can have paths that walk in a circle, a cycle, described below.
 
 \begin{definition}[Connected graph]
     A graph $G = (V,E)$ is connected, if there exists a path between any two
@@ -319,9 +322,9 @@ in a circle.
 \end{definition}
 
 Trees have a number of useful properties. Among them is that between any two
-vertices so is there always an unique path \cite{Trees}. This in combination 
-with a rooted tree gives a natural way to describe graphs in terms of a
-parent-child structure.
+vertices so is there always an unique path \cite{Trees}. This in combination
+with an origin, the root, gives a natural way to describe rooted trees in terms
+of a parent-child structure, described below.
 
 \begin{definition}[child vertex]{\cite{Trees}}
     For a rooted tree $((V,E),v)$, a vertex $v_1 \in V$ is considered a child
@@ -401,7 +404,6 @@ different modules, parts in the partitions, are known.
 %graph, where parts that don't have a cograph structure are replaced with prime
 %modules.
 
-\todo[noline]{Update definition. Unsure which paper to cite}
 \begin{definition}[Modular decomposition]{\cite{HCL}}
     The modular decomposition MD for a graph $G =(V,E)$, is the set of all
     strong modules of the graph.
@@ -418,9 +420,6 @@ the strong module containing all vertices. This tree also describes how the
 induced subgraph of the module can be constructed from the induced subgraphs of
 it's children.
 
-\todo[noline]{Add working example}
-\todo[noline]{Add figure}
-\todo[noline]{What could be a proper reference...}
 \begin{definition}[Modular decomposition tree]{\cite{HCL}}
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
     vertex labeled tree, such that every vertex is associated with a strong
@@ -493,7 +492,7 @@ subdivision depicted in \autoref{fig:graph3}
 \end{figure}
 
 Now, the question is whether or not Module 4 can be divided into further
-submodules. But we can quickly realise that the only submodules of Module 4
+submodules. But we quickly realise that the only strong submodules of Module 4
 would be the trivial modules 1,2,3, and 4, and that no larger strong submodules
 of module 4 exists. We then have all the information needed to construct the
 modular decomposition tree. We first start by constructing the tree structure,
@@ -538,18 +537,18 @@ module is colored before module itself is colored. How a module is colored depen
 on which type it is, series, parallel, and prime.
 
 A module $X$ being series in the modular decomposition tree of a graph $G$
-means, as stated earlier, that the induced subgraph $G[X]$ can be
-constructed through graph join on the induced subgraph of $X's$ children in the
-modular decomposition. This means that every child module is completely
-connected to the other children, most importantly meaning that no child modules
-can share a color among the other child modules. Assuming that the children
-have an optimal coloring, their join therefore also has an optimal coloring, as
-no fewer colors can be used. Having initially given every vertex a unique
-color, we can also guarantee that this join won't introduce any clashes. This
-case is therefore "omitted" from the algorithm, as doing nothing, keeping the
-current coloring, is all that needs to be done.
+means, as stated earlier, that the induced subgraph $G[X]$ can be constructed
+through graph join on the induced subgraph of the associated module of $X's$
+children in the modular decomposition. This means that every child module is
+completely connected to the other children, most importantly meaning that no
+child modules can share a color among the other child modules. Assuming that
+the children have an optimal coloring so has therefore their join also has an optimal
+coloring, as no fewer colors can be used. Having initially given every vertex a
+unique color, we can also guarantee that this join won't introduce any clashes.
+This case is therefore "omitted" from the algorithm, as doing nothing, keeping
+the current coloring, is all that needs to be done.
 
-A module being $X$ parallel in the modular decomposition tree of a graph $G$ means that
+A module $X$ being parallel in the modular decomposition tree of a graph $G$ means that
 the induced subgraph $G[X]$ can be constructed through disjoint union on the induced
 subgraph of the associated modules of $X's$ children. This in particular means that 
 the induced subgraph of the children modules have no edges between each other. Therefore,
@@ -616,8 +615,9 @@ In this section, the different heuristics used to color the graphs is described,
 while \autoref{sec:Strategies} describe how they are applied.
 \subsection{Greedy}
 
-\begin{theorem}[Handshake lemma]{}
-
+\begin{theorem}[Handshake lemma]{\cite{GraphBasics}}
+    For a any graph $G = (V,E)$, so is the sum of the degrees of every vertex
+    twice the amount of edges, that is $\sum_{v \in V} deg(v) = 2|E|$.
 \end{theorem}
 
 The classic greedy algorithm. Greedy walks over all of the vertices in the graph
@@ -625,23 +625,24 @@ in an arbitrary order, and for every vertex assigns the first colored not shared
 amongst it's neighbours. Assigning the first available color can trivially be done
 by for every color checking whether or not the vertex has a neighbour with that color,
 and using it if it's not the case. This method does however
-have a worst case runtime of $O(|C||E|) = O(|V|^2)$. 
+have a worst case runtime of $O(|C||N_G(v)|) = O(|V|^2)$. 
 
 A more efficient way to do this assignment is with $\textbf{get first color}$,
-which uses an map from colors booleans. When coloring $v$, we examine the
-neighbours of $v$, if that neigbour has a color $c$, index $c$ in $used$ is set
-to true. After having iterated through every neighbour, we step through $used$,
+which uses a map from colors booleans. When coloring $v$, we examine the
+neighbours of $v$, if a neigbour has a color $c$, index $c$ in $used$ is set to
+true. After having iterated through every neighbour, we step through $used$,
 and use the first color that isn't set to true. As a maximal $deg(v)$ of
 vertices can be set to true through this process, finding the first available
-color from $used$ is therefore $|deg(v)|$. Then, we reset the $used$ map by
-going through all of the neighbours the same way and setting the index of
-$used$ to false instead, so that the next time when calling $\textbf{get first color}$ ,
-$used$ maps all colors to false. The whole process of $\textbf{get first
-color}$ is therefore $O(|deg(v)|+|deg(v)| + |deg(v)) = O(|deg(v)|)$. Using the
-famous handshake lemma, we can conclude that calling $\textbf{get first color}$
-on all vertices has a total runtime of $O(|E|)$.  $used$ however needs enough
-space to contain every color, which in the worst case is $|V|$ amount of
-colors, which means that the total runtime is $O(|V|+|E|)$.
+color from $used$ is therefore at most  $|deg(v)|+1$ steps. Then, we reset the
+$used$ map by going through all of the neighbours the same way and setting the
+index of $used$ to false instead, so that the next time when calling
+$\textbf{get first color}$ , $used$ maps all colors to false. The whole process
+of $\textbf{get first color}$ is therefore $O(|deg(v)|+|deg(v)| + |deg(v)) =
+O(|deg(v)|)$. Using the famous handshake lemma, we can conclude that calling
+$\textbf{get first color}$ on all vertices has a total runtime of $O(|E|)$.
+$used$ however needs enough space to contain every color, which in the worst
+case is $|V|$ amount of colors, which means that the total runtime is
+$O(|V|+|E|)$.
 
 %Being relatively simple, it also has fast runtime, with a time complexity of $O(|V|+|E|)$ \cite{Constructive}
 
@@ -744,10 +745,10 @@ highest saturation degree in constant time. After having colored it, we update
 the saturation degree for it's neighbours, which implies the removal of that
 neighbour from the list, and then adding it back with the updated saturation
 degree. With appropriate data structures, the initialization can be done in
-$O(|V|log(|V|)$, and removing and inserting an element can be done in $log(|V|)$
+$O(|V|log(|V|)$, and removing and inserting an element can be done in $O(log(|V|))$
 time. As this insertion is done for every neighbour, we can use the handshake
 lemma again and see that the total runtime for updating neighbours this way is
-$|E|log(|V|)$. This gives a total runtime of $O(|V|+|E|+|V|log(|V|)+|E|log(|V|))
+$O(|E|log(|V|))$. This gives a total runtime of $O(|V|+|E|+|V|log(|V|)+|E|log(|V|))
 = O( (|V|+|E|)log(|V|))$. A more thorough description of this implementation can
 be found in \cite{Constructive}.
 
@@ -764,28 +765,39 @@ can share the same color.
 This partition is constructed one part at a time. Creating the smallest partition of the
 vertex set into parts with non-adjacent vertices would be equivalent to finding
 an optimal coloring, the heuristic therefore lies in how the vertices are added 
-to the current partition.
+to the current part in the partition.
 
 When creating a partition, so are vertices added one at a time. Doing the
-partition "largest first" means that we want to add the vertices with the highest
-degree first. We only consider the degrees from the subgraph induced
-by the vertices not currently in a partition however. This is similar to DSatur, in that
-we want to color the currently "most restricted" vertices first.
+partition "largest first" means that we want to add the vertices with the
+highest degree first. We only consider the degrees from the subgraph induced by
+the vertices that are adjacent to the current part. This is similar to DSatur,
+in that we want to color the currently "most restricted" vertices first.
 
 A part in the partition is therefore created by first adding the vertex with the highest
 degree among the vertices in the induced subgraph of vertices not currently in a
 partition. Having added it to this part, we then consider that vertex
 assigned, meaning that the induced subgraph of vertices not
-currently in a partition is updated. We then continue to add the next vertex
-with the highest degree among the un-partitioned vertices, that that also isn't adjacent 
-to any vertex in the current part. This is repeated until no such vertices
-exist, or all vertices have been assigned. The current part is then added to the
-partition.
+currently in a partition is updated. 
 
-If there are still vertices to assign, we repeat by creating another part the
-same way. If all vertices have been assigned, we can assign every 
-part in the partition a unique color, and then color every vertex in that part
-with the assigned color.
+We also add the neighbours of this vertex, that haven't been assigned to a
+part, to a list of vertices that contains the vertices adjacent to the current
+part.  
+
+After having added the initial vertex, we now add vertices that are
+non-adjacent to all of the vertices in the current part. We do this similarly
+to when adding the initial vertex. We identify the vertex among the
+unpartitioned vertices that has the highest amount of neighbours in the list of
+vertices that are adjacent to the current part, choosing the vertex with the
+highest degree in the induced sugraph of unpartitioned vertices in case of
+ties.  We add this vertex to the current part, it's neighbours that are
+unassigned to the list of adjacent vertices, and remove it from the unassigned
+vertices. We continue this process until no more vertices can be added.
+
+At this point, if there are still vertices to assign, we repeat by creating
+another part the same way, resetting the list of vertices adjacent to the
+current part. If all vertices have been assigned, we can assign every part in
+the partition a unique color, and then color every vertex in that part with the
+assigned color.
 
 This presentation of the algorithm is based on \cite{Constructive}.
 \begin{algorithm}[H]
@@ -800,6 +812,7 @@ This presentation of the algorithm is based on \cite{Constructive}.
       \WHILE{$|S| > 0$}
         \STATE $v \leftarrow \text{the vertex maximizing $deg(v)$ for G[S]} $
         \STATE $M \leftarrow \{v\}$
+        \STATE $Adj \leftarrow \{u: u \in N_{G[S]}(v) \}$
         \WHILE{TRUE}
             \STATE Candidates $\leftarrow \{\}$
             \FORALL{$v' \in G[S]$}
@@ -812,9 +825,11 @@ This presentation of the algorithm is based on \cite{Constructive}.
             \IF{$|\text{Candidates}| = 0$}
                 \BREAK
             \ENDIF
-            \STATE $n \leftarrow \text{the $n \in \text{Candidates}$ maximizing $deg(n)$ in $G[S]$}$ 
+            \STATE $u \leftarrow \text{the $u \in \text{Candidates}$ maximizing $deg(u)$ in $G[Adj]$}$, ties broken by 
+            the $u$ maximizing $deg(u)$ in $G[S]$.
             \STATE $M \leftarrow M \cup \{n\}$
-            \STATE $S \leftarrow S \setminus \{n\}$
+            \STATE $Adj \leftarrow Adj \cup N_{G[S]}$
+            \STATE $S \leftarrow S \setminus \{u\}$
         \ENDWHILE
         \STATE Partition $\leftarrow \text{Partition} \cup \{M\}$ 
       \ENDWHILE
@@ -835,11 +850,12 @@ part remove its neighbours from the current candidates. Doing this is, with the
 handshake lemma, $O(|E|)$ when all vertices has been added, leading to at least
 a $O(|V|+|E|)$ runtime.  
 
-To also ensure that the vertex added is the vertex with the highest degree among
-the non-adjacent vertices, we have recalculate the respective degrees for the
-uncolored vertices, which can be done in $O(|E|)$ time every time a vertex is
+We can also ensure that the vertex added is the vertex with the highest degree among
+the non-adjacent vertices by recalculating the respective degrees for the
+uncolored vertices, in both the subgraph induced by the unpartitioned vertices and the vertices 
+adjecent to the current part, which can be done in $O(|E|)$ time every time a vertex is
 added, which is done $|V|$ times. The algorithm can therefore be implemented in
-$O((|V||E|)+|E|) = O(|V||E|)$ time \cite{Constructive}.
+$O((|V||E|)+|V|+|E|) = O(|V||E|)$ time \cite{Constructive}.
 
 \subsection{TabuCol}
 
@@ -950,15 +966,15 @@ total runtime for TabuCol at $O(|E|+(|V|k)\cdot MaxIt)$. This does however
 not account for how many times one needs to apply the whole TabuCol method to
 determine the lowest color that can be achieved by it.
 
-The worst case scenario would be that the initial $k$ was the amount of vertices
-in the graph, and the lowest color achieved by repeated applications was $1$. In
-this case the runtime would be $O((|E|+(|V|k)\cdot MaxIt)|V|) = O( |E||V| +
-(|V|^2k\cdot MaxIt))$. This is in practice often times a too pessimistic
-analysis, as the difference between the initial coloring and the coloring
-achieved by TabuCol is rarely that large. It is also worth noting that the
-amount of repetitions needed for good results in most cases greatly outnumber of
-vertices in the graph, meaning that this heuristic in practice exhibits the
-largest runtimes.
+The worst case scenario would be that the initial $k$ was the amount of
+vertices in the graph, and the lowest color achieved by repeated applications
+was $1$. In this case the runtime would be $O((|E|+(|V|k)\cdot MaxIt)|V|) = O(
+|E||V| + (|V|^2k\cdot MaxIt))$. This is in practice often times a too
+pessimistic analysis, as the difference between the initial coloring and the
+coloring achieved by TabuCol is rarely that large. It is also worth noting that
+the amount of repetitions needed for good results in most cases greatly
+outnumber the amount of vertices in the graph, meaning that this heuristic in
+practice exhibits the largest runtimes.
 % Runtime?
 %Analyzing the runtime, we can see that the main point of interest is the outer
 %loop. The amount of times the loop is run can however be considered constant,
@@ -1007,7 +1023,7 @@ is then colored with some graph coloring heuristic, and then every child module
 with the same color in the quotient graph can now be recolored to use the same
 set of colors.
 
-The quotient graph is graph describing whether or not vertex partitions of a
+The quotient graph is a graph describing whether or not vertex partitions of a
 graph are adjacent or not, instead of individual vertices. Two vertex
 partitions are adjacent in the quotient graph if there exists an edge between
 any pair of vertices, where one part is in the first partition, and the other
@@ -1049,17 +1065,18 @@ graph.
   \end{algorithmic}
 \end{algorithm}
 
-As a quotient graph can for a graph $G = (V,E)$ can be constructed in
-$O(|V|+|E|)$ for a partition of the vertices, we can see that the pathological
+As a quotient graph can for a graph $G = (V,E)$ be constructed in
+$O(|V|+|E|)$ time for a partition of the vertices, we can see that the pathological
 worst case for constructing the quotients, are when only on vertex is removed
 for each recursion. In that case, the construction of the quotient graphs are
-$O(|V|^2+|E|^2)$. The runtime is then dependant on the properties of the
-heuristic applied on the quotient graph to color it. The runtime of this
-algorithm is in the worst case however always slower than applying the heuristic
-directly. The time for the heuristic applied when the modules that are small
-enough can be seen as constant, as the maximal size and complexity of the graph
-is bounded. 
+$O(|V|^2+|E||V|)$. The runtime is then dependant on the properties of the
+heuristic applied on the quotient graph to color it. The time for the heuristic
+applied when the modules that are small enough can be seen as constant, as the
+maximal size and complexity of the graph is bounded. 
 
+This notably implies that the runtime for quotient coloring is in the worst 
+case slower than any of the individual constructive algorithms, that is 
+Greedy, DSatur and RLF.
 \section{Data generation}
 \label{sec:Data}
 
@@ -1078,7 +1095,7 @@ leafs , and then every label in this tree is given a label "series" or
 "parallel".  This then describes a cograph, where the leafs are the K1 bases,
 and a label of "series" means that the children are joined by disjoint union and
 a label of "parallel" means that the children are joined by graph join.  From
-this so can the corresponding graph be constructed. From this graph, we also
+this so can the corresponding graph be constructed. From this cograph, we then
 randomly add edges in predetermined number of modules and with a predetermined
 size. 
 
@@ -1203,8 +1220,9 @@ For the quotient coloring, the threshold for the number of vertices in a prime
 module to color directly with a heuristic was set to a constant 20. The
 heuristic used to in turn color the quotient graph was set to RLF. It is
 reasonably fast with good performance. The reason the same heuristic was not
-used is because it would in the case of TabuCol possibly result in very
-excessive computation times, as the modules can be deeply nested.
+used to color the quotient graph is because it would in the case of TabuCol
+possibly result in very excessive computation times, as the modules can be
+deeply nested.
 
 \section{Results}
 \label{sec:Result}
@@ -1213,7 +1231,7 @@ respective test sets. All graphs are colored with all combinations of heuristic
 and combination strategy. A final table displaying the total average between all
 disturbed cographs, as well as the performance on DIMACS graphs.
 
-The average time it took to color a single graph is also displayed. Note
+The average time it took to color a single graph in seconds is also displayed. Note
 however that system load may vary between different runs, and that because of
 the long runtime for some test sets so are the tests not repeated to ensure
 statistical significance. The time should therefore be seen as accurate only
@@ -1225,9 +1243,6 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 %\includegraphics[width=\textwidth]{Results.png}
 %\includegraphics[width=\textwidth]{TestGGSave.png}
 \subsection{Results}
-\todo[inline]{Bit unsure whether or not just dumping all the tables is appropriate.
-At the same time, just leaving out the results for aesthetics also seems silly. 
-Still trying to figure out how to center the tables...}
 \newpage
 
 
@@ -1297,11 +1312,45 @@ Still trying to figure out how to center the tables...}
 \label{fig:250}
 \end{figure}
 
+
+
+\begin{figure}
+\centerfloat
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/DIMACS.png}
+      \caption{Coloring results}
+      \label{fig:dimacsc}
+    \end{subfigure}%
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/DIMACSTime.png}
+      \caption{Runtime}
+      \label{fig:dimacst}
+    \end{subfigure}
+\caption{DIMACS}
+\label{fig:dimacs}
+\end{figure}
+
+\begin{figure}
+\centerfloat
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/Generated.png}
+      \caption{Coloring results}
+      \label{fig:generatedc}
+    \end{subfigure}%
+    \begin{subfigure}{.5\paperwidth}
+        \includegraphics[width=\columnwidth]{Tables/GeneratedTime.png}
+      \caption{Runtime}
+      \label{fig:generatedt}
+    \end{subfigure}
+\caption{Combined all generated graphs}
+\label{fig:generated}
+\end{figure}
+
 \FloatBarrier
 \subsection{Discussion}
 
 Something that we can see from the tables, most easily from
-\autoref{table:combined}, is that applying a heuristic locally on prime modules
+\autoref{fig:generated}, is that applying a heuristic locally on prime modules
 doesn't significantly affect the resulting color for RLF,Greedy and DSatur. It
 does however seem to give a minor improvement for TabuCol. In situations where
 one would consider using TabuCol with it's comparably larger execution time in
@@ -1314,21 +1363,19 @@ seems like the performance for TabuCol is better for the sparser graph with
 with the number of prime modules, both 10 and 5 seem to perform similarly.
 
 The result for the quotient strategy always seems comparable to the performance
-of RLF. While it can be seen to outperform pure RLF very slightly for some combinations,
-such as \autoref{table:quotient}, 
-\todo{More tests to ensure significance? Redundant as it's still an arbitrary test set?}
-so is the sample size to small to draw any conclusions. 
-It also exhibits a much larger runtime, most notable for the DIMACS test set.
-The potential performance benefit most likely doesn't compensate for the
-increased runtime however, even with a more optimized implementation.
+of RLF. While it can be seen to outperform pure RLF very slightly for some
+combinations, such as in \autoref{fig:dimacs}. It also exhibits a much larger
+runtime, most notable for the DIMACS test set in \autoref{fig:dimacs}.  The
+potential performance benefit most likely doesn't compensate for the increased
+runtime however, even with a more optimized implementation.
 
-
-Looking at the time taken to color the graphs, we can see that the modular decomposition might have a 
-use in decreasing the execution time. Graph coloring algorithms with execution time that
-doesn't scale linearly with the size of the graph could benefit from being applied
-more times on smaller subgraphs. But whether or not this is worth it in practice 
-depends on the ability to implement the modular decomposition tree in linear time, 
-and if the added computations can be compensated by large enough graphs.
+Looking at the time taken to color the graphs, we can see that the modular
+decomposition might have a use in decreasing the execution time. Graph coloring
+algorithms with execution time that doesn't scale linearly with the size of the
+graph could benefit from being applied more times on smaller subgraphs. But
+whether or not this is worth it in practice depends on the ability to implement
+the modular decomposition tree in linear time, and if the added computations
+can be compensated by large enough graphs.
 
 Another possible advantage with the modular decomposition is that it could
 allow for more easily implemented parallelised coloring algorithms. As the
