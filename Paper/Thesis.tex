@@ -128,13 +128,14 @@
 
 \vspace*{12cm}
 \Large{Handledare: Marc Hellmuth} \\ 
-\Large{Examinator: Marc Hellmuth} \\ 
+\Large{Examinator: Lars Arvestad} \\ 
 \Large{Inlämningsdatum: \today}\\
 
 %\section{Abstract}
 \begin{center}
 	\textbf{Abstract}
 \end{center}
+\todo{Change abstract}
 \textit{
 Graph coloring is one of the most common and studied problems in computer
 science. It has applications in many different areas, such as for scheduling,
@@ -143,7 +144,7 @@ being NP-Hard means that optimal solutions are infeasible, and in turn that most
 practical problems require the use of heuristics. This thesis examines a
 heuristic based on the modular decomposition of a graph, a way to split the graph
 into distinct partitions of vertices where some parts can be colored optimally,
-and some parts require other heuristics. This strategy of coloring with the
+and some parts require other heuristics. As we will show, this strategy of coloring with the
 modular decomposition was found to give an increase in performance for the
 TabuCol heuristic, but no increase for the other tested heuristics.
 }
@@ -236,30 +237,29 @@ The definitions used here are based of the definitions in \cite{GraphBasics}.
     A subgraph $S = (V',E')$ of a graph $G = (V,E)$, is a graph such that
     $V' \subseteq V$, $E' \subseteq E$.
 \end{definition}
-
+In many cases, one is interested in some parts of the graph, and one of the
+most common ways to decompose a graph is through the induced subgraph.
 \begin{definition}[Induced subgraph]
     For a graph $G = (V,E)$, the induced subgraph $G[X]$ for $X \subseteq V$, is
     the subgraph $(X,\{(u,v) : (u,v) \in E, u \in X,v \in X\})$. 
 \end{definition}
 
-In many cases, one is interested in some parts of the graph, and one of the
-most common ways to decompose a graph is through the induced subgraph. An induced
-subgraph is a graph constructed by only including a subset of the original
-graphs vertices, and all edges between these vertices in the original graph.
+In other words, an induced subgraph is a graph constructed by including a
+subset of the original graphs vertices, and all edges between these vertices in
+the original graph.
 
+Another common operation, is the graph complement.
 \begin{definition}[Graph complement]
     The graph compliment $\overline{G}$ of a graph $G = (V,E)$ is the graph 
     $(V,\{ (u,v) : u \neq v, u \in V,v \in V, (u,v) \notin E \})$.
 \end{definition}
 
-Another common operation, is the graph complement. The graph complement of a
+In other words, the graph complement of a
 graph is graph that contains the same vertices as the original graph, but the
 vertices are adjacent only if they where not adjacent in the original graph.
-This also means that the union of their edge sets contains all possible edges
-between the vertices.
 
-
-
+Two common operations, and especially relevant for the modular decomposition
+further down, is the disjoint union and graph join.
 \begin{definition}[Disjoint union]
     The disjoint union $\bigcup_i G_i$ for graphs 
     $G_1 \cdots G_n = (V_1,E_1) \cdots (V_n,E_n)$ where 
@@ -273,8 +273,7 @@ between the vertices.
     \bigcup E_i \cup \{(u,v) : u \in V_k, v \in V_j, k \neq j \})$
 \end{definition}
 
-Two common operations, and especially relevant for the modular decomposition
-further down, is the disjoint union and graph join. The disjoint union is the
+ The disjoint union is the
 most simple way to combine graphs, and just forms a new graph that just
 contains the original graphs and nothing more.  The graph join is similar, in
 that it produces a new graph with all of edges and vertices from the original
@@ -286,7 +285,7 @@ input graphs.
 \begin{definition}[Path]
     A path $p$ in graph $G = (V,E)$ is a sequence of vertices $p = (v_1\cdots
     v_i)$, such that $(v_j,v_{j+1}) \in E$ for $1 \leq j \leq i-1$ and $v_j \neq v_k$ 
-    for $0 \leq j,k \leq i-1$ when $j \neq k$.
+    for $1 \leq j,k \leq i$ with $j \neq k$.
 \end{definition}
 
 One of the original applications of graph theory was to describe different ways
@@ -294,10 +293,12 @@ to walk on bridges in Königsberg, so the concept of a path has been central for
 a long time.  A path is a sequence vertices, so that the next vertex in the
 sequence is connected to the previous by an edge, and so that vertices are not
 repeated.  One can then imagine "walking" between vertices by moving on edges
-connecting them.  Note that we don't allow vertices to occur more than once in
-the path, except that the first and last vertex may be the same. This ensures
-that the amount of unique paths between any 2 vertices are finite, and that
-we can have paths that walk in a circle, a cycle, described below.
+connecting them.  
+
+%Note that we don't allow vertices to occur more than once in
+%the path, except that the first and last vertex may be the same. This ensures
+%that the amount of unique paths between any 2 vertices are finite, and that
+%we can have paths that walk in a circle, a cycle, described below.
 
 \begin{definition}[Connected graph]
     A graph $G = (V,E)$ is connected, if there exists a path between any two
@@ -307,18 +308,20 @@ we can have paths that walk in a circle, a cycle, described below.
 
 %more definitions
 \begin{definition}[Cycle]
-    A cycle is a path $v_1 \cdots v_i$ such that $v_1 = v_i$.
+    A cycle is a    sequence of vertices $(v_1,\cdots,v_i,v_1)$
+    if $(v_1,\cdots,v_i)$ is a path.
 \end{definition}
 
-A cycle is a special form of path, and can be seen as a way to walk
+A cycle is very similar to a regular path except that we allow, and require,
+that the first and last vertex to be the same, and can be seen as a way to walk
 in a circle. 
 
 \begin{definition}[Tree]{\cite{Trees}}
     A tree is a connected graph with no cycles.
 \end{definition}
-\begin{definition}[rooted tree]{\cite{Trees}}
+\begin{definition}[Rooted tree]{\cite{Trees}}
     A rooted tree is a graph vertex pair, $(G,v)$, such that $G = (V,E)$ is a tree,
-    and  with $v \in V$. The vertex $v$ is called the root of the tree.
+    and with a distinguished $v \in V$, called the root of the tree.
 \end{definition}
 
 Trees have a number of useful properties. Among them is that between any two
@@ -326,7 +329,7 @@ vertices so is there always an unique path \cite{Trees}. This in combination
 with an origin, the root, gives a natural way to describe rooted trees in terms
 of a parent-child structure, described below.
 
-\begin{definition}[child vertex]{\cite{Trees}}
+\begin{definition}[Child vertex]{\cite{Trees}}
     For a rooted tree $((V,E),v)$, a vertex $v_1 \in V$ is considered a child
     of vertex $v_2 \in V$, if the unique path from $v_1$ to $v$ starts with
     $v_1,v_2$. $v_2$ is in this case also called the parent of $v_1$.
@@ -336,12 +339,17 @@ of a parent-child structure, described below.
 
 \begin{definition}[Graph coloring]
     A graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $V$ to $C$,
-    where $C$ is a set of colors, such that no neighbours share the same color,
-    that is $(u,v) \in E$ implies that $\sigma(u) \neq \sigma(v)$. We say that $\sigma$
+    where $C$ is a set of colors. We say that $\sigma$
     is a $k$ coloring if $|C| \leq k$.
 \end{definition}
-A graph coloring can also be called a proper coloring,
-to distinguish it from a partial coloring and an improper coloring.
+
+\begin{definition}[Proper coloring]
+    A graph coloring $\sigma$ for a graph $G = (V,E)$ is a proper coloring,
+    if no neighbours share the same color,
+    that is $(u,v) \in E$ implies that $\sigma(u) \neq \sigma(v)$
+\end{definition}
+%A graph coloring can also be called a proper coloring,
+%to distinguish it from a partial coloring and an improper coloring.
 
 \begin{definition}[Partial coloring]{\cite{Constructive}}
     A partial graph coloring $\sigma$ for a graph $G = (V,E)$ is a map from $P \subset V$ to $C$,
@@ -357,30 +365,30 @@ to distinguish it from a partial coloring and an improper coloring.
     The chromatic number of a graph $G = (V,E)$, denoted by $\chi(G)$, is the
     least amount of colors needed to color the graph with a proper coloring.
 \end{definition}
-The central problem in this thesis, is the efficient coloring of a graph.
-Coloring graph means that one assigns to every vertex a color, an arbitrary
-value, such that no vertices that are neighbours have the same color. A classic
-example of this problem is when coloring a map and wants to avoid giving
-neighbouring countries the same color.  Every country can be represented by a
-vertex, and edges are added if two countries share a border.
+The central problem in this thesis, is to find an efficient coloring of a graph.
 
-Finding a coloring for a graph is easy, one could for example 
-assign every vertex a unique color. Finding an optimal coloring however, a coloring using the
-fewest possible colors, is NP-Hard \cite{NPHard}. For this purpose, multiple
-different heuristics, algorithms providing a proper coloring with as few colors
-as possible but not necessarily optimal, have to be used.
+Finding a proper coloring for a graph is easy, one could for example assign to
+every vertex a unique color. Finding an optimal coloring however, i.e. a
+coloring using the fewest possible number of colors, is NP-Hard \cite{NPHard}.
+For this purpose, different heuristics, algorithms providing a proper coloring
+with a few but not necessarily optimal number of colors, have to be used.
 
+A particular type of graph for which an optimal coloring can easily be determined 
+are so-called complete graphs.
 \begin{definition}[Complete graph]
-    A graph $K = (V,E)$ is complete if every vertex in $v \in V$ is adjacent to
+    A graph $K = (V,E)$ is complete if every vertex $v \in V$ is adjacent to
     every other vertex, that is, $ (u,v) \in E \iff v \neq u$. We also call the
-    graph $K_n$ with the complete graph that has $n$ vertices.
+    graph $K_n$ the complete graph that has $n$ vertices.
 \end{definition}
+\todo{Double check}
+As every vertex is adjacent to every other vertex in a complete graph, so must a proper coloring
+assign every vertex a unique color, which in turn is an optimal coloring.
 
 \subsection{Graph modules and cographs}
 \label{sec:GraphModules}
 
 \begin{definition}[Cograph]{\cite{CoGraph}}
-  A graph $G$ is a \emph{cograph} if $G=K_1$, $G$ is the disjoint union
+  A graph $G$ is a \emph{cograph} if $G=K_1$, or $G$ is the disjoint union
   $G=\bigcupdot_i G_i$ of cographs $G_i$, or $G$ is a join
   $G=\bigjoin_i G_i$ of cographs $G_i$.
 \end{definition}
@@ -388,16 +396,17 @@ as possible but not necessarily optimal, have to be used.
 
 \begin{definition}[Graph module]{\cite{Module}}
     Let $G = (V,E)$ be an arbitrary graph. A non-empty vertex set $M \subseteq V$
-    is a module of $G$ if, $\forall x,y \in M (N_G(x) \setminus M = N_G(y) \setminus M)  $. A module $M$ is
+    is a module of $G$ if, 
+    for all $x,y \in M$ it holds that  $(N_G(x) \setminus M = N_G(y) \setminus M)$. A module $M$ is
     strong if it does not overlap with any other module $M'$, i.e, if 
     $M \cap M' \in \{M,M',\emptyset \}$.
 \end{definition}
   
 
 Now we have sufficient terminology to describe the most central concept, the
-modular decomposition. The modular decomposition is way to partition the
+modular decomposition. The modular decomposition is way to split the 
 vertices of the graph into a tree structure, where the relation between
-different modules, parts in the partitions, are known. 
+different modules, parts in the tree, are known.
 
 %Another way to look at
 %the modular decomposition, is that it's a cograph approximation of the original
@@ -419,8 +428,9 @@ This tree describes the structure of the modular decomposition of the original
 graph. Every vertex in the tree represents a strong module, with the root being
 the strong module containing all vertices. This tree also describes how the
 induced subgraph of the module can be constructed from the induced subgraphs of
-it's children.
+it's children, except for prime vertices.
 
+\todo[noline]{Update definition}
 \begin{definition}[Modular decomposition tree]{\cite{HCL}}
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
     vertex labeled tree, such that every vertex is associated with a strong
@@ -431,7 +441,7 @@ it's children.
     \begin{enumerate}
         \item Series: $G[X]$ is disconnected.
         \item Parallel: $\overline{G[X]}$ is disconnected.
-        \item Prime: $G[X]$ and $\overline{G[X]}$ is disconnected.
+        \item Prime: $G[X]$ and $\overline{G[X]}$ is connected.
     \end{enumerate}
     The root of the tree must also have $V$ as the associated strong module, and all 
     strong modules also have to be a part of the tree.
@@ -439,8 +449,8 @@ it's children.
 
 Note, a label being series in modular decomposition tree with associated module
 $X$ means that the induced subgraph $G[X]$ can be constructed through graph
-union on the induced subgraphs of its children's associated modules, and it being
-parallel means that $G[X]$ can be constructed through graph join on the
+join on the induced subgraphs of its children's associated modules, and it being
+parallel means that $G[X]$ can be constructed through graph union on the
 induced subgraphs of its childrens associated modules \cite{HCL}.
 
 As a single vertex is a strong module so is the leafs of the tree associated
@@ -450,8 +460,7 @@ graph union on $K_1$.
 
 The modular decomposition of a graph and its corresponding modular
 decomposition tree is unique \cite{MDUnique}, which means that the construction
-of the modular decomposition doesn't vary and need not be a part of
-the heuristic.
+of the modular decomposition doesn't vary.
 
 
 \subsection{Example}
@@ -525,17 +534,17 @@ modular decomposition tree that can be seen in \autoref{fig:graph5}
 
 \section{General coloring algorithm}
 
-The algorithm used for coloring is \autoref{alg:generic}, described in
+\autoref{alg:generic} will form the baseline for our heuristics, and described in
 \cite{HCL}. It provides an optimal coloring given that the graph is a cograph,
 that is when all modules in the modular decomposition tree is either series or
 parallel.  It does however not provide a way to color the prime modules. This
 paper examines multiple different ways these prime modules can be colored, split
 into 2 parts, a heuristic used, and a coloring strategy. 
 
-\autoref{alg:generic} starts by first assigning every vertex a unique color,
-and then colors the modules recursively, starting at the root. The children of a
-module is colored before module itself is colored. How a module is colored depends 
-on which type it is, series, parallel, and prime.
+\autoref{alg:generic} starts by first assigning to every vertex a unique color,
+and then colors the modules recursively, starting at the root. The vertices in
+the children of a module are colored before the module itself is colored. How a
+module is colored depends on which type it is, series, parallel, and prime.
 
 A module $X$ being series in the modular decomposition tree of a graph $G$
 means, as stated earlier, that the induced subgraph $G[X]$ can be constructed
@@ -546,8 +555,8 @@ child modules can share a color among the other child modules. Assuming that
 the children have an optimal coloring so has therefore their join also has an optimal
 coloring, as no fewer colors can be used. Having initially given every vertex a
 unique color, we can also guarantee that this join won't introduce any clashes.
-This case is therefore "omitted" from the algorithm, as doing nothing, keeping
-the current coloring, is all that needs to be done.
+This case is therefore "omitted" from the algorithm, keeping
+the current coloring is all that needs to be done.
 
 A module $X$ being parallel in the modular decomposition tree of a graph $G$ means that
 the induced subgraph $G[X]$ can be constructed through disjoint union on the induced
@@ -559,7 +568,7 @@ which assuming that the children are optimally colored is the colors used by the
 with the most amount of colors.
 
 The last case is when the module is prime. Coloring this module is in the
-general case NP-Hard. This paper examines how this prime module can be colored,
+general case NP-Hard. Here we examine how this prime module can be colored,
 replacing line 12 with a graph coloring heuristic. The question is whether or
 not the performance is improved when applying this heuristic locally on these
 prime module compared to applying this heuristic on the whole graph.
@@ -617,11 +626,11 @@ while \autoref{sec:Strategies} describe how they are applied.
 \subsection{Greedy}
 
 \begin{theorem}[Handshake lemma]{\cite{GraphBasics}}
-    For a any graph $G = (V,E)$, so is the sum of the degrees of every vertex
-    twice the amount of edges, that is $\sum_{v \in V} deg(v) = 2|E|$.
+    For a graph $G = (V,E)$, the sum of the degrees of every vertex twice is
+    the amount of edges, that is $\sum_{v \in V} deg(v) = 2|E|$.
 \end{theorem}
 
-The classic greedy algorithm. Greedy walks over all of the vertices in the graph
+The classic greedy coloring algorithm. It traverses all of the vertices in the graph
 in an arbitrary order, and for every vertex assigns the first colored not shared
 amongst it's neighbours. Assigning the first available color can trivially be done
 by for every color checking whether or not the vertex has a neighbour with that color,
@@ -629,6 +638,7 @@ and using it if it's not the case. This method does however
 have a worst case runtime of $O(|C||N_G(v)|) = O(|V|^2)$. 
 
 A more efficient way to do this assignment is with $\textbf{get first color}$,
+\todo{Improve clarity}
 which uses a map from colors booleans. When coloring $v$, we examine the
 neighbours of $v$, if a neighbor has a color $c$, index $c$ in $used$ is set to
 true. After having iterated through every neighbour, we step through $used$,
@@ -699,23 +709,22 @@ $O(|V|+|E|)$.
 
 \subsection{Dsatur}
 
-Dsatur is an algorithm that is similar to Greedy, in that it walks through every
-vertex and assigns it the first available color. The difference is mostly in
-how this traversal is constructed. In greedy, this traversal is an arbitrary
-order, but for Dsatur this traversal is constructed in a deterministic fashion,
-by using the saturation degree.
+Dsatur is an algorithm that is similar to Greedy, in the sense that it
+traverses every vertex, and assigns to each of them the first available color.
+The difference is mostly in how this traversal is constructed. In greedy, this
+traversal is an arbitrary order, but for Dsatur this traversal is constructed
+in a deterministic \todo{Deterministic?} fashion, by using the saturation degree.
 
 \begin{definition}[Saturation degree]{\cite{Constructive}}
     The saturation degree $sat(v)$ for a vertex $v \in V$ for a graph $G =
-    (V,E)$ and a partial coloring $\sigma$ from $P \subset V$ the set of colors $C$, is the amount of unique colors among
+    (V,E)$ and a partial coloring $\sigma$ from $P \subset V$ to the set of colors $C$, is the amount of unique colors among
     it's colored neighbours, that is $sat(v) = |\{c  : c = \sigma(u), u \in N_G(v),u \in P  \}|$.
 \end{definition}
 
-The vertex are colored so that the vertex with the highest saturation degree is
+Each vertex is colored so that the vertex with the highest saturation degree is
 colored first, alternatively maximizing the degree.  DSatur being a well studied
 algorithm also means that it has some variations in the literature, and this
 presentation is based on \cite{Constructive}.
-
 \begin{algorithm}[H]
   \caption{Dsatur}
   \algsetup{linenodelimiter=}
@@ -734,7 +743,7 @@ presentation is based on \cite{Constructive}.
       \ENDFOR
   \end{algorithmic}
 \end{algorithm}
-
+\todo{Confusing?}
 When analyzing the runtime for Dsatur, we can begin by stating that
 assigning the first available color can be done just as in greedy with
 $\textbf{get first color}$, giving us at least $O(|V|+|E|)$ runtime. 
@@ -755,18 +764,19 @@ be found in \cite{Constructive}.
 
 \subsection{Recursive largest first}
 
-Recursive largest first is more complicated than both Greedy and Dsatur, in both
-execution and runtime. 
+Recursive largest first is more complicated than both Greedy and Dsatur, 
+and subsequently has a higher runtime.
 
 The idea behind Recursive largest first, is to create a partition of the
 vertices of the graph, where the vertices in the different parts are all
 non-adjacent to each other. This ensures that all the vertices in a given part
 can share the same color. 
 
-This partition is constructed one part at a time. Creating the smallest partition of the
-vertex set into parts with non-adjacent vertices would be equivalent to finding
-an optimal coloring, the heuristic therefore lies in how the vertices are added 
-to the current part in the partition.
+This partition is constructed one part at a time. Creating a partition with the
+fewest amount of elements, such that the vertices in the different parts are
+non-adjacent  to each other, would be equivalent to finding an optimal
+coloring, the heuristic therefore lies in how the vertices are added to the
+current part in the partition.
 
 When creating a partition, so are vertices added one at a time. Doing the
 partition "largest first" means that we want to add the vertices with the
@@ -774,35 +784,37 @@ highest degree first. We only consider the degrees from the subgraph induced by
 the vertices that are adjacent to the current part. This is similar to DSatur,
 in that we want to color the currently "most restricted" vertices first.
 
-A part in the partition is therefore created by first adding the vertex with the highest
-degree among the vertices in the induced subgraph of vertices not currently in a
-partition. Having added it to this part, we then consider that vertex
-assigned, meaning that the induced subgraph of vertices not
-currently in a partition is updated. 
+A part in the partition is therefore created by first adding the vertex with
+the highest degree among the vertices in the induced subgraph of vertices not
+currently in a partition. Having added it to this part, we then consider that
+vertex assigned, meaning that the induced subgraph of vertices not currently in
+a partition is updated.  We also add the neighbours of this vertex, that
+haven't been assigned to a part, to a list of vertices that contains the
+vertices adjacent to the current part.  
 
-We also add the neighbours of this vertex, that haven't been assigned to a
-part, to a list of vertices that contains the vertices adjacent to the current
-part.  
+These steps corresponds lines 6-8 in \autoref{alg:rlf}
 
 After having added the initial vertex, we now add vertices that are
-non-adjacent to all of the vertices in the current part. We do this similarly
+non-adjacent to all of the vertices in the current part,
+which corresponds to lines 9-16. We do this similarly
 to when adding the initial vertex. We identify the vertex among the
 unpartitioned vertices that has the highest amount of neighbours in the list of
 vertices that are adjacent to the current part, choosing the vertex with the
 highest degree in the induced sugraph of unpartitioned vertices in case of
 ties.  We add this vertex to the current part, it's neighbours that are
 unassigned to the list of adjacent vertices, and remove it from the unassigned
-vertices. We continue this process until no more vertices can be added.
+vertices. We continue this process until no more vertices can be added, that is the 
+there are no more unpartitioned vertices that aren't adjacent to the current part.
 
 At this point, if there are still vertices to assign, we repeat by creating
-another part the same way, resetting the list of vertices adjacent to the
-current part. If all vertices have been assigned, we can assign every part in
+another part the same way, going back to line 6. If all vertices have been assigned, we can assign every part in
 the partition a unique color, and then color every vertex in that part with the
 assigned color.
 
 This presentation of the algorithm is based on \cite{Constructive}.
 \begin{algorithm}[H]
   \caption{Recursive largest first (RLF)}
+  \label{alg:rlf}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
@@ -811,25 +823,18 @@ This presentation of the algorithm is based on \cite{Constructive}.
       \STATE $M \leftarrow \{\}$
       \STATE $S \leftarrow V$
       \WHILE{$|S| > 0$}
-        \STATE $v \leftarrow \text{the vertex maximizing $deg(v)$ for G[S]} $
+        \STATE $v \leftarrow \text{the vertex maximizing $deg(v)$ for $G[S]$} $
         \STATE $M \leftarrow \{v\}$
-        \STATE $Adj \leftarrow \{u: u \in N_{G[S]}(v) \}$
+        \STATE $Adj \leftarrow N_{G[S]}(v)$
         \WHILE{TRUE}
-            \STATE Candidates $\leftarrow \{\}$
-            \FORALL{$v' \in G[S]$}
-                \IF{$v' \neq m \wedge v' \notin N_{G[S]}(m) \text{for all $m \in
-                M$}$}
-                    \STATE $\text{Candidates} \leftarrow \text{Candidates}
-                    \cup \{v'\}$
-                \ENDIF
-            \ENDFOR
+            \STATE Candidates $\leftarrow S \setminus Adj$
             \IF{$|\text{Candidates}| = 0$}
                 \BREAK
             \ENDIF
-            \STATE $u \leftarrow \text{the $u \in \text{Candidates}$ maximizing $deg(u)$ in $G[Adj]$}$, ties broken by 
+            \STATE $u \leftarrow \text{the $u \in \text{Candidates}$ maximizing $deg(u)$ in $G[Adj \cup \{u\}]$}$, ties broken by 
             the $u$ maximizing $deg(u)$ in $G[S]$.
-            \STATE $M \leftarrow M \cup \{n\}$
-            \STATE $Adj \leftarrow Adj \cup N_{G[S]}$
+            \STATE $M \leftarrow M \cup \{u\}$
+            \STATE $Adj \leftarrow Adj \cup N_{G[S]}(u)$
             \STATE $S \leftarrow S \setminus \{u\}$
         \ENDWHILE
         \STATE Partition $\leftarrow \text{Partition} \cup \{M\}$ 
@@ -866,19 +871,21 @@ coloring for a specific number of target colors.
 
 TabuCol first forms a random improper coloring of the vertices with colors from
 the allowed set, and then modifies this coloring by looking at the vertices that
-forms a clash, that is have neighbours with the same colors. For these vertices,
-every new coloring are evaluated in how many clashes they would produce. Then
-vertex recoloring that has the lowest number of clashes, even if the amount
+forms a clash, that is, if neighbours have the same colors. For these vertices,
+every new coloring are evaluated in how many clashes they would result in. 
+Then the recoloring that has the lowest number of clashes, even if the amount
 clashes are greater than the current number of clashes, is applied.
 
-This can however introduce cycles, certain recolorings leading into each other
-ad infinitum. To prevent this, the Tabu list is used. A Tabu list is a list of
-vertex-color pairs $(v,u)$. Whenever a new vertex recoloring is made, it is
-added to the Tabu list. A new vertex recoloring is only considered if it's not a
-part of the Tabu list. This tabu list have a set size, so that the first element
-is removed when a new vertex-color pair is added. If there are more than one
-coloring that give the lowest increase in clashes, so is that tie broken
-randomly, also in order to avoid cycles.
+This can however introduce cycles of recolorings. Certain recolorings might
+lead into each other so that the algorithm just iterates through this cycle
+every iteration, preventing it from ever reaching a better coloring. To prevent
+this, the Tabu list is used. A Tabu list is a list of vertex-color pairs
+$(v,u)$. Whenever a new vertex recoloring is made, it is added to the Tabu
+list. A new vertex recoloring is only considered if it's not a part of the Tabu
+list. This tabu list have a set size, so that the first element is removed when
+a new vertex-color pair is added. If there are more than one coloring that give
+the lowest increase in clashes, so is that tie broken randomly, also in order
+to avoid cycles in recolorings.
 
 Tabu moves are however allowed in some scenarios, specifically if applying that
 coloring would create a better recoloring than the previous best, which is
@@ -893,10 +900,13 @@ with zero clashes is produced, or a predetermined number of moves have been
 made. As the algorithm only get's a valid coloring for a specific $k$, so must
 we also have a way to utilise this algorithm to get the lowest possible
 coloring.  Here a similar method described in \cite{Constructive} is used, that
-is, first a coloring is made with RLF, and assign then number of colors in that
-coloring to $k$.  The then we try to color it with TabuCol with that amount of
-colors minus one, and subtract $k$ by one overtime we succeed, until we fail, at
-which point we say that the current $k$ is the lowest we can go.
+is, first a coloring is made with RLF, and the number of used colors is
+assigned to $k$ and the resulting coloring to $\sigma$.  The then we try to color the graph with TabuCol with $k-1$ allowed colors
+colors. If this results in a proper coloring, so is this step repeated and we subtract $k$ by one,
+and we save the coloring to $\sigma$.
+If the coloring is not proper, so the current $\sigma$ the coloring that is applied.
+This procedure can be seen in \autoref{alg:tabu-lowest}
+
 
 TabuCol has some subtle variations, and this particular definition is based on
 the presentation in \cite{Constructive}. Alternatives are for example whether or
@@ -952,6 +962,24 @@ clashes to be recolored.
         \ENDWHILE
     \end{algorithmic}
 \end{algorithm}
+\begin{algorithm}[H]
+    \caption{TabuCol-lowest}
+    \label{alg:tabu-lowest}
+    \algsetup{linenodelimiter=}
+    \begin{algorithmic}[1]
+        \REQUIRE Graph $G = (V,E)$
+        \STATE $k \leftarrow $ number of colors used by \textbf{RLF} applied on $G$.
+        \STATE $\sigma \leftarrow $ empty coloring
+        \WHILE{true}
+            \IF{\textbf{TabuCol} applied on $G$ with $k$ allowed colors results in a valid coloring}
+                \STATE $k \leftarrow k-1$
+                \STATE $\sigma \leftarrow $ the resulting coloring for \textbf{TabuCol} with $k$ allowed colors
+            \ELSE
+                \BREAK
+            \ENDIF
+        \ENDWHILE
+    \end{algorithmic}
+\end{algorithm}
 
 By utilizing a large $|V| \times k$ matrix that stores how many neighbours to $v$ that share
 the color $c$ in the $(v,c)$ position of the matrix, looking up the recoloring
@@ -970,7 +998,7 @@ determine the lowest color that can be achieved by it.
 The worst case scenario would be that the initial $k$ was the amount of
 vertices in the graph, and the lowest color achieved by repeated applications
 was $1$. In this case the runtime would be $O((|E|+(|V|k)\cdot MaxIt)|V|) = O(
-|E||V| + (|V|^2k\cdot MaxIt))$. This is in practice often times a too
+|E||V| + (|V|^2k\cdot MaxIt))$. This is in practice often a too
 pessimistic analysis, as the difference between the initial coloring and the
 coloring achieved by TabuCol is rarely that large. It is also worth noting that
 the amount of repetitions needed for good results in most cases greatly
@@ -986,8 +1014,8 @@ practice exhibits the largest runtimes.
 \label{sec:Strategies}
 In the case where the whole graph doesn't contain any prime modules, an optimal
 coloring can be obtained with \autoref{alg:generic} in linear time
-\cite{HCL}. It is when coloring prime modules that we have to apply the
-heuristics, and these different methods are described in this part.
+\cite{HCL}. In case the graph contains prime modules, so will we use different
+strategies on how to apply the different heuristics described in \autoref{sec:heuristics}.
 
 \subsection{Whole graph}
 
@@ -998,8 +1026,13 @@ graph.
 
 \subsection{Whole prime coloring}
 
-With this strategy, the prime vertex with the strong module $X$ of $G$, the
-whole induced subgraph $G[X]$ is colored with the heuristic.
+With this strategy so is the whole prime module colored using the heuristic. 
+
+This modifies the behaviour of \autoref{alg:generic} in to ways. First, line 12 is replaced by a
+call to the heuristic used with this strategy, and secondly, the children of the prime
+module is not colored before it, as doing so would be redundant and waste time.
+This also means prime modules contained within other prime modules are not
+colored specifically.
 
 This method is the simplest combining strategy, but worth noting is that is
 equivalent to coloring the whole graph using the heuristic in the case where the
@@ -1016,13 +1049,15 @@ heuristics when the root in the modular decomposition isn't prime.
 \end{definition}
 
 This coloring, unlike the previous two, also attempts to colorize the prime
-modules internally. Here, every prime module is colored just like in 'Whole
-prime coloring', but only if it contains under a predetermined number of
-vertices. Otherwise, all of it's children are colored first, then the quotient
-graph for the children of the prime modules is constructed. This quotient graph
-is then colored with some graph coloring heuristic, and then every child module
-with the same color in the quotient graph can now be recolored to use the same
-set of colors.
+modules using the modular decomposition tree. Here, every prime module is
+colored just like in 'Whole prime coloring', but only if it contains under a
+predetermined number of vertices.
+\todo{why question mark?}
+Otherwise, all of it's children are colored
+first, then the quotient graph for the children of the prime modules is
+constructed. This quotient graph is then colored with some graph coloring
+heuristic, and then every child module with the same color in the quotient graph
+can now be recolored to use the same set of colors.
 
 The quotient graph is a graph describing whether or not vertex partitions of a
 graph are adjacent or not, instead of individual vertices. Two vertex
@@ -1081,12 +1116,12 @@ Greedy, DSatur and RLF.
 \section{Data generation}
 \label{sec:Data}
 
-The test sets used are part graphs from the DIMACS benchmark set \cite{DIMACS}, 
-and part graphs generated that aren't prime.
+The test sets used are graphs from the DIMACS benchmark set \cite{DIMACS}, 
+and graphs generated that aren't prime, as outlined below.
 
-All of the graphs from the DIMACS benchmark sets are difficult to color graphs,
+All of the graphs from the DIMACS benchmark sets are difficult to color,
 and also have modular decomposition where the root vertex is prime. As they are
-commonly used benchmarks, they also provide known best current colorings for the
+commonly used for benchmarks, they also provide known best current colorings for the
 different graphs. However, the modular decomposition might provide a more
 efficient way to color graphs where only some of the child nodes are prime. 
 
@@ -1110,10 +1145,10 @@ size.
         \ENDIF
         \STATE $G \leftarrow \text{empty graph $(\emptyset,\emptyset)$}$
         \FORALL{$v \in N_T(root(T))$}
-            \IF{Label of $root(T)$ is \textit{series}}
+            \IF{Label of $root(T)$ is \textit{parallel}}
                 \STATE $G \leftarrow \bigcup G, \text{\textbf{Construct cograph} applied
                 on the subtree of $T$ with $v$ as root} $
-            \ELSIF{Label of $root(T)$ is \textit{parallel}}
+            \ELSIF{Label of $root(T)$ is \textit{series}}
                 \STATE $G \leftarrow \nabla G, \text{\textbf{Construct cograph} applied
                 on the subtree of $T$ with $v$ as root}$
             \ENDIF
@@ -1178,21 +1213,39 @@ and the heuristic used to color the quotient graph.
 
 How all of these parameters are set is described in below.
 
-\subsection{data}
+\subsection{generated data}
 
-The generated graphs are of four different sizes, 250, 500, 750 and 1000. 
-Within these categories so were also a few different configurations of graphs
-tested. 
+The generated graphs are made up by creating random graphs for every
+combination of parameters to \textbf{Random disturbed cograph} that get assigned
+different values. The parameters that get assigned different values are size,
+module count and series percent, with 4 possible values for graph size, 2 for
+module count, and 2 for series percent, resulting in a total of 16 different
+combinations of parameters.
+
+The generated graphs can be found in this git repository
+\url{https://github.com/MrBoboGet/BachelorThesis}, and are stored in the
+directory "TestGraphs". This directory contains a directory for all the different
+combinations of parameters, and the directory name encodes the value of these
+parameters. The first number is number of vertices in the graph, the second
+number is the series percent, and the last number the prime module count.
+For example, the directory "DisturbedCoGraph\_1000\_35\_5" contains graphs with 
+1000 vertices, that where generated with a series percent of 35\%, and that
+contain 5 prime modules. For every combination so are 15 graphs generated, 
+an amount set so that they can be colored parallel efficiently.
 
 \subsubsection{Module count and size}
-Whether or not many smaller or fewer large prime modules is better when
-applying locally is tested by having either 10 or 5 prime modules. 
-The module size is dependant on the graph size, and set so that all graphs 
-have roughly the same percent of vertices that is contained within a prime
-module. The size of the modules was set 
-so that $module count \cdot module size$ is half of the size of the graph,
-meaning that roughly half of the vertices can be expected to a be a part of a 
-prime module.
+
+Graphs can have the same amount of vertices that are within a prime module,
+but the size of the individual prime modules can differ. It could be possible that
+few large prime modules have better performance when using for example the
+'Whole prime' strategy compared to graphs with many smaller prime modules.
+The amount of modules tested are 5 prime modules and 10 prime modules.
+
+Ensuring that roughly the same percent of verices are within a prime module
+therefore means that the module size depends on the size of the graph, and the
+amount of prime modules. The module size is set so that $module size \cdot
+module count$ is half the size of the graph, meaning that roughly half of the
+vertices can be expected to be a part of a prime module.
 
 \subsubsection{Module edge percent}
 The edge probability within modules is a  constant 50\%, so that all
@@ -1205,11 +1258,7 @@ where 35\% and 70\%.
 
 \subsubsection{Graph naming}
 All of these combinations results in a total of 16 different combinations, as well
-as the DIMACS test set. The naming convention of the graphs are such that the
-first number represents the amount of vertices in the graph, the second the series percent, and the third
-the amount of prime modules. All categories contain 15 graphs, so that they can
-be colored in parallel efficiently.
-
+as the DIMACS test set. 
 
 \subsection{Heuristics}
 TabuCol contain some parameters that can be tuned. The amount of
@@ -1239,8 +1288,8 @@ the same as the "whole prime" strategy.
 The average time it took to color a single graph in seconds is also displayed. Note
 however that system load may vary between different runs, and that because of
 the long runtime for some test sets so are the tests not repeated to ensure
-statistical significance. The time should therefore be seen as accurate only
-when displaying large relative differences in time taken.
+statistical significance. The time should therefore be seen as a rough time
+estimate.
 
 The implementation and the tested graphs can be accessed as a git repository 
 at \url{https://github.com/MrBoboGet/BachelorThesis}.
