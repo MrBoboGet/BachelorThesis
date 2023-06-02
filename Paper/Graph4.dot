@@ -1,9 +1,9 @@
 digraph G
 {
-    root -> "Module 2";
+    root -> 6
     root -> "Module 1";
-    "Module 2" -> {7 6}
+    root -> 7
     "Module 1" -> 5
-    "Module 1" -> "Module 4";
-    "Module 4" -> {1 2 3 4}
+    "Module 1" -> "Module 5";
+    "Module 5" -> {1 2 3 4}
 }

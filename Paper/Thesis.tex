@@ -431,13 +431,14 @@ induced subgraph of the module can be constructed from the induced subgraphs of
 it's children, except for prime vertices.
 
 \todo[noline]{Update definition}
-\begin{definition}[Modular decomposition tree]{\cite{HCL}}
+\begin{definition}[Modular decomposition tree]{\cite{MDTree}}
     The modular decomposition tree $(\T,\t)$ of a graph $G = (V,E)$,is a rooted
     vertex labeled tree, such that every vertex is associated with a strong
-    module $X$ in $G$, so that the vertex with associated module $m_1$ is a
-    child to the vertex with associated module $m_2$ iff $m_1$ is a part of the
-    smallest partition only containing strong modules of $G$ that partitions the
-    vertices $m_2$. Every vertex also has a label distinguishing 3 cases:
+    module $X$ in $G$.  A vertex in the tree with associated strong module $M$
+    is a child to the vertex with associated strong module $M'$ if and only if,
+    $M \subset M'$ and there is no other strong module $M''$ so that $M \subset
+    M'' \subset M$. Every vertex with associatd module $X$ also has a label
+    distinguishing 3 cases:
     \begin{enumerate}
         \item Series: $G[X]$ is disconnected.
         \item Parallel: $\overline{G[X]}$ is disconnected.
@@ -445,6 +446,14 @@ it's children, except for prime vertices.
     \end{enumerate}
     The root of the tree must also have $V$ as the associated strong module, and all 
     strong modules also have to be a part of the tree.
+\end{definition}
+The modular decomposition of a graph and its corresponding modular
+decomposition tree is unique \cite{MDUnique}. This also means that we can 
+define a unique child-parent structure for the strong modules of a graph.
+\begin{definition}[Child module]
+    A module $M'$ is a child module to module $M$ for a graph $G = (V,E)$, if
+    the vertex with associated module $M'$ is a child to the vertex with associated
+    module $M$ in the modular decomposition tree for $G$.
 \end{definition}
 
 Note, a label being series in modular decomposition tree with associated module
@@ -457,10 +466,6 @@ As a single vertex is a strong module so is the leafs of the tree associated
 with a single vertex. This means that a modular decomposition without
 prime modules is a cograph, as it is recursively constructed by graph join and
 graph union on $K_1$.
-
-The modular decomposition of a graph and its corresponding modular
-decomposition tree is unique \cite{MDUnique}, which means that the construction
-of the modular decomposition doesn't vary.
 
 
 \subsection{Example}
@@ -477,11 +482,15 @@ We start with the initial graph in \autoref{fig:graph1}.
 
 We can construct the modular decomposition, by recursively dividing up the graph
 into strong modules. We start then to look for the largest strong modules, that
-partition all of the vertices. We can see that $\{1,2,3,4,5\}$ and $\{6,7\}$
-are 2 modules, and by examining the other possible alternatives we can also
-see that they are indeed strong. This gives the partition shown in 
-\autoref{fig:graph2}. The edges between the modules have been removed for
-clarity, but their internal edges are preserved.
+partition all of the vertices. We can see that $\{1,2,3,4,5\}$ and $\{6,7\}$ are
+2 modules, as they share a common neighbourhood.  However, by examining other
+possible modules we see that $\{1,2,3,4,5,6\}$ is also a module. As 
+$\{1,2,3,4,5,6\} \cap \{6,7\} = \{7\}$, we can conclude that neither 
+$\{1,2,3,4,5,6\}$ nor $\{6,7\}$ is a strong module. By examining the other
+possible modules, we can then see that the largest strong modules partitioning all of 
+the vertices are $\{1,2,3,4,5\},\{6\},\{7\}$. This gives
+the partition shown in \autoref{fig:graph2}. The edges between the modules have
+been removed for clarity, but their internal edges are preserved.
 
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{Graph2.png}
@@ -491,9 +500,8 @@ clarity, but their internal edges are preserved.
 
 From this we continue to further subdivide the strong modules into smaller
 strong modules. From "Module 1" we can see that the single node 5 forms a
-module, and that the whole of $\{1,2,3,4\}$ forms another strong module.
-In module 2, 6 and 7 also forms strong, trivial, modules. This gives the
-subdivision depicted in \autoref{fig:graph3}
+module, and that the whole of $\{1,2,3,4\}$ forms another strong module.  This
+gives the subdivision depicted in \autoref{fig:graph3}
 
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{Graph3.png}
@@ -503,7 +511,7 @@ subdivision depicted in \autoref{fig:graph3}
 
 Now, the question is whether or not Module 4 can be divided into further
 submodules. But we quickly realise that the only strong submodules of Module 4
-would be the trivial modules 1,2,3, and 4, and that no larger strong submodules
+would be the trivial modules $\{1\},\{2\},\{3\}$ and $\{4\}$, and that no larger strong submodules
 of module 4 exists. We then have all the information needed to construct the
 modular decomposition tree. We first start by constructing the tree structure,
 and then assign labels. The unlabeled tree is depicted in \autoref{fig:graph4}
@@ -519,8 +527,8 @@ vertex, to improve clarity. From this the tree structure of the modular
 decomposition can be seen, but it isn't yet labeled. We can add the labels by 
 looking at the induced subgraph of the vertices in the module. If that induced
 subgraph can be constructed by disjoint union on the induced subgraphs of it's
-submodules, we know that it's series, and if we can construct it by graph join on
-the induced subgraphs of it's submodules, it is parallel. If none of these are
+submodules, we know that it's parallel, and if we can construct it by graph join on
+the induced subgraphs of it's submodules, it is series. If none of these are
 the case, so is the module prime. By using this method we arrive at the complete
 modular decomposition tree that can be seen in \autoref{fig:graph5}
 
