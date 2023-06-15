@@ -1,7 +1,7 @@
 digraph G
 {
-    root [label="\N\nparallel"]
-    "Module 1" [label="\N\nseries"]
+    root [label="\N\nseries"]
+    "Module 1" [label="\N\nparallel"]
     "Module 5" [label="\N\nprime"]
 
     root -> 6
