@@ -143,7 +143,7 @@ def GetFirstColor(G,v,CurrentColoring,AllowedColors):
             used[CurrentColoring[u]] = False
     return ReturnValue
 
-# hueristic, takes a induced subgraph along with already colored parts
+# heuristic, takes a induced subgraph along with already colored parts
 # and then colors the rest.
 def Greedy(GraphToColor: nx.DiGraph,CurrentColoring,ColorList):
     ReturnValue = set()

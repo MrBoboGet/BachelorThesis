@@ -1,0 +1,16 @@
+graph
+{
+    1 -- 2
+    2 -- 3 
+    4 -- {  2 3}
+    5 -- { 4 1}
+    6 -- 3
+
+
+    5 [style="dashed"]
+    2 [style="dashed"]
+    3 [style="dashed"]
+
+    4 [color="red"]
+    1 [color="red"]
+}

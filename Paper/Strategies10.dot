@@ -1,0 +1,29 @@
+graph
+{
+    node [style="filled"]
+    1 -- 2
+    2 -- 3
+    3 -- 4
+
+    5 -- {1 2 3 4 6}
+    
+    6 -- {7 8}
+
+    9 -- 10
+    11 -- {9 10}
+    12 -- {9 10}
+
+    {1 2 3 4 5 6 7 8} -- {9 10 11 12}
+    1 [fillcolor="red"]
+    2 [fillcolor="green"]
+    3 [fillcolor="red"]
+    4 [fillcolor="green"]
+    5 [fillcolor="darkmagenta"]
+    6 [fillcolor="red"]
+    7 [fillcolor="darkmagenta"]
+    8 [fillcolor="darkmagenta"]
+    9 [fillcolor="orange"]
+    10 [fillcolor="cyan"]
+    11 [fillcolor="magenta"]
+    12 [fillcolor="magenta"]
+}

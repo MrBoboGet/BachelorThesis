@@ -1,0 +1,24 @@
+graph
+{
+    "Module 1" -- {5 6}
+    "Module 1" -- {"Module 3" "Module 2"}
+    "Module 2" -- {7 8}
+    "Module 3" -- {1 2 3 4}
+
+    "Root" -- "Module 1"
+    "Root" -- "Module 4"
+    "Module 4" -- {"Module 5" "Module 6"}
+    "Module 5" -- {9 10}
+    "Module 6" -- {11 12}
+    {rank="source"; "Root"}
+
+
+    "Module 1" [label="\N\nprime"]
+    "Module 2" [label="\N\nparallel"]
+    "Module 3" [label="\N\nprime"]
+    "Module 4" [label="\N\nseries"]
+    "Module 5" [label="\N\nseries"]
+    "Module 6" [label="\N\nparallel"]
+    "Root" [label="\N\nseries"]
+
+}

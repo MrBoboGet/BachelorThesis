@@ -1,0 +1,18 @@
+graph
+{
+    node [style="filled"]
+
+
+    1 -- 2
+    2 -- 3 
+    4 -- {  2 3}
+    5 -- { 4 1}
+    6 -- 3
+
+    1 [fillcolor="green"]
+    4 [fillcolor="green"]
+    6 [fillcolor="green"]
+    3 [fillcolor="blue"]
+    5 [fillcolor="blue"]
+    2 [fillcolor="red"]
+}

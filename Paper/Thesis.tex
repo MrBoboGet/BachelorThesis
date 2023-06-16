@@ -120,7 +120,8 @@
 %\begin{document}
 %\maketitle
 
-\pagenumbering{arabic}
+\pagestyle{plain}
+
 \begin{document}
 \sloppy
 \Framsida 
@@ -157,6 +158,8 @@ of the tested heuristics, and no increase for the others.
 
 
 \tableofcontents
+
+\pagenumbering{arabic}
 
 \section{Introduction}
 
@@ -338,7 +341,7 @@ in a circle.
 \end{definition}
 \begin{definition}[Rooted Tree]{\cite{Trees}}
     A rooted tree is a graph vertex pair, $(G,v)$, such that $G = (V,E)$ is a tree,
-    and $v \in V$. In this case, $v$ is also called the root of the tree.
+    and $v \in V$. In this case, so $v$ is also called the root of the tree.
 \end{definition}
 
 Trees have a number of useful properties. Among them is that between any two
@@ -692,7 +695,7 @@ true, which correspond line 2-4 in \autoref{alg:gfc}.
 After having iterated through every neighbour, we step through $used$,
 and use the first color that isn't set to true. As a maximal $deg(v)$ of
 vertices can be set to true through this process, so is finding the first available
-color from $used$ at most  $|deg(v)|+1$ steps. This part correspond to lines
+color from $used$ this way at most  $|deg(v)|+1$ steps. This part correspond to lines
 5-8.
 
 Then, we reset the
@@ -702,7 +705,7 @@ $\textbf{get first color}$, $used$ maps all colors to false. This part are the
 final lines 9-12.
 
 The whole process
-of $\textbf{get first color}$ is therefore $O(|deg(v)|+|deg(v)| + |deg(v)) =
+of $\textbf{get first color}$ is therefore $O(|deg(v)|+|deg(v)| + |deg(v)|) =
 O(|deg(v)|)$. Using the handshake lemma, we can conclude that calling
 $\textbf{get first color}$ on all vertices has a total runtime of $O(|E|)$.
 $used$ however needs enough space to contain every color, which in the worst
@@ -753,7 +756,7 @@ $O(|V|+|E|)$.
       \STATE $V' \leftarrow \text{List containing all $v \in V$ in any order}$
       \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots V| \}$ }$
       \STATE $\sigma \leftarrow \text{Initial empty partial coloring}$
-      \STATE $used \leftarrow $ map from colors in $C$ to boolean, initialised
+      \STATE $used \leftarrow $ map from colors in $C$ to Booleans, initialised
       so all values are false
     \FORALL{$v \in V$}
         \STATE update $\sigma$ so that  $\sigma(v) = \textbf{get first color}(G,v,\sigma,used)$
@@ -944,12 +947,12 @@ An example run of the algorithm is demonstrated here. We start with the graph
 \end{figure}
 
 Now, we start by constructing the first part in the partition. The first vertex
-in the partition is the vertex with the highest degree among the unpartition
-vertices, we call this set $S$ like in \autoref{alg:rlf}. We can see that the
-vertex with the the highest degree is vertex 4. Now remove it from this graph
-and add it to the current part, aswell as adding it's neighbour to the set
-of adjecent vertices to the current part. We represent vertices in the current
-partition with a red color, and vertices that are adjecent to the current part
+in the partition is the vertex with the highest degree among the unpartitioned
+vertices. We can see that the
+vertex with the highest degree is vertex 4. Now we remove it from this graph
+and add it to the current part, as well as adding it's neighbour to the set
+of adjacent vertices to the current part. We represent vertices in the current
+partition with a red color, and vertices that are adjacent to the current part
 with a dotted outline. We now get the graph in \autoref{fig:rlf2}
 
 \begin{figure}[H]
@@ -961,10 +964,10 @@ with a dotted outline. We now get the graph in \autoref{fig:rlf2}
 
 Here we can see that the vertices that aren't adjecent to the current part,
 $\{4\}$, is 1 and 6. The next vertex we add is the vertex among the unassigned
-vertices not adjecent to the current part, 1 and 6 in this case, that has the
-most highest amount of neighbors that are unassigned and adjecent to the current
-part. We can see that 6 has one neighbour that is unassigned and adjecent to the
-current part, while 1 has two. We therefor add 1 next and get the graph in
+vertices not adjecent to the current part that has the
+most highest amount of neighbors that are unassigned and adjacent to the current
+part. We can see that 6 has one neighbour that is unassigned and adjacent to the
+current part, while 1 has two. We therefore add 1 next and get the graph in
 \autoref{fig:rlf3}
 
 \begin{figure}[H]
@@ -1155,7 +1158,9 @@ practice exhibits the largest runtimes.
 In the case where the whole graph doesn't contain any prime modules, so can an optimal
 coloring can be obtained with \autoref{alg:generic} in linear time
 \cite{HCL}. In case the graph contains prime modules, so will we use different
-strategies on how to apply the different heuristics described in \autoref{sec:Heuristics}.
+strategies on how to apply the different heuristics described in
+\autoref{sec:Heuristics}. An example run of the different strategies described
+is also given in \autoref{sec:stratexample}
 
 \subsection{Whole graph}
 
@@ -1195,19 +1200,20 @@ heuristics when the root in the modular decomposition isn't prime.
             \STATE Color the vertices in the child module with $\textbf{Whole prime coloring}(G,MD,H,u)$
         \ENDFOR
         \IF{$M$ is parallel}
-          \STATE $\mathcal{G} \leftarrow \{G(w)\colon w\in\child(M)\}$ 
-          \STATE $G^* \leftarrow \argmax_{w\in\child(v)} |\chi(G(w))|$
-          \STATE $S \leftarrow \sigma(V(G^*))$ 
-          \FOR {$H\in\mathcal{G}\setminus \{G^*\}$} 
-             \STATE randomly choose an injective map $\phi:\sigma(H)\to S$
-             \FORALL {$x\in H$}
-                \STATE $\sigma(x)\leftarrow \phi(\sigma(x))$  
+          \STATE $M_{child} \leftarrow $ the child modules of $M$ in $MD$
+          \STATE $M' \leftarrow $ the child module in $M_{child}$ that is colored using the most amount of colors
+          \STATE $C_{M'} \leftarrow $ the colors used in the coloring of $M'$
+          \FOR {$m \in M_{child}\setminus \{M'\}$} 
+             \STATE $\sigma \leftarrow $ coloring of $m$
+             \STATE $\phi \leftarrow $ injective map from the colors used in $\sigma$ to $C_{M'}$
+             \FORALL {$v\in m$}
+                \STATE $\sigma(v)\leftarrow \phi(\sigma(v))$  
              \ENDFOR
           \ENDFOR
         \ENDIF
     \ELSE
         \STATE Color the vertices in $M$ by applying the heuristic $H$ on the induced subgraph induced by $M$,
-        that is $H(G[M])$
+        that is $H(G[M])$, using colors already among the vertices in $M$.
     \ENDIF
   \end{algorithmic}
 \end{algorithm}
@@ -1215,13 +1221,21 @@ heuristics when the root in the modular decomposition isn't prime.
 The whole graph $G$ can be colored with \autoref{alg:wpc} by applying it on the
 root module of the modular decomposition.
 
+The requirement in line 15 that the coloring have to use colors already present
+in the vertices of the prime module is needed because otherwise we could
+introduce clashes. \autoref{alg:generic} assumes that the children of a series
+module don't share colors. We can ensure this by only using the colors available
+in the module being colored, as all vertices are initially given a unique color,
+which means that modules with the same parent start with a disjunct set of
+colors.
+
 \subsection{Quotient recoloring}
 
 \begin{definition}[Quotient graph]
     The quotient graph $Q$ for a graph $G = (V,E)$ over partition 
     $P = \{P_1 \cdots P_i\}$  of the vertices $V$, is a graph 
     $Q = \{P, \{(P_i,P_j) : j\neq i, \exists v \in P_i,\exists u \in P_j( (u,v)
-    \in E)   \}   $
+    \in E)   \} \}  $
 \end{definition}
 
 This coloring, unlike the previous two, also attempts to colorize the prime
@@ -1260,18 +1274,19 @@ graph.
         \STATE Color the vertices in the child module with $\textbf{Quotient coloring}(G,MD,u,T,H,H')$
     \ENDFOR
     \IF{$M$ is parallel}
-      \STATE $\mathcal{G} \leftarrow \{G(w)\colon w\in\child(M)\}$ 
-      \STATE $G^* \leftarrow \argmax_{w\in\child(v)} |\chi(G(w))|$
-      \STATE $S \leftarrow \sigma(V(G^*))$ 
-      \FOR {$H\in\mathcal{G}\setminus \{G^*\}$} 
-         \STATE randomly choose an injective map $\phi:\sigma(H)\to S$
-         \FORALL {$x\in H$}
-            \STATE $\sigma(x)\leftarrow \phi(\sigma(x))$  
+      \STATE $M_{child} \leftarrow $ the child modules of $M$ in $MD$
+      \STATE $M' \leftarrow $ the child module in $M_{child}$ that is colored using the most amount of colors
+      \STATE $C_{M'} \leftarrow $ the colors used in the coloring of $M'$
+      \FOR {$m \in M_{child}\setminus \{M'\}$} 
+         \STATE $\sigma \leftarrow $ coloring of $m$
+         \STATE $\phi \leftarrow $ injective map from the colors used in $\sigma$ to $C_{M'}$
+         \FORALL {$v\in m$}
+            \STATE $\sigma(v)\leftarrow \phi(\sigma(v))$  
          \ENDFOR
       \ENDFOR
     \ELSIF{$M$ is prime}
         \IF{$|M| \leq T$}
-            \STATE{Color the graph $G[M]$ with $H$}
+            \STATE{Color the graph $G[M]$ with $H$, using colors already in $M$}
             \RETURN
         \ENDIF
         \STATE $Q \leftarrow $ quotient graph of $G[M]$ where the child modules of $M$ in $MD$ is the partition
@@ -1305,6 +1320,175 @@ maximal size and complexity of the graph is bounded.
 This notably implies that the runtime for quotient coloring is in the worst 
 case slower than any of the individual constructive algorithms, that is 
 Greedy, Dsatur and RLF.
+
+
+\subsection{Example}
+\label{sec:stratexample}
+Here an example of the difference in how these strategies are applied is given.
+We start by looking at the graph in \autoref{fig:strat1}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies1.pdf}
+    \caption{Graph to color}
+    \label{fig:strat1}
+\end{figure}
+
+This graph is relatively large and has a lot of edges. 
+We can gain some insight into its structure by looking at its modular decomposition tree,
+depicted in \autoref{fig:strat2}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies2.pdf}
+    \caption{Modular decomposition of graph}
+    \label{fig:strat2}
+\end{figure}
+
+From this figure we can see the root node is not prime, and that it contains a
+prime module with a nested prime module, as well cograph
+subgraph in module 4 containing 4 vertices.
+
+From this we can now apply the different strategies. The case for 'WholeGraph'
+is omitted here as it just involves a regular application of a graph coloring
+algorithm. The heuristic we use in combination with this strategy is RLF. 
+
+\subsubsection{Whole prime}
+
+When applying the 'Whole prime' strategy, we start with an initial coloring 
+where every vertex has a unique color, depicted in \autoref{fig:strat3}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies3.pdf}
+    \caption{Modular decomposition of graph}
+    \label{fig:strat3}
+\end{figure}
+
+When coloring the root module, we start by coloring it's children first.
+Coloring Module 4 can be made optimally as it contains no prime modules, and
+doing so we get the coloring in \autoref{fig:strat3b}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies3b.pdf}
+    \caption{Module 4 optimally colored}
+    \label{fig:strat3b}
+\end{figure}
+
+Now we color Module 1. Here we don't recurse further down into the tree, and
+instead color the whole subgraph induced by Module 1 with a graph coloring
+algorithm. That is, we want to color the graph \autoref{fig:strat4a} below.
+The result of applying RLF is shown in \autoref{fig:strat4b}.
+
+\begin{figure}[H]
+\centerfloat
+    \begin{subfigure}{.4\textwidth}
+        \includegraphics[width=\columnwidth]{Strategies4.pdf}
+      \caption{Subgraph induced by module 1}
+      \label{fig:strat4a}
+    \end{subfigure}%
+    \begin{subfigure}{.4\textwidth}
+        \includegraphics[width=\columnwidth]{Strategies4b.pdf}
+      \caption{Subgraph colored with RLF}
+      \label{fig:strat4b}
+    \end{subfigure}
+\caption{Coloring of Module 1 using 'Whole prime' strategy}
+\label{fig:strat4}
+\end{figure}
+
+Now all of the child modules of the root module have been colored. The root
+module being series also means that no recoloring of the child modules have to
+be done, and that we have a finished coloring, which can be seen in
+\autoref{fig:strat5}
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies5.pdf}
+    \caption{Graph colored using 'Whole prime' coloring}
+    \label{fig:strat5}
+\end{figure}
+\FloatBarrier
+
+\subsubsection{Quotient coloring}
+Now we color the same graph using the quotient coloring. It behaves the same way
+as 'Whole prime' coloring, except for when coloring prime modules. We therefore
+skip to the step where we have colored Module 4, and are about to color 
+Module 1, that is the state in \autoref{fig:strat3b}.
+
+Unlike in 'Whole prime' coloring, when coloring a prime module with the quotient
+strategy so are we utilising the modular decomposition to color the prime
+module. We start by coloring the child modules of Module 1.
+
+The trivial modules just retain their color, and Module 2 can be colored
+perfectly. Coloring Module 3 we again have to apply the special case. But as
+Module 3 contains only trivial modules so is it's quotient graph isomorphic to
+the original graph, and therefore equivalent to just applying the heuristic
+directly on it. After having colored the children of Module 1 we arrive at the
+graph \autoref{fig:strat6}
+
+Note that here have set the threshold for coloring prime modules of a specific size
+directly with a heuristic to 0, as the example would otherwise be equivalent to
+'Whole prime' coloring. 
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies6.pdf}
+    \caption{Children of Module 1 colored}
+    \label{fig:strat6}
+\end{figure}
+
+Now the novel step of the quotient strategy is applied. Now we want to combine
+the results for the coloring of the children in a good coloring of Module 1. The
+current coloring is a proper coloring, but it not necessarily optimal. The
+quotient strategy tries to improve this coloring by examining whether or not
+child modules can share the same set of colors. To do this, we first construct
+the quotient graph, where the partition is the vertices in the child modules, 
+that is $\{\{6\},\{7\},\{1,2,3,4\},\{7,8\}\}$. This quotient graph can be seen
+in \autoref{fig:strat7}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies7.pdf}
+    \caption{Quotient graph of the children of Module 1}
+    \label{fig:strat7}
+\end{figure}
+
+We then color this graph using some predetermined heuristic, and get the result
+in \autoref{fig:strat8}
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies8.pdf}
+    \caption{Colored quotient graph of the children of Module 1}
+    \label{fig:strat8}
+\end{figure}
+
+The modules that share color can't be neighbours in a proper coloring,
+which by the definition of a quotient graph means that there are no edges
+between 2 vertices with different modules of the same color. This in turn means
+that they can share the same set of colors. To ensure that we can recolor them
+and end with proper coloring, so are we using the set of colors from the module
+with the most amount of colors for every color category. This means that we
+recolor module $\{5\}$ and Module 3 with magenta, and Module 2 and $\{6\}$ with
+red and green. This gives the coloring in \autoref{fig:strat9}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies9.pdf}
+    \caption{All child modules of Root colored using quotient strategy}
+    \label{fig:strat9}
+\end{figure}
+
+Now all of the child modules of the root module have been colored. The root
+being series means that no further recoloring is done, and we can see the final
+coloring in \autoref{fig:strat10}
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies10.pdf}
+    \caption{Finished coloring using the quotient strategy}
+    \label{fig:strat10}
+\end{figure}
+
 \section{Data generation}
 \label{sec:Data}
 
@@ -1406,7 +1590,7 @@ and the heuristic used to color the quotient graph.
 
 How all of these parameters are set is described below.
 
-\subsection{generated data}
+\subsection{Generated data}
 
 The generated graphs are made up by creating random graphs for every
 combination of parameters to \textbf{Random disturbed cograph} that get assigned
@@ -1506,18 +1690,32 @@ last column is the amount of time the coloring took in seconds.
 The following figures contain the averaged performance for coloring the graphs in the
 respective test sets. All graphs are colored with all combinations of heuristic
 and combination strategy. A final table displaying the total average between
-all disturbed cographs, as well as the performance on DIMACS graphs. The graphs
-both display the different heuristics on the x-axis
+all disturbed cographs, as well as the performance on DIMACS graphs. 
 
-For the
-DIMACS graphs so are only the "quotient" and "whole graph" strategy displayed,
+The result for the different categories are displayed grouped by their graph size,
+except for DIMACS and the table containing the averaged result. These group in turn 
+divide the result into the amount of modules in the graph, and the series percent. This means that
+each figure contains the result for 4 different graph categories.
+
+Two figures are displayed for each category, one displaying the amount of
+colors used for a given heuristic, and the other displaying the time it took
+for that heuristic to color the graph. The heuristics are displayed on the
+x-axis, and the time/colors used are displayed on the y-axis. The strategy used in 
+the coloring is represented by the color of the staple for a given heuristic.
+
+This means, that to determine the average colors used for RLF on graphs with
+1000 vertices that contain 10 prime modules and with 35\% series percent using
+the 'Whole prime' strategy, one would look at the blue staple in the third
+column in the upper left facet in \autoref{fig:1000c}.
+
+For the DIMACS graphs so are only the "quotient" and "whole graph" strategy displayed,
 as all of the graphs have a prime root module so is the "whole graph" strategy
 the same as the "whole prime" strategy.
 
-The average time it took to color a single graph in seconds is also displayed. Note
-however that system load may vary between different runs, and that because of
+When interpreting the runtime for the different algorithms, note
+that system load may vary between different runs, and that because of
 the long runtime for some test sets so are the tests not repeated to ensure
-statistical significance. The time should therefore be seen as a rough time
+statistical significance. The time should therefore be seen as a rough
 estimate.
 
 The implementation and the tested graphs can be accessed as a git repository 
@@ -1530,14 +1728,14 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 
 
 
-\begin{figure}
+\begin{figure}[p]
 \centerfloat
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/1000.png}
       \caption{Coloring results}
       \label{fig:1000c}
     \end{subfigure}%
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/1000Time.png}
       \caption{Runtime}
       \label{fig:1000t}
@@ -1546,14 +1744,14 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 \label{fig:1000}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[p]
 \centerfloat
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/750.png}
       \caption{Coloring results}
       \label{fig:750c}
     \end{subfigure}%
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/750Time.png}
       \caption{Runtime}
       \label{fig:750t}
@@ -1562,14 +1760,14 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 \label{fig:750}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[p]
 \centerfloat
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/500.png}
       \caption{Coloring results}
       \label{fig:500c}
     \end{subfigure}%
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/500Time.png}
       \caption{Runtime}
       \label{fig:500t}
@@ -1579,14 +1777,14 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[p]
 \centerfloat
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/250.png}
       \caption{Coloring results}
       \label{fig:250c}
     \end{subfigure}%
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/250Time.png}
       \caption{Runtime}
       \label{fig:250t}
@@ -1597,14 +1795,14 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 
 
 
-\begin{figure}
+\begin{figure}[p]
 \centerfloat
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/DIMACS.png}
       \caption{Coloring results}
       \label{fig:dimacsc}
     \end{subfigure}%
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/DIMACSTime.png}
       \caption{Runtime}
       \label{fig:dimacst}
@@ -1613,14 +1811,14 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 \label{fig:dimacs}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[p]
 \centerfloat
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/Generated.png}
       \caption{Coloring results}
       \label{fig:generatedc}
     \end{subfigure}%
-    \begin{subfigure}{.5\paperwidth}
+    \begin{subfigure}{.4\paperwidth}
         \includegraphics[width=\columnwidth]{Tables/GeneratedTime.png}
       \caption{Runtime}
       \label{fig:generatedt}

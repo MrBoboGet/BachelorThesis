@@ -1,0 +1,17 @@
+graph
+{
+    1 -- 2
+    2 -- 3
+    3 -- 4
+    5 -- {1 2 3 4 6}
+    6 -- {7 8}
+    
+    //1 [fillcolor="red"]
+    //2 [fillcolor="green"]
+    //3 [fillcolor="blue"]
+    //4 [fillcolor="darkgreen"]
+    //5 [fillcolor="darkmagenta"]
+    //6 [fillcolor="yellow"]
+    //7 [fillcolor="linen"]
+    //8 [fillcolor="indigo"]
+}
