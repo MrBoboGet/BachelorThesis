@@ -1,6 +1,7 @@
 graph
 {
     node [style="filled"]
+    node [fillcolor="filledh"]
     1 -- 2
     2 -- 3
     3 -- 4

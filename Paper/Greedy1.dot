@@ -1,0 +1,33 @@
+graph
+{
+    node [style="filled"]
+    node [fillcolor="white"]
+    1 -- {2 3 4}
+    5 -- {3}
+    4 -- 3
+
+    4 [fillcolor="red"]
+    2 [fillcolor="blue"]
+    3 [fillcolor="green"];
+
+    Used [shape=plain, 
+    label=<
+        <TABLE title="used">
+            <TR>
+                <TD bgcolor="red"> </TD>
+                <TD bgcolor="green"> </TD>
+                <TD bgcolor="yellow"> </TD>
+                <TD bgcolor="blue"> </TD>
+                <TD bgcolor="pink"> </TD>
+            </TR>
+            <TR>
+                <TD> false </TD>
+                <TD> false </TD>
+                <TD> false </TD>
+                <TD> false </TD>
+                <TD> false </TD>
+            </TR>
+        </TABLE>
+        >];
+
+}

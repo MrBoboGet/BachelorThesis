@@ -243,15 +243,14 @@ The definitions used here are based of the definitions in \cite{GraphBasics}.
 The handshake lemma gets it's name from interpreting the vertices as
 individuals, and edges between 2 persons represent that they shook hands. It 
 then says that if we ask every person how many other persons they have shook
-hands with, the total sum would be twice the amount of handshakes. This can
+hands with, so is the total sum twice the amount of handshakes. This can
 intuitively be derived by noting that as every handshake involves two people, so
 is that handshake going to be counted twice when we ask the people involved.
 
-The handshake lemma is a useful theorem when analyzing the runtime for 
-the different graph coloring algorithms, which is done in
+The handshake lemma is a useful when analyzing the runtime for 
+the different graph coloring algorithms, which is done later in
 \autoref{sec:Heuristics}.
 
-\todo{Maybe unnecessary description}
 
 \begin{definition}[Subgraph]
     A subgraph $S = (V',E')$ of a graph $G = (V,E)$, is a graph such that
@@ -341,7 +340,7 @@ in a circle.
 \end{definition}
 \begin{definition}[Rooted Tree]{\cite{Trees}}
     A rooted tree is a graph vertex pair, $(G,v)$, such that $G = (V,E)$ is a tree,
-    and $v \in V$. In this case, so $v$ is also called the root of the tree.
+    and $v \in V$. The vertex $v$ is called the root of the tree.
 \end{definition}
 
 Trees have a number of useful properties. Among them is that between any two
@@ -661,7 +660,6 @@ not containing $v$. From this partition, we can construct base pseudo modular
 decomposition. We then recursively add to this tree, by doing the same procedure
 for the parts in this partition, and combine the their trees.
 
-\todo{difficult to summarise, kind of technical}
 \section{Heuristics}
 \label{sec:Heuristics}
 
@@ -764,6 +762,48 @@ $O(|V|+|E|)$.
   \end{algorithmic}
 \end{algorithm}
 
+\subsubsection{Example}
+
+Here we give an example for how \textbf{get first color} is executed.
+We have the partially colored graph in \autoref{fig:greedy1}, and want to color the vertex 
+1 with \textbf{get first color}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Greedy1.pdf}
+    \caption{Partially colored graph}
+    \label{fig:greedy1}
+\end{figure}
+
+Here we can see our $used$ map to the right. At the start of every call to
+\textbf{get first color} so is every colored map to false. Now we go over every
+neighbour of 1, that is 2,3 and 4, and update the map so that their respective
+colors is set to true. This gives the state depicted in \autoref{fig:greedy2}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Greedy2.pdf}
+    \caption{Used map updated}
+    \label{fig:greedy2}
+\end{figure}
+
+Now we step through the map from the leftmost column to the right, and examine
+whether or not the current column maps the color to a "false" value. If it does,
+we have found the first available color, and assign it to the vertex we want to
+color. In this case the first available color is yellow. After having
+determined the first available color so is the used map reset so all colors map
+to false again, and appropriate for further application of \textbf{get first
+color}.  The vertex is now colored using  \textbf{get first color}, and we
+arrive at the state in \autoref{fig:greedy3}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Greedy3.pdf}
+    \caption{Vertex 1 colored, Used map reset}
+    \label{fig:greedy3}
+\end{figure}
+
+\FloatBarrier
 \subsection{Dsatur}
 
 Dsatur is an algorithm that is similar to Greedy, in the sense that it
@@ -781,7 +821,7 @@ in a specific way, by using the saturation degree.
 The vertices are colored one at a time, until all of the vertices are colored.
 At every step of the iteration, we identify the vertex that has the highest
 saturation degree, and if there are ties we choose the vertex among them with
-the highest degree, and an arbitrary vertex is choosen among the ties of there
+the highest degree, and an arbitrary vertex is chosen among the ties of there
 are ties remaining.  This also means that the first vertex colored is the
 vertex with the highest degree, as the saturation degree of every vertex is
 zero at the start of the algorithm. This step corresponds to line 4 in 
@@ -930,7 +970,7 @@ a $O(|V|+|E|)$ runtime.
 We can also ensure that the vertex added is the vertex with the highest degree among
 the non-adjacent vertices by recalculating the respective degrees for the
 uncolored vertices, in both the subgraph induced by the unpartitioned vertices and the vertices 
-adjecent to the current part, which can be done in $O(|E|)$ time every time a vertex is
+adjacent to the current part, which can be done in $O(|E|)$ time every time a vertex is
 added, which is done $|V|$ times. The algorithm can therefore be implemented in
 $O((|V||E|)+|V|+|E|) = O(|V||E|)$ time \cite{Constructive}.
 
@@ -953,7 +993,7 @@ vertex with the highest degree is vertex 4. Now we remove it from this graph
 and add it to the current part, as well as adding it's neighbour to the set
 of adjacent vertices to the current part. We represent vertices in the current
 partition with a red color, and vertices that are adjacent to the current part
-with a dotted outline. We now get the graph in \autoref{fig:rlf2}
+with a dashed outline. We now get the graph in \autoref{fig:rlf2}
 
 \begin{figure}[H]
     \centerfloat
@@ -962,10 +1002,10 @@ with a dotted outline. We now get the graph in \autoref{fig:rlf2}
     \label{fig:rlf2}
 \end{figure}
 
-Here we can see that the vertices that aren't adjecent to the current part,
+Here we can see that the vertices that aren't adjacent to the current part,
 $\{4\}$, is 1 and 6. The next vertex we add is the vertex among the unassigned
-vertices not adjecent to the current part that has the
-most highest amount of neighbors that are unassigned and adjacent to the current
+vertices not adjacent to the current part that has the
+highest amount of neighbors that are unassigned and adjacent to the current
 part. We can see that 6 has one neighbour that is unassigned and adjacent to the
 current part, while 1 has two. We therefore add 1 next and get the graph in
 \autoref{fig:rlf3}
@@ -978,10 +1018,10 @@ current part, while 1 has two. We therefore add 1 next and get the graph in
 \end{figure}
 
 Now we can see that the only alternative left is 6, and add it to the current
-part. After this step, so is all of the remaining vertices adjecent to the
+part. After this step, so is all of the remaining vertices adjacent to the
 current part, which means that we have to construct a new part. This part is
 constructed from the unnassigned vertices, which means that we have to remove
-the vertices  1, 4 and 6 before. We therefore repeat this procudure on the graph 
+the vertices  1, 4 and 6 before. We therefore repeat this procedure on the graph 
 depicted in \autoref{fig:rlf4}.
 
 \begin{figure}[H]
@@ -991,9 +1031,9 @@ depicted in \autoref{fig:rlf4}.
     \label{fig:rlf4}
 \end{figure}
 
-By repating the previous step until all vertices have been assigned a part, we 
+By repeating the previous step until all vertices have been assigned a part, we 
 arrive at the partition $\{\{4,1,6\},\{3,5\},\{2\}\}$. Now we can assign every
-part in this a color, and color the vertices in that part with the same color. 
+part in this partition a color, and color the vertices in that part with the same color. 
 This gives us the final coloring depicted in \autoref{fig:rlf5}.
 
 \begin{figure}[H]
@@ -1189,15 +1229,16 @@ heuristics when the root in the modular decomposition isn't prime.
   \label{alg:wpc}
   \algsetup{linenodelimiter=}
   \begin{algorithmic}[1]
-    \REQUIRE Graph $G$ 
+    \REQUIRE Graph $G = (V,E)$ 
     \REQUIRE Modular decomposition tree $MD$ of $G$
     \REQUIRE Graph coloring heuristic $H$
     \REQUIRE Module $M$ in the modular decomposition
-    \STATE Initialize a coloring $\sigma$ s.t.\ all $v \in V(G)$
+    \STATE Initialize a coloring s.t.\ all $v \in V$
            have different colors
     \IF{$M$ is parallel or $M$ is series}
         \FORALL{Child module $u$ of $M$}
-            \STATE Color the vertices in the child module with $\textbf{Whole prime coloring}(G,MD,H,u)$
+            \STATE Color the vertices in the child module with \\
+            $\textbf{Whole prime coloring}(G,MD,H,u)$
         \ENDFOR
         \IF{$M$ is parallel}
           \STATE $M_{child} \leftarrow $ the child modules of $M$ in $MD$
@@ -1212,8 +1253,7 @@ heuristics when the root in the modular decomposition isn't prime.
           \ENDFOR
         \ENDIF
     \ELSE
-        \STATE Color the vertices in $M$ by applying the heuristic $H$ on the induced subgraph induced by $M$,
-        that is $H(G[M])$, using colors already among the vertices in $M$.
+        \STATE Color the vertices in $M$ by applying the heuristic $H$ on $G[M]$, using colors present in the current coloring of $M$.
     \ENDIF
   \end{algorithmic}
 \end{algorithm}
@@ -1223,8 +1263,8 @@ root module of the modular decomposition.
 
 The requirement in line 15 that the coloring have to use colors already present
 in the vertices of the prime module is needed because otherwise we could
-introduce clashes. \autoref{alg:generic} assumes that the children of a series
-module don't share colors. We can ensure this by only using the colors available
+introduce clashes. \autoref{alg:generic} as well as \autoref{alg:wpc} assumes that the children of a series
+module don't share colors after being colored. We can ensure this by only using the colors available
 in the module being colored, as all vertices are initially given a unique color,
 which means that modules with the same parent start with a disjunct set of
 colors.
@@ -1260,7 +1300,7 @@ graph.
 \caption{Quotient coloring}
 \algsetup{linenodelimiter=}
 \begin{algorithmic}[1]
-    \REQUIRE Graph $G$ 
+    \REQUIRE Graph $G = (V,E)$ 
     \REQUIRE Modular decomposition tree $MD$ of $G$
     \REQUIRE Module $M$ in the modular decomposition
 
@@ -1268,10 +1308,11 @@ graph.
     \REQUIRE Graph coloring heuristic $H$ for prime modules
     \REQUIRE Graph coloring heuristic $H'$ for quotient graph
 
-    \STATE Initialize a coloring $\sigma$ s.t.\ all $v \in V(G)$
+    \STATE Initialize a coloring s.t.\ all $v \in V$
            have different colors
     \FORALL{Child module $u$ of $M$}
-        \STATE Color the vertices in the child module with $\textbf{Quotient coloring}(G,MD,u,T,H,H')$
+        \STATE Color the vertices in the child module with \\
+        $\textbf{Quotient coloring}(G,MD,u,T,H,H')$
     \ENDFOR
     \IF{$M$ is parallel}
       \STATE $M_{child} \leftarrow $ the child modules of $M$ in $MD$
@@ -1286,14 +1327,14 @@ graph.
       \ENDFOR
     \ELSIF{$M$ is prime}
         \IF{$|M| \leq T$}
-            \STATE{Color the graph $G[M]$ with $H$, using colors already in $M$}
+            \STATE{Color the graph $G[M]$ with $H$, using colors present in the current coloring of $M$}
             \RETURN
         \ENDIF
         \STATE $Q \leftarrow $ quotient graph of $G[M]$ where the child modules of $M$ in $MD$ is the partition
-        \STATE $\sigma \leftarrow $ Coloring of $Q$ after coloring it with $H'$
+        \STATE $\sigma_Q \leftarrow $ Coloring of $Q$ after coloring it with $H'$
 
         \FORALL{colors $c$ in the coloring of $Q$}
-            \STATE $Q_c \leftarrow \{ m : m \in V(Q), \sigma(m) = c\}$
+            \STATE $Q_c \leftarrow \{ m : m \in V(Q), \sigma_Q(m) = c\}$
             \STATE $m' \leftarrow$ the module in $Q_c$ with the most colors
             \STATE $C_{m'} \leftarrow$ the colors used in the coloring of $m'$
             \FORALL {$m \in Q_c \setminus \{m'\} $}
@@ -1397,8 +1438,18 @@ The result of applying RLF is shown in \autoref{fig:strat4b}.
 \label{fig:strat4}
 \end{figure}
 
-Now all of the child modules of the root module have been colored. The root
-module being series also means that no recoloring of the child modules have to
+Now all of the child modules of the root module have been colored, and the vertices
+are colored as displayed in \autoref{fig:strat4c}.
+
+\begin{figure}[H]
+    \centerfloat
+    \includegraphics[width=\textwidth]{Strategies4c.pdf}
+    \caption{All child modules of the root module have been colored}
+    \label{fig:strat4c}
+\end{figure}
+
+The root
+module being series means that no recoloring of the child modules have to
 be done, and that we have a finished coloring, which can be seen in
 \autoref{fig:strat5}
 \begin{figure}[H]
@@ -1420,7 +1471,7 @@ strategy so are we utilising the modular decomposition to color the prime
 module. We start by coloring the child modules of Module 1.
 
 The trivial modules just retain their color, and Module 2 can be colored
-perfectly. Coloring Module 3 we again have to apply the special case. But as
+optimally. Coloring Module 3 we again have to apply the prime module case. But as
 Module 3 contains only trivial modules so is it's quotient graph isomorphic to
 the original graph, and therefore equivalent to just applying the heuristic
 directly on it. After having colored the children of Module 1 we arrive at the
@@ -1438,29 +1489,29 @@ directly with a heuristic to 0, as the example would otherwise be equivalent to
 \end{figure}
 
 Now the novel step of the quotient strategy is applied. Now we want to combine
-the results for the coloring of the children in a good coloring of Module 1. The
-current coloring is a proper coloring, but it not necessarily optimal. The
+the results for the coloring of the children to a good coloring of Module 1.
+The current coloring is a proper coloring, but it not necessarily optimal. The
 quotient strategy tries to improve this coloring by examining whether or not
 child modules can share the same set of colors. To do this, we first construct
-the quotient graph, where the partition is the vertices in the child modules, 
+the quotient graph, where the partition is the vertices in the child modules,
 that is $\{\{6\},\{7\},\{1,2,3,4\},\{7,8\}\}$. This quotient graph can be seen
-in \autoref{fig:strat7}.
+in \autoref{fig:strat7}. We then color this graph using some predetermined
+heuristic, and get the result in \autoref{fig:strat8}
 
 \begin{figure}[H]
-    \centerfloat
-    \includegraphics[width=\textwidth]{Strategies7.pdf}
-    \caption{Quotient graph of the children of Module 1}
-    \label{fig:strat7}
-\end{figure}
+\centerfloat
+    \begin{subfigure}{.4\textwidth}
+        \includegraphics[width=\columnwidth]{Strategies7.pdf}
+      \caption{Quotient graph of the children of module 1}
+      \label{fig:strat7}
+    \end{subfigure}%
+    \begin{subfigure}{.4\textwidth}
+        \includegraphics[width=\columnwidth]{Strategies8.pdf}
+      \caption{Colored quotient graph}
+      \label{fig:strat8}
+    \end{subfigure}
 
-We then color this graph using some predetermined heuristic, and get the result
-in \autoref{fig:strat8}
-
-\begin{figure}[H]
-    \centerfloat
-    \includegraphics[width=\textwidth]{Strategies8.pdf}
-    \caption{Colored quotient graph of the children of Module 1}
-    \label{fig:strat8}
+    \caption{Quotient graph coloring}
 \end{figure}
 
 The modules that share color can't be neighbours in a proper coloring,
@@ -1469,7 +1520,7 @@ between 2 vertices with different modules of the same color. This in turn means
 that they can share the same set of colors. To ensure that we can recolor them
 and end with proper coloring, so are we using the set of colors from the module
 with the most amount of colors for every color category. This means that we
-recolor module $\{5\}$ and Module 3 with magenta, and Module 2 and $\{6\}$ with
+recolor module $\{5\}$ and Module 3 with beige, and Module 2 and $\{6\}$ with
 red and green. This gives the coloring in \autoref{fig:strat9}.
 
 \begin{figure}[H]
@@ -1637,7 +1688,7 @@ prime modules have roughly the same edge density.
 \subsubsection{Series percent}
 The final split is with series percent. A higher series percent yields a graph
 with more edges, and lower a graph with fewer  edges, as a graph join in
-\autoref{alg:constructcograph} introduces new edges, wheres a graph union in the
+\autoref{alg:constructcograph} introduces new edges, whereas a graph union in the
 case of a parallel label keeps the amount of edges constant. The series percent
 tested where 35\% and 70\%.
 
@@ -1692,16 +1743,22 @@ respective test sets. All graphs are colored with all combinations of heuristic
 and combination strategy. A final table displaying the total average between
 all disturbed cographs, as well as the performance on DIMACS graphs. 
 
-The result for the different categories are displayed grouped by their graph size,
-except for DIMACS and the table containing the averaged result. These group in turn 
-divide the result into the amount of modules in the graph, and the series percent. This means that
-each figure contains the result for 4 different graph categories.
+
+\subsection{Interpreting the figures}
+
+The result for the different categories are displayed grouped by their graph
+size, except for DIMACS and the table containing the averaged result. These
+group in turn divide the result into separate groups depending on the amount of
+modules in the graph, and the series percent. This means that each figure
+contains the result for 4 different graph categories.
 
 Two figures are displayed for each category, one displaying the amount of
-colors used for a given heuristic, and the other displaying the time it took
-for that heuristic to color the graph. The heuristics are displayed on the
-x-axis, and the time/colors used are displayed on the y-axis. The strategy used in 
-the coloring is represented by the color of the staple for a given heuristic.
+colors used for a given heuristic, and the other displaying the time in seconds
+it took for that heuristic to color the graphs. The heuristics are displayed on
+the x-axis, and the time/colors used are displayed on the y-axis. The strategy
+used in the coloring is represented by the color of the staple for a given
+heuristic. The result displayed is the averaged color count/time for every
+graph in the category.
 
 This means, that to determine the average colors used for RLF on graphs with
 1000 vertices that contain 10 prime modules and with 35\% series percent using
@@ -1727,6 +1784,8 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 \newpage
 
 
+\newcommand{\figdesc}[0]{Graph coloring algorithm is on the x-axis, color/time is on the y-axis, staple colors represent the different strategies. }
+\newcommand{\facfigdesc}[0]{\figdesc Result faceted by Module size and series percent. }
 
 \begin{figure}[p]
 \centerfloat
@@ -1740,7 +1799,7 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
       \caption{Runtime}
       \label{fig:1000t}
     \end{subfigure}
-\caption{1000 vertices}
+\caption{Result for generated graphs with 1000 vertices. \facfigdesc }
 \label{fig:1000}
 \end{figure}
 
@@ -1756,7 +1815,7 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
       \caption{Runtime}
       \label{fig:750t}
     \end{subfigure}
-\caption{750 vertices}
+\caption{Result for generated graphs with 750 vertices. \facfigdesc }
 \label{fig:750}
 \end{figure}
 
@@ -1772,7 +1831,7 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
       \caption{Runtime}
       \label{fig:500t}
     \end{subfigure}
-\caption{500 vertices}
+\caption{Result for generated graphs with 500 vertices. \facfigdesc}
 \label{fig:500}
 \end{figure}
 
@@ -1789,7 +1848,7 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
       \caption{Runtime}
       \label{fig:250t}
     \end{subfigure}
-\caption{250 vertices}
+\caption{Result for generated graphs with 250 vertices. \facfigdesc}
 \label{fig:250}
 \end{figure}
 
@@ -1807,7 +1866,7 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
       \caption{Runtime}
       \label{fig:dimacst}
     \end{subfigure}
-\caption{DIMACS}
+\caption{Result for the DIMACS graphs. \figdesc}
 \label{fig:dimacs}
 \end{figure}
 
@@ -1823,7 +1882,7 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
       \caption{Runtime}
       \label{fig:generatedt}
     \end{subfigure}
-\caption{Combined all generated graphs}
+\caption{Combined results for all generated graphs. \figdesc}
 \label{fig:generated}
 \end{figure}
 
@@ -1844,7 +1903,7 @@ seems like the performance for TabuCol is better for the sparser graph with
 with the number of prime modules, both 10 and 5 seem to perform similarly.
 
 The result for the quotient strategy always seems comparable to the performance
-of RLF. While it can be seen to outperform pure RLF very slightly for some
+of RLF. It can be seen to outperform pure RLF very slightly for some
 combinations, such as in \autoref{fig:dimacs}. It also exhibits a much larger
 runtime, most notable for the same DIMACS test set in \autoref{fig:dimacs}.  The
 potential performance benefit most likely doesn't compensate for the increased
@@ -1860,22 +1919,34 @@ can be compensated by large enough graphs.
 
 Another possible advantage with the modular decomposition is that it could
 allow for more easily implemented parallelised coloring algorithms. As the
-modular decomposition tree creates a partition of the graph vertices, so can
-the different parts of the modular decomposition tree be colored in parallel,
-which could compensate for the increased runtime when for example using TabuCol.
+child modules of a module in the modular decomposition tree creates a partition
+of the parent module, so can the different parts of the modular decomposition
+tree be colored in parallel, which could compensate for the increased runtime
+when for example using TabuCol.
 
 \section{Conclusion}
-
-\todo{feels like I'm just repeating the previous section with no punch} 
 
 Using the modular decomposition didn't significantly improve the performance of
 the tested algorithms, except in the case for TabuCol. This does show that
 performance benefit can vary from algorithm to algorithm, but the total
 difference is also most likely relatively small. The modular decomposition
-coloring does however show some potential in improving the runtime for different
-coloring algorithms, and combined with parallelised coloring of prime modules
-might lead to larger improvements when examining colors relative
-to time taken.
+coloring does however show some potential in improving the runtime for
+different coloring algorithms, and combined with parallelised coloring of prime
+modules might lead to larger improvements when examining colors relative to
+time taken.
+
+The coloring was mostly improved when using TabuCol, and it's possible that
+other similar algorithms could see an improvement as well. It's also possible
+that there are other ways to utilise the modular decomposition when coloring
+prime modules other than the quotient strategy. 
+
+Another area worth investigating is finding examples of real-world graphs that
+have modular decomposition without a prime root module. The  parameters set for
+the generated graphs might be different from graphs encountered in real-world
+use cases, and could exhibit different properties that make them more/less
+suitable for these coloring methods.
+
+
 
 \printbibliography
 

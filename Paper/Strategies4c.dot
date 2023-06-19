@@ -23,17 +23,16 @@ graph
     "Module 6" [label="\N\nparallel"]
     "Root" [label="\N\nseries"]
 
-
     1 [fillcolor="red"]
     2 [fillcolor="green"]
-    3 [fillcolor="blue"]
-    4 [fillcolor="darkgreen"]
+    3 [fillcolor="red"]
+    4 [fillcolor="green"]
     5 [fillcolor="darkmagenta"]
-    6 [fillcolor="yellow"]
-    7 [fillcolor="linen"]
-    8 [fillcolor="indigo"]
+    6 [fillcolor="red"]
+    7 [fillcolor="darkmagenta"]
+    8 [fillcolor="darkmagenta"]
     9 [fillcolor="orange"]
     10 [fillcolor="cyan"]
     11 [fillcolor="magenta"]
-    12 [fillcolor="darkblue"]
+    12 [fillcolor="magenta"]
 }
