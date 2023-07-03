@@ -1,6 +1,6 @@
 # Modular decomposition coloring
 
-This repository contains the files used in the thesis (REFERNS?). 
+This repository contains the files used in the thesis. 
 
 # Graph coloring
 

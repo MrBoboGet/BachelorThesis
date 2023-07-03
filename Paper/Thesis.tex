@@ -122,6 +122,10 @@
 
 \pagestyle{plain}
 
+
+\usepackage{geometry}
+\geometry{margin=1in}
+
 \begin{document}
 \sloppy
 \Framsida 
@@ -135,6 +139,7 @@
 \Large{Inlämningsdatum: \today}\\
 
 %\section{Abstract}
+\newpage
 \begin{center}
 	\textbf{Abstract}
 \end{center}
@@ -195,6 +200,8 @@ familiar to most people that have worked with graphs, and
 \autoref{sec:GraphModules} provide the definitions that are more specific to
 this thesis.
 
+\autoref{sec:generic} introduces the base algorithm that is modified
+
 In \autoref{sec:Heuristics} the graph coloring heuristics used are described.
 
 In \autoref{sec:Strategies} the combination strategies are described, that is how are
@@ -213,7 +220,7 @@ Finally, the way the data is evaluated and the results are presented in
 \subsection{Graph basics}
 \label{sec:GraphBasics}
 
-The definitions used here are based of the definitions in \cite{GraphBasics}. 
+The definitions used here are based on the definitions in \cite{GraphBasics}. 
 %If not stated differently, the definitions here have been taken from 
 %\cite{GraphBasics}.
 
@@ -240,10 +247,10 @@ The definitions used here are based of the definitions in \cite{GraphBasics}.
     the amount of edges, that is $\sum_{v \in V} deg(v) = 2|E|$.
 \end{theorem}
 
-The handshake lemma gets it's name from interpreting the vertices as
+The handshake lemma gets its name from interpreting the vertices as
 individuals, and edges between 2 persons represent that they shook hands. It 
 then says that if we ask every person how many other persons they have shook
-hands with, so is the total sum twice the amount of handshakes. This can
+hands with, so is the total sum twice the total amount of handshakes. This can
 intuitively be derived by noting that as every handshake involves two people, so
 is that handshake going to be counted twice when we ask the people involved.
 
@@ -274,7 +281,7 @@ Another common operation, is the graph complement.
 \end{definition}
 
 In other words, the graph complement of a
-graph is graph that contains the same vertices as the original graph, but the
+graph is a graph that contains the same vertices as the original graph, but the
 vertices are adjacent only if they where not adjacent in the original graph.
 
 Two common operations, and especially relevant for the modular decomposition
@@ -293,10 +300,10 @@ further down, is the disjoint union and graph join.
 \end{definition}
 
  The disjoint union is the
-most simple way to combine graphs, and just forms a new graph that just
+most simple way to combine graphs, and forms a new graph that just
 contains the original graphs and nothing more.  The graph join is similar, in
 that it produces a new graph with all of edges and vertices from the original
-graphs, but also for every vertex in a input graph adds a new edge to the other
+graphs, but also for every vertex in an input graph adds a new edge to all the vertices in the other
 input graphs.
 
 
@@ -563,7 +570,7 @@ modular decomposition tree that can be seen in \autoref{fig:graph5}
 
 \section{General coloring algorithm}
 
-\autoref{alg:generic} will form the baseline for our heuristics, and described in
+\autoref{alg:generic} will form the baseline for our heuristics, and is described in
 \cite{HCL}. It provides an optimal coloring given that the graph is a cograph,
 that is when all modules in the modular decomposition tree is either series or
 parallel.  It does however not provide a way to color the prime modules. This
@@ -776,7 +783,7 @@ We have the partially colored graph in \autoref{fig:greedy1}, and want to color 
 \end{figure}
 
 Here we can see our $used$ map to the right. At the start of every call to
-\textbf{get first color} so is every colored map to false. Now we go over every
+\textbf{get first color} so is every color maped to false. Now we go over every
 neighbour of 1, that is 2,3 and 4, and update the map so that their respective
 colors is set to true. This gives the state depicted in \autoref{fig:greedy2}.
 
@@ -791,7 +798,7 @@ Now we step through the map from the leftmost column to the right, and examine
 whether or not the current column maps the color to a "false" value. If it does,
 we have found the first available color, and assign it to the vertex we want to
 color. In this case the first available color is yellow. After having
-determined the first available color so is the used map reset so all colors map
+determined the first available color so is the $used$ map reset so all colors map
 to false again, and appropriate for further application of \textbf{get first
 color}.  The vertex is now colored using  \textbf{get first color}, and we
 arrive at the state in \autoref{fig:greedy3}.
@@ -867,8 +874,8 @@ the saturation degree for its neighbours, which implies the removal of that
 neighbour from the list, and then adding it back with the updated saturation
 degree. With appropriate data structures, the initialization can be done in
 $O(|V|log(|V|)$, and removing and inserting an element can be done in $O(log(|V|))$
-time. As this insertion is done for every neighbour, we can use the handshake
-lemma again and see that the total runtime for updating neighbours this way is
+time. As this insertion is done for every neighbour, so can we again use the handshake
+lemma and see that the total runtime for updating neighbours this way is
 $O(|E|log(|V|))$. This gives a total runtime of $O(|V|+|E|+|V|log(|V|)+|E|log(|V|))
 = O( (|V|+|E|)log(|V|))$. A more thorough description of this implementation can
 be found in \cite{Constructive}.
@@ -917,7 +924,7 @@ vertices. We continue this process until no more vertices can be added, that is 
 there are no more unpartitioned vertices that aren't adjacent to the current part.
 
 At this point, if there are still vertices to assign, we repeat by creating
-another part the same way, going back to line 6. If all vertices have been assigned, we can assign every part in
+another part the same way, going back to line 6. If all vertices have been assigned, so can we assign every part in
 the partition a unique color, and then color every vertex in that part with the
 assigned color.
 
@@ -1048,7 +1055,7 @@ This gives us the final coloring depicted in \autoref{fig:rlf5}.
 \subsection{TabuCol}
 
 TabuCol is a graph coloring algorithm that unlike the previous algorithms, doesn't
-construct a coloring in a constructive fashion, but instead tries to find a
+create a coloring in a constructive fashion, but instead tries to find a
 coloring for a specific number of target colors.
 
 TabuCol first forms a random improper coloring of the vertices with colors from
@@ -1060,14 +1067,14 @@ clashes are greater than the current number of clashes, is applied.
 
 This can however introduce cycles of recolorings. Certain recolorings might
 lead into each other so that the algorithm just iterates through this cycle
-every iteration, preventing it from ever reaching a better coloring. To prevent
-this, the Tabu list is used. A Tabu list is a list of vertex-color pairs
-$(v,u)$. Whenever a new vertex recoloring is made, it is added to the Tabu
-list. A new vertex recoloring is only considered if it's not a part of the Tabu
-list. This tabu list have a set size, so that the first element is removed when
-a new vertex-color pair is added and the list is already full. If there are more than one coloring that give
-the lowest increase in clashes, so is that tie broken randomly, also in order
-to avoid cycles in recolorings.
+every iteration, preventing it from ever reaching a better coloring. The Tabu
+list is introduced to prevent this . A Tabu list is a list of vertex-color
+pairs $(v,u)$. Whenever a new vertex recoloring is made, it is added to the
+Tabu list. A new vertex recoloring is only considered if it's not a part of the
+Tabu list. This tabu list have a set size, so that the first element is removed
+when a new vertex-color pair is added and the list is already full. If there
+are more than one coloring that give the lowest increase in clashes, so is that
+tie broken randomly, also in order to avoid cycles in recolorings.
 
 Tabu moves are however allowed in some scenarios, specifically if applying that
 coloring would create a better recoloring than the previous best, which is
@@ -1083,7 +1090,7 @@ made. As the algorithm only gets a valid coloring for a specific $k$, so must
 we also have a way to utilise this algorithm to get the lowest possible
 coloring.  Here a similar method described in \cite{Constructive} is used, that
 is, first a coloring is made with RLF, and the number of used colors is assigned
-to $k$ and the resulting coloring to $\sigma$.  The then we try to color the
+to $k$ and the resulting coloring to $\sigma$.  Then we try to color the
 graph with TabuCol with $k-1$ allowed colors . If this results in a proper
 coloring, so is this step repeated and we subtract $k$ by one, and we save the
 coloring to $\sigma$.  If the coloring is not proper, so is the current $\sigma$
@@ -1195,16 +1202,16 @@ practice exhibits the largest runtimes.
 
 \section{Strategies}
 \label{sec:Strategies}
-In the case where the whole graph doesn't contain any prime modules, so can an optimal
-coloring can be obtained with \autoref{alg:generic} in linear time
+In the case where the whole graph doesn't contain any prime modules, so can an
+optimal coloring can be obtained with \autoref{alg:generic} in linear time
 \cite{HCL}. In case the graph contains prime modules, so will we use different
 strategies on how to apply the different heuristics described in
-\autoref{sec:Heuristics}. An example run of the different strategies described
-is also given in \autoref{sec:stratexample}
+\autoref{sec:Heuristics}, which are described below. An example run of the
+different strategies is also given in \autoref{sec:stratexample}
 
 \subsection{Whole graph}
 
-In this baseline test, the whole graph is colored using the heuristic, not
+In this baseline test, so is the whole graph colored using the heuristic, not
 utilizing the modular decomposition at all. This strategy is used as a baseline
 to compare whether or not the other strategies improves the performance for the
 graph.
@@ -1288,11 +1295,11 @@ heuristic, potentially different from the ones used in coloring the modules,
 and then every child module with the same color in the quotient graph can now
 be recolored to use the same set of colors.
 
-The quotient graph is a graph describing whether or not vertex partitions of a
+The quotient graph is a graph describing whether or not parts in a vertex partition of a
 graph are adjacent or not, instead of individual vertices. Two vertex
-partitions are adjacent in the quotient graph if there exists an edge between
-any pair of vertices, where one part is in the first partition, and the other
-part is in the other partition. A quotient graph where the partition is all of
+parts are adjacent in the quotient graph if there exists an edge between
+any pair of vertices, where one vertex is in the first part, and the other
+vertex is in the other part. A quotient graph where the partition is all of
 the original vertices individually, is therefore isomorphic to the original
 graph.
 
@@ -1351,7 +1358,7 @@ graph.
 
 As a quotient graph can for a graph $G = (V,E)$ be constructed in
 $O(|V|+|E|)$ time for a partition of the vertices, we can see that the pathological
-worst case for constructing the quotients, are when only on vertex is removed
+worst case for constructing the quotients, are when only one vertex is removed
 for each recursion. In that case, the construction of the quotient graphs are
 $O(|V|^2+|E||V|)$. The runtime is then dependant on the properties of the
 heuristic applied on the quotient graph to color it. The time for the heuristic
@@ -1386,13 +1393,13 @@ depicted in \autoref{fig:strat2}.
     \label{fig:strat2}
 \end{figure}
 
-From this figure we can see the root node is not prime, and that it contains a
+We can see from this figure that the root node is not prime, and that it contains a
 prime module with a nested prime module, as well cograph
 subgraph in module 4 containing 4 vertices.
 
 From this we can now apply the different strategies. The case for 'WholeGraph'
 is omitted here as it just involves a regular application of a graph coloring
-algorithm. The heuristic we use in combination with this strategy is RLF. 
+algorithm. The heuristic we use in combination with the strategies is RLF. 
 
 \subsubsection{Whole prime}
 
@@ -1490,11 +1497,11 @@ directly with a heuristic to 0, as the example would otherwise be equivalent to
 
 Now the novel step of the quotient strategy is applied. Now we want to combine
 the results for the coloring of the children to a good coloring of Module 1.
-The current coloring is a proper coloring, but it not necessarily optimal. The
+The current coloring is a proper coloring, but it is not necessarily optimal. The
 quotient strategy tries to improve this coloring by examining whether or not
 child modules can share the same set of colors. To do this, we first construct
 the quotient graph, where the partition is the vertices in the child modules,
-that is $\{\{6\},\{7\},\{1,2,3,4\},\{7,8\}\}$. This quotient graph can be seen
+that is $\{\{6\},\{5\},\{1,2,3,4\},\{7,8\}\}$. This quotient graph can be seen
 in \autoref{fig:strat7}. We then color this graph using some predetermined
 heuristic, and get the result in \autoref{fig:strat8}
 
@@ -1682,7 +1689,7 @@ module\ count$ is half the size of the graph, meaning that roughly half of the
 vertices can be expected to be a part of a prime module.
 
 \subsubsection{Module edge percent}
-The edge probability within modules is a  constant 50\%, so that all
+The edge probability within modules is a  constant 50\%, so that all top
 prime modules have roughly the same edge density. 
 
 \subsubsection{Series percent}
@@ -1740,7 +1747,7 @@ last column is the amount of time the coloring took in seconds.
 
 The following figures contain the averaged performance for coloring the graphs in the
 respective test sets. All graphs are colored with all combinations of heuristic
-and combination strategy. A final table displaying the total average between
+and strategy. A figure is also provided that displays the total average between
 all disturbed cographs, as well as the performance on DIMACS graphs. 
 
 
