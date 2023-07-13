@@ -1925,31 +1925,31 @@ The result for the quotient strategy is always comparable to the performance
 of RLF. It can be seen to outperform pure RLF very slightly for some
 combinations, such as in \autoref{fig:dimacs}. It also exhibits a much larger
 runtime, most notable for the same DIMACS test set in \autoref{fig:dimacs}.  The
-potential performance benefit most likely doesn't compensate for the increased
+potential decrease in colors most likely doesn't compensate for the increased
 runtime however, even with a more optimized implementation.
 
 Looking at the time taken to color the graphs, we can see that the modular
 decomposition might have a use in decreasing the execution time.  We can see
 that for DSatur and RLF so is the 'WholePrime' strategy almost always faster
 than coloring the 'WholeGraph' strategy, by a significant amount. This difference seems to be affected
-by both series percent and the amount graph modules, as well as the graph size.
+by both series percent and the amount of graph modules, as well as the graph size.
 A higher series percent gives a bigger difference in performance for
 'WholeGraph' and 'WholePrime' in most cases, and more modules gives an even bigger
 difference. The only situations where 'WholeGraph' was faster were for RLF on the smaller graphs 
 with 250 vertices.
 
 Graph coloring heuristics with execution time that doesn't scale linearly with
-the amount of edges/vertices should theoretically see a speedup when applied
-many times on a smaller graph instead of on a bigger graph, given that
-combining the results is in linear time, which is is the case of the
+the amount of edges/vertices could theoretically see a speedup when applied 
+on smaller subgraphs instead of the whole graph, given that
+combining the results is in linear time, which is the case for the
 'WholePrime' strategy. Both DSatur and RLF doesn't scale linearly with the
 amount of edges, whereas TabuCol and Greedy does, which could explain why these
-heuristics doesn't see the same benefit, and instead take longer time to execute. That the heuristics that sees an
-improvement have larger speedups for larger graphs could be because the total
-amount of edges grow quadratically in the amount of vertices, meaning that for
-smaller graphs so is the total difference smaller, and the overhead of creating
-the subgraphs overshadows the potential speedup. This would also explain why
-the difference is larger with a series percent of 70\% instead of 35\%.
+heuristics doesn't see the same benefit, and instead take longer time to execute. 
+The more vertices and the more edges a graph has the larger this difference would be 
+, which would explain why the difference is higher for 70\% series percent, and why 
+it can even take longer in the case of RLF on graphs with 250 vertices, the overhead of
+creating the subgraphs is not yet compensated by the speedup from applying on smaller graphs.
+
 
 Whether or not it is worth it in practice to use the modular decomposition
 for a speedup in execution time depends on the ability to implement the modular
