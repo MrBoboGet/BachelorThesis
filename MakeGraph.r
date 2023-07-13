@@ -44,9 +44,10 @@ MakeSummarised <- function(Graph)
 MakeTimePlot <- function(Graph)
 {
     return(Graph %>% 
+       mutate(Time = Time*1000) %>%
        ggplot(aes(x=Heuristic,y=Time,fill=Strategy)) + 
-       geom_col(position=position_dodge()) + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)) + 
-       theme(axis.text.x=element_text(angle = -90, hjust = 0)))
+       geom_col(position=position_dodge()) + scale_y_log10() + facet_grid(rows=vars(SeriesPercent),cols=vars(ModuleCount)) + 
+       theme(axis.text.x=element_text(angle = -90, hjust = 0))) 
 }
 MakeColorPlot <- function(Graph)
 {
@@ -84,9 +85,10 @@ MakeTotalColorPlot <- function(Graph)
 MakeTotalTimePlot <- function(Graph)
 {
     return(Graph %>% 
+       mutate(Time = Time*1000) %>%
        ggplot(aes(x=Heuristic,y=Time,fill=Strategy)) + 
-       geom_col(position=position_dodge()) +
-       theme(axis.text.x=element_text(angle = -90, hjust = 0)))
+       geom_col(position=position_dodge()) + scale_y_log10() +
+       theme(axis.text.x=element_text(angle = -90, hjust = 0))) + scale_y_log10()
 }
 DIMACSSummarised <- MakeTotalSummarised(DIMACSResult)
 ggsave( paste0(OutDirectory,"/DIMACS.png"),

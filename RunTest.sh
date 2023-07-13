@@ -32,7 +32,7 @@ done
 if [[ -f $OutFile ]]; then
     rm $OutFile
 fi
-echo "Graph,RootType,Heuristic,Strategy,ColorCount,Time" >> $OutFile
+echo "Graph,RootType,Heuristic,Strategy,ColorCount,Time,VertexCount" >> $OutFile
 for Res in ./TempOutput/*.res; do
     cat "$Res" >> $OutFile
 done

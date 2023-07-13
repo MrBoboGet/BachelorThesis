@@ -200,15 +200,17 @@ familiar to most people that have worked with graphs, and
 \autoref{sec:GraphModules} provide the definitions that are more specific to
 this thesis.
 
-\autoref{sec:generic} introduces the base algorithm that is modified
+\autoref{sec:generic} introduces the algorithm that forms the basis for the new coloring heuristics.
+This base algorithm is combined with a regular graph coloring heuristic and a strategy to create a
+new heuristic.
 
-In \autoref{sec:Heuristics} the graph coloring heuristics used are described.
+In \autoref{sec:Heuristics} so are the graph coloring heuristics used described.
 
-In \autoref{sec:Strategies} the combination strategies are described, that is how are
-these heuristics applied, and how is the structure of the modular decomposition
+The combination strategies are described in \autoref{sec:Strategies}. They determine how 
+the heuristics are applied, and how the structure of the modular decomposition is
 utilised.
 
-In \autoref{sec:Data} the test graphs and benchmarking methods are described. The data
+In \autoref{sec:Data} so are the test graphs and benchmarking methods described. The data
 used is both from standard DIMACS benchmarks \cite{DIMACS}, and custom generated data.
 
 Finally, the way the data is evaluated and the results are presented in 
@@ -334,8 +336,8 @@ connecting them.
 
 %more definitions
 \begin{definition}[Cycle]
-    A sequence of vertices $(v_1,\cdots,v_i,v_1)$ is a cycle
-    if $(v_1,\cdots,v_i)$ is a path.
+    A sequence of vertices $(v_1,\cdots,v_i,v_1)$ for a graph $G = (V,E)$ is a cycle
+    if $(v_1,\cdots,v_i)$ is a path, and $(v_i,v_1) \in E$.
 \end{definition}
 
 A cycle is very similar to a regular path except that we allow, and require,
@@ -394,7 +396,7 @@ of a parent-child structure, described below.
 The central problem in this thesis, is to find efficient algorithms 
 for properly coloring a given graph.
 
-Finding a proper coloring for a graph is easy, one could for example assign to
+Creating a proper coloring for a graph is easy, one could for example assign to
 every vertex a unique color. Finding an optimal coloring however, i.e. proper a
 coloring using the fewest possible number of colors, is NP-Hard \cite{NPHard}.
 For this purpose, different heuristics, algorithms providing a proper coloring
@@ -569,6 +571,7 @@ modular decomposition tree that can be seen in \autoref{fig:graph5}
 \FloatBarrier
 
 \section{General coloring algorithm}
+\label{sec:generic}
 
 \autoref{alg:generic} will form the baseline for our heuristics, and is described in
 \cite{HCL}. It provides an optimal coloring given that the graph is a cograph,
@@ -588,7 +591,7 @@ through graph join on the induced subgraph of the associated module of $X's$
 children in the modular decomposition. This means that every child module is
 completely connected to the other children, most importantly meaning that no
 child modules can share a color among the other child modules. Assuming that
-the children have an optimal coloring so has therefore their join also has an optimal
+the children have an optimal coloring so is therefore their join also an optimal
 coloring, as no fewer colors can be used. Having initially given every vertex a
 unique color, we can also guarantee that this join won't introduce any clashes.
 This case is therefore "omitted" from the algorithm, keeping
@@ -597,8 +600,8 @@ the current coloring is all that needs to be done.
 A module $X$ being parallel in the modular decomposition tree of a graph $G$ means that
 the induced subgraph $G[X]$ can be constructed through disjoint union on the induced
 subgraph of the associated modules of $X's$ children. This in particular means that 
-the induced subgraph of the children modules have no edges between each other. Therefore,
-the induced subgraph of the children modules can use the same set of colors. The children
+the induced subgraph of the child modules have no edges between each other. Therefore,
+the induced subgraphs of the child modules can use the same set of colors. The children
 are therefore recolored to use the same smallest set of colors, 
 which assuming that the children are optimally colored is the colors used by the module 
 with the most amount of colors.
@@ -665,7 +668,7 @@ vertex $v$ from the graph, and partitioning the vertices in the graph with
 modules that are either $\{v\}$, or the largest not overlapping modules
 not containing $v$. From this partition, we can construct base pseudo modular
 decomposition. We then recursively add to this tree, by doing the same procedure
-for the parts in this partition, and combine the their trees.
+for the parts in this partition, and combine their trees.
 
 \section{Heuristics}
 \label{sec:Heuristics}
@@ -759,7 +762,7 @@ $O(|V|+|E|)$.
   \begin{algorithmic}[1]
       \REQUIRE Graph $G = (V,E)$
       \STATE $V' \leftarrow \text{List containing all $v \in V$ in any order}$
-      \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots V| \}$ }$
+      \STATE $C \leftarrow \text{List of possible colors $\{1 \cdots |V| \}$ }$
       \STATE $\sigma \leftarrow \text{Initial empty partial coloring}$
       \STATE $used \leftarrow $ map from colors in $C$ to Booleans, initialised
       so all values are false
@@ -1484,8 +1487,8 @@ the original graph, and therefore equivalent to just applying the heuristic
 directly on it. After having colored the children of Module 1 we arrive at the
 graph \autoref{fig:strat6}
 
-Note that here have set the threshold for coloring prime modules of a specific size
-directly with a heuristic to 0, as the example would otherwise be equivalent to
+Note that the threshold set here for coloring prime modules of a specific size
+directly with a heuristic is 0, as the example would otherwise be equivalent to
 'Whole prime' coloring. 
 
 \begin{figure}[H]
@@ -1557,11 +1560,11 @@ All of the graphs from the DIMACS benchmark sets are difficult to color,
 and also have modular decomposition where the root vertex is prime. As they are
 commonly used for benchmarks, they also provide known best current colorings for the
 different graphs. However, the modular decomposition might provide a more
-efficient way to color graphs where only some of the child nodes are prime. 
+efficient way to color graphs where only some of the vertices are in a prime module. 
 
 The algorithm for generating these graphs is described in \autoref{alg:RDCG}.
 First an ordinary binary tree is randomly generated with a specified amount of
-leafs , and then every label in this tree is given a label "series" or
+leafs , and then every vertex in this tree is given a label "series" or
 "parallel".  This then describes a cograph, where the leafs are the $K_1$ bases,
 and a label of "series" means that the children are joined by disjoint union and
 a label of "parallel" means that the children are joined by graph join.  From
@@ -1611,7 +1614,7 @@ size.
       \STATE $CG \leftarrow \text{\textbf{Construct graph} applied on $bg$}$
 
       \STATE $pm \leftarrow $ All strong modules $M$ of $CG$ such that $|M| \geq ms$, ordered in increasing order by size
-      \FOR{$i \cdots mc$}
+      \FOR{$i$ in $1$ in $1 \cdots mc$}
         \STATE $cm \leftarrow \text{The module at index $i$ in $pm$}$
         \FORALL{vertex pairs $(u,v) \in E(CG[cm])$}
             \STATE Modify $CG$ by adding edge $(u,v)$ with a chance of $pe$
@@ -1727,7 +1730,7 @@ The script is invoked as
 py ModularColoring.py <input-file> 
 \end{verbatim}
 
-Here, <input-file> is interpreted a path to a file containing the graph to color,
+Here, <input-file> is interpreted as a path to a file containing the graph to color,
 encoded as a networkx adjacency list \url{https://networkx.org/documentation/stable/reference/readwrite/adjlist.html}.
 
 The script color the graph described in the file with a every combination of 
@@ -1740,7 +1743,7 @@ the modular decomposition label for the root vertex in the modular
 decomposition. 1 Means parallel, 0 series and p prime.  The third column is the
 name of the heuristic tested, the fourth column is the name of the strategy
 used, the fifth column is the number of colors used in the coloring, and the
-last column is the amount of time the coloring took in seconds.
+last column is the amount of time the coloring took in seconds. 
 
 \section{Results}
 \label{sec:Result}
@@ -1760,9 +1763,11 @@ modules in the graph, and the series percent. This means that each figure
 contains the result for 4 different graph categories.
 
 Two figures are displayed for each category, one displaying the amount of
-colors used for a given heuristic, and the other displaying the time in seconds
-it took for that heuristic to color the graphs. The heuristics are displayed on
-the x-axis, and the time/colors used are displayed on the y-axis. The strategy
+colors used for a given heuristic, and the other displaying the time in
+milliseconds it took for that heuristic to color the graphs. The heuristics are
+displayed on the x-axis, and the time/colors used are displayed on the y-axis.
+Time is displayed on a logarithmic y-axis, because of the large difference in
+time taken for different combinations of heuristic and strategy. The strategy
 used in the coloring is represented by the color of the staple for a given
 heuristic. The result displayed is the averaged color count/time for every
 graph in the category.
@@ -1897,19 +1902,26 @@ at \url{https://github.com/MrBoboGet/BachelorThesis}.
 \subsection{Discussion}
 
 Something that we can see from the tables, most easily from
-\autoref{fig:generated}, is that applying a heuristic locally on prime modules
-doesn't significantly affect the resulting color for RLF,Greedy and Dsatur. It
+\autoref{fig:generated}, is that applying a heuristic locally on prime modules,
+that is using the 'WholePrime' strategy,
+doesn't significantly affect the resulting amount of colors for RLF,Greedy and Dsatur. It
 does however seem to give a minor improvement for TabuCol. In situations where
 one would consider using TabuCol with it's comparably larger execution time in
 the first place, so could it be reasonable to use the modular decomposition for
 increased performance.
 
-Looking at the difference between series probability of 35\% versus 70\%, it
-seems like the performance for TabuCol is better for the sparser graph with
-35\% series probability. There also doesn't seem to be any direct difference
-with the number of prime modules, both 10 and 5 seem to perform similarly.
+We can see that the amount of  colors used for DSatur and RLF was for these
+graphs mostly the same independent of used strategy, and TabuCol had slightly better performance compared to
+those two. Greedy was by far the worst performing with significantly worse
+results than all the others in all cases, but it also has significantly faster runtime.
 
-The result for the quotient strategy always seems comparable to the performance
+Looking at the difference between series probability of 35\% versus 70\%, it
+seems like the relative improvement when using TabuCol instead of another
+coloring heuristic is very slightly better for the sparser
+graphs with 35\% series probability. There also doesn't seem to be any direct
+difference with the number of prime modules in the resulting amount of colors used by TabuCol.
+
+The result for the quotient strategy is always comparable to the performance
 of RLF. It can be seen to outperform pure RLF very slightly for some
 combinations, such as in \autoref{fig:dimacs}. It also exhibits a much larger
 runtime, most notable for the same DIMACS test set in \autoref{fig:dimacs}.  The
@@ -1917,35 +1929,56 @@ potential performance benefit most likely doesn't compensate for the increased
 runtime however, even with a more optimized implementation.
 
 Looking at the time taken to color the graphs, we can see that the modular
-decomposition might have a use in decreasing the execution time. Graph coloring
-algorithms with execution time that doesn't scale linearly with the size of the
-graph could benefit from being applied more times on smaller subgraphs. But
-whether or not this is worth it in practice depends on the ability to implement
-the modular decomposition tree in linear time, and if the added computations
-can be compensated by large enough graphs.
+decomposition might have a use in decreasing the execution time.  We can see
+that for DSatur and RLF so is the 'WholePrime' strategy almost always faster
+than coloring the 'WholeGraph' strategy, by a significant amount. This difference seems to be affected
+by both series percent and the amount graph modules, as well as the graph size.
+A higher series percent gives a bigger difference in performance for
+'WholeGraph' and 'WholePrime' in most cases, and more modules gives an even bigger
+difference. The only situations where 'WholeGraph' was faster were for RLF on the smaller graphs 
+with 250 vertices.
+
+Graph coloring heuristics with execution time that doesn't scale linearly with
+the amount of edges/vertices should theoretically see a speedup when applied
+many times on a smaller graph instead of on a bigger graph, given that
+combining the results is in linear time, which is is the case of the
+'WholePrime' strategy. Both DSatur and RLF doesn't scale linearly with the
+amount of edges, whereas TabuCol and Greedy does, which could explain why these
+heuristics doesn't see the same benefit, and instead take longer time to execute. That the heuristics that sees an
+improvement have larger speedups for larger graphs could be because the total
+amount of edges grow quadratically in the amount of vertices, meaning that for
+smaller graphs so is the total difference smaller, and the overhead of creating
+the subgraphs overshadows the potential speedup. This would also explain why
+the difference is larger with a series percent of 70\% instead of 35\%.
+
+Whether or not it is worth it in practice to use the modular decomposition
+for a speedup in execution time depends on the ability to implement the modular
+decomposition tree in linear time, and if the added computations can be
+compensated by large/dense enough graphs.
+
 
 Another possible advantage with the modular decomposition is that it could
 allow for more easily implemented parallelised coloring algorithms. As the
 child modules of a module in the modular decomposition tree creates a partition
 of the parent module, so can the different parts of the modular decomposition
-tree be colored in parallel, which could compensate for the increased runtime
-when for example using TabuCol.
+tree be colored in parallel without causing race conditions, which could compensate for the increased runtime
+when for example using TabuCol with the 'WholePrime' strategy.
 
 \section{Conclusion}
 
 Using the modular decomposition didn't significantly improve the performance of
-the tested algorithms, except in the case for TabuCol. This does show that
-performance benefit can vary from algorithm to algorithm, but the total
+the tested heuristics, except in the case for TabuCol. This does show that
+performance benefit can vary from heuristics to heuristic, but the total
 difference is also most likely relatively small. The modular decomposition
 coloring does however show some potential in improving the runtime for
-different coloring algorithms, and combined with parallelised coloring of prime
+different coloring heuristics, and combined with parallelised coloring of prime
 modules might lead to larger improvements when examining colors relative to
 time taken.
 
 The coloring was mostly improved when using TabuCol, and it's possible that
 other similar algorithms could see an improvement as well. It's also possible
 that there are other ways to utilise the modular decomposition when coloring
-prime modules other than the quotient strategy. 
+prime modules other than the quotient strategy.
 
 Another area worth investigating is finding examples of real-world graphs that
 have modular decomposition without a prime root module. The  parameters set for

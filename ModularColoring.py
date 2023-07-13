@@ -398,4 +398,4 @@ for (Name,Function) in Heuristics.items():
     if(not VerifyColoring(G,HeuristicColorList)):
         print("Error: modular coloring was an invalid coloring",file=sys.stderr)
         exit(1)
-    print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),EndTime-StartTime ,sep=",")
+    print(Filename,RootType,Name,"WholeGraph",len(HeuriticUsedColors),EndTime-StartTime,len(Root),sep=",")
