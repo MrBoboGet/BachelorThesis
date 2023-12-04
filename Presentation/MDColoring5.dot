@@ -1,0 +1,32 @@
+digraph G
+{
+    {
+        node [style="filled"]
+        1
+        2
+        3
+        4
+        5
+        6
+        7
+    }
+    root [label="\N\nseries"]
+    "Module 1" [label="\N\nparallel"]
+    "Module 5" [label="\N\nprime"]
+
+    root -> 6
+    root -> "Module 1";
+    root -> 7
+    "Module 1" -> 5
+    "Module 1" -> "Module 5";
+    "Module 5" -> {1 2 3 4}
+
+    6 [color="purple"]
+    7 [color="red"]
+    5 [color="blue"]
+
+    1 [color="yellow"]
+    2 [color="blue"]
+    3 [color="yellow"]
+    4 [color="blue"]
+}

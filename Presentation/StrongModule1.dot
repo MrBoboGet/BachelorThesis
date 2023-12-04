@@ -1,0 +1,35 @@
+graph G
+{
+    1 -- {2 3 4}
+    5 -- {2 3 4}
+    2 -- {3 4}
+    3 -- 4
+    subgraph cluster1
+    {
+        1 5
+        subgraph cluster11
+        {
+            1
+        }
+        subgraph cluster15
+        {
+            5
+        }
+    }
+    subgraph cluster2
+    {
+        2 3 4
+        subgraph cluster4
+        {
+            2
+        }
+        subgraph cluster5
+        {
+            3
+        }
+        subgraph cluster6
+        {
+            4
+        }
+    }
+}

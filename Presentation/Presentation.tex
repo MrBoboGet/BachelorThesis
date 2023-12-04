@@ -1,0 +1,435 @@
+
+%&LaTeX
+\documentclass[11pt]{beamer}
+\usepackage[english]{babel} % Anpassa efter svenska. Ger svensk logga.
+%\usepackage[swedish]{babel} % Anpassa efter svenska. Ger svensk logga.
+\usepackage[latin1]{inputenc} % Anpassa efter linux
+\hypersetup{pdfpagemode=FullScreen} % Adobe Reader ska ˆppna fullsk‰rm
+
+\usetheme{SU} % Anpassa efter SU:s f‰rger och logga
+\definecolor{aboveandunder}{named}{white} % Ger vit inramning
+\usepackage{times} % Ger Times/Helvetica
+
+\usepackage{amsmath} 
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage[noend]{algorithmic}
+\usepackage{algorithm}
+%\usepackage{algorithm2e}
+
+\author{Emanuel Bergren}
+\title{Graph coloring using the modular decomposition}
+
+
+\newcommand{\CenterPic}[2][<1->]
+{
+    \begin{figure}
+        \centering
+        \includegraphics#1[width=\textwidth,height=0.9\textheight,keepaspectratio]{#2}
+    \end{figure}
+}
+
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+\section{Graphs and graph coloring}
+
+\begin{frame}
+    \frametitle{Graph's}
+    \CenterPic{GraphExample.pdf}
+    \begin{itemize}
+        \item set of vertices
+        \item set of edges between vertices
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Graph Coloring}
+    \begin{columns}[c]
+        \begin{column}{0.5\textwidth}
+            \CenterPic{./ColoringExample1.pdf}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \CenterPic{./ColoringExample2.pdf}
+        \end{column}
+
+    \end{columns}
+
+\end{frame}
+
+\section{Applications of graph coloring}
+
+\begin{frame}
+
+    \frametitle{Applications of graph coloring}
+    \only<1-1>{\CenterPic{./RegisterAllocation.png}}
+    \only<2-2>{\CenterPic{./RegisterAllocation.png}}
+    \only<3-3>{\CenterPic{./RegisterAllocation.png}}
+    
+\end{frame}
+
+
+\begin{frame}
+    
+    \frametitle{Problems with graph coloring}
+
+    \begin{itemize}
+        \item<1-> Graph Coloring is NP-Hard
+        \item<2-> Worst case not polynomial time
+        \item<3-> Optimal solutions to prohibitive to calculate in many applications, especially real-time.
+    \end{itemize}
+    
+\end{frame}
+
+\begin{frame}
+    \frametitle{Heuristics}
+    \begin{proof}[Graph coloring heur]
+        A graph coloring heuristic is an algorithm that gives a graph a correct coloring, that is not necessarily optimal.
+    \end{proof}
+    \begin{itemize}
+        \item<1-> Some heuristics are easy, assign every vertex a unique color, greedy.
+        \item<2-> In general, trade off between better colorings and faster execution time
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+    
+    The goal of this work is to develop a heuristic utilising the modular
+    decomposition of a graph, that is used together with already existing heuristics.
+    
+\end{frame}
+
+\section{Modular decomposition}
+
+\subsection{Cographs}
+\begin{frame}
+    \begin{proof}[Cograph]
+        A cograph if is a cograph if it is the graph join or disjoint union of 2
+        cographs, or a graph consisting of a single vertex.
+    \end{proof}
+    \begin{proof}[Disjoint union]
+        A cograph if is a cograph if it is the graph join or disjoint union of 2
+        cographs, or a graph consisting of a single vertex.
+    \end{proof}
+    \begin{proof}[Graph join]
+        A cograph if is a cograph if it is the graph join or disjoint union of 2
+        cographs, or a graph consisting of a single vertex.
+    \end{proof}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Graph join and disjoint union}
+    
+    \only<1-1>{\CenterPic{./GraphUnion_Pre.pdf}}
+    \only<2-2>{\CenterPic{./GraphUnion_After.pdf}}
+    \only<3-3>{\CenterPic{./GraphUnion_Pre.pdf}}
+    \only<4-4>{\CenterPic{./GraphJoin_After.pdf}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Example of cograph}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Properties of cographs}
+    
+    \begin{itemize}
+        \item<1-> Common ancestors can be found in asdasdasdsdad
+        \item<2-> Most important here, optimal colorings for cographs can be found in linear time
+        \item<3-> Not all graphs are cographs
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Modules}
+    \begin{proof}[Module]
+        A module is a subset of the vertices of a graph, that share the same
+        neighbours excluding vertices within the module.
+    \end{proof}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Example of modules}
+    \only<1-1>
+    {\CenterPic{./ModuleExample1.pdf}}
+    \only<2-2>
+    {\CenterPic{./ModuleExample2.pdf}}
+    \only<3-3>
+    {\CenterPic{./ModuleExample3.pdf}}
+    %\only<4-4>
+    %{\CenterPic{./ModuleExample4.pdf}}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Strong modules}
+    \begin{proof}[Strong module]
+        A module M is strong, if for every other module M', M is a subset of M' or M' is a subset of M, M and M' are disjoint.
+    \end{proof}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Weak modules}
+    Module $\{2,3\}$  and $\{2,4\}$ are not strong, as $\{2,3\} \nsubseteq \{2,4\}$ and $\{2,4\} \nsubseteq \{2,3\}$ while
+    $\{2,3\} \cap \{2,4\} \neq \{\}$.
+    \begin{columns}[c]
+        \begin{column}{0.5\textwidth}
+            \CenterPic{./WeakModule2.pdf}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \CenterPic{./WeakModule1.pdf}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Strong modules}
+    \CenterPic{./StrongModule1.pdf}
+\end{frame}
+
+
+\subsection{Modular decomposition}
+\begin{frame}
+    \frametitle{The modular decomposition}
+
+
+    \only<1-1>
+    {
+    The central concept of this work, but a bit technical definition
+    \begin{proof}<1-1>[Modular decomposition tree]
+        The modular decomposition tree $(\widetilde{T},\widetilde{t})$ of a graph $G = (V,E)$,is a rooted
+        vertex labeled tree, such that every vertex is associated with a strong
+        module $X$ in $G$.  A vertex in the tree with associated strong module $M$
+        is a child to the vertex with associated strong module $M'$ if and only if,
+        $M \subset M'$ and there is no other strong module $M''$ so that $M \subset
+        M'' \subset M'$. Every vertex with associated module $X$ also has a label
+        distinguishing 3 cases:
+        \begin{enumerate}
+            \item Parallel: $G[X]$ is disconnected.
+            \item Series: $\overline{G[X]}$ is disconnected.
+            \item Prime: $G[X]$ and $\overline{G[X]}$ is connected.
+        \end{enumerate}
+        The root of the tree must also have $V$ as the associated strong module, and all 
+        strong modules also have to be a part of the tree.
+    \end{proof}
+    }
+    
+    \only<2->
+    {
+    \begin{itemize}
+        \item The modular decomposition of a graph, is a tree describing how the graph can be constructed from it's strong modules*
+        \item Every vertex in the tree has a label, and is associated with a strong module of the graph. The label describes how
+            the graph induced by the module can be constructed from the vertex's children.
+        \item There are 3 labels: 
+            \begin{itemize}
+                \item Parallel: The parent can be constructed through disjoint union on its children
+                \item Series: The parent can be constructed through graph join on its children
+                \item Prime: The parent is constructed through some other arbitrary way
+            \end{itemize}
+    \end{itemize}
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{Properties of the modular decomposition}
+    \begin{itemize}
+        \item The modular decomposition tree for a graph is unique
+        \item Modular decomposition trees with only prime and series vertices are cographs
+        \item The vertices of siblings (vertices that share the same parent) are disjoint
+        \item All graphs have modular decomposition
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Example modular decomposition}
+    
+    \only<1-1>{\CenterPic{./Graph1.pdf}}
+   
+    \only<2->{
+    \begin{columns}[c]
+        \begin{column}{0.5\textwidth}
+            \CenterPic{./Graph1.pdf}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \only<2-2>{\CenterPic{./Graph2.pdf}}
+            \only<3-3>{\CenterPic{./Graph3.pdf}}
+            \only<4-4>{\CenterPic{./Graph4.pdf}}
+            \only<5-5>{\CenterPic{./Graph5.pdf}}
+        \end{column}
+    \end{columns}
+}
+\end{frame}
+\section{Coloring algorithm}
+
+
+\begin{frame}
+    \frametitle{Base coloring algorithm}
+    Recursively colors the graph using the modular decomposition, case by label. Applied on the root node of the graph,
+    with an initial coloring giving each vertex a unique color
+    \begin{algorithm}[H]
+      \algsetup{linenodelimiter=}
+      \begin{algorithmic}[1]
+        \REQUIRE Vertex $v$ in graph $G$ and MD tree
+           \STATE Recursively color all children of $v$ with this algorithm
+           \IF {Module of $v$ has only a single element}
+               \STATE Already optimally colored
+               \RETURN
+           \ENDIF
+           \IF {label of $v$ is parallel} 
+               \STATE Recolor children to use the same colors
+           \ELSIF{label of $v$ is series} 
+              \STATE Child modules cannot share colors, nothing to be done
+           \ENDIF
+      \end{algorithmic}
+    \end{algorithm}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Coloring example: Base}
+    \only<1-1>{\CenterPic{./ModuleExample1.pdf}}
+    \only<2-2>{\CenterPic{./BaseColoring1.pdf}}
+    \only<3-3>{\CenterPic{./BaseColoring2.pdf}}
+    \only<4-4>{\CenterPic{./BaseColoring3.pdf}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Coloring with prime modules}
+    \begin{algorithm}[H]
+      \algsetup{linenodelimiter=}
+      \begin{algorithmic}[1]
+        \REQUIRE Vertex $v$ in graph $G$ and MD tree
+           \STATE Recursively color all children of $v$ with this algorithm
+           \IF {Module of $v$ has only a single element}
+               \STATE Already optimally colored
+               \RETURN
+           \ENDIF
+           \IF {label of $v$ is parallel} 
+               \STATE Recolor children to use the same colors
+           \ELSIF{label of $v$ is series} 
+              \STATE Child modules cannot share colors, nothing to be done
+           \ELSIF{label of $v$ is prime} 
+              \STATE ?
+           \ENDIF
+      \end{algorithmic}
+    \end{algorithm}
+    \only<2-2>{The goal of this work, is to fill in the case for prime modules and hopefully create a good heuristic}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Strategies}
+    The strategies are the different way to fill in the blanks
+
+    Every strategy is paired with another regular heuristic.
+    \begin{itemize}
+        \item WholeGraph: Apply the heuristic on the whole graph, not really a strategy but used in comparisons in the result section
+        \item WholePrime: Apply heuristic on the subgraph induced by prime modules
+        \item Quotient: Also try to color the prime modules with the modular decomposition using quotient graphs
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Coloring example: WholePrime}
+    \only<1-1>{\CenterPic{./Graph5.pdf}}
+    \only<2-2>{\CenterPic{./MDColoring1.pdf}}
+    \only<3-4>
+    {
+        \begin{columns}[c]
+            \begin{column}{0.5\textwidth}
+                \CenterPic{./MDColoring1.pdf}
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \only<3-3>{\CenterPic{./MDColoring2.pdf}}
+                \only<4-4>{\CenterPic{./MDColoring3.pdf}}
+            \end{column}
+        \end{columns}
+    }
+    \only<5-5>
+    {
+        \CenterPic{./MDColoring4.pdf}
+    }
+    \only<6-6>
+    {
+        \CenterPic{./MDColoring5.pdf}
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{Quotient coloring}
+    WholePrime coloring does not utilise the modular decomposition to color prime modules, 
+    Quotient coloring uses it.
+    \begin{itemize}
+        \item ligma
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Coloring example: Quotient}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Heuristics}
+    Ordered by fastest to slowest
+    \begin{itemize}
+        \item Greedy
+        \item DSatur
+        \item RLF
+        \item TabuCol
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Test data}
+    \begin{itemize}
+        \item Large graphs with prime root: DIMACS
+        \item Randomly generated graphs with non-prime root
+            \begin{itemize}
+                \item Graph size
+                \item Amount of vertices in prime modules
+                \item Edge density 
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\section{Results}
+
+\newcommand{\DisCol}[2]
+{
+    \begin{columns}[c]
+        \begin{column}{0.5\textwidth}
+            \CenterPic{#1}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \CenterPic{#2}
+        \end{column}
+    \end{columns}
+}
+
+\begin{frame}
+    \frametitle{Results}
+    \only<1-1>{\DisCol{../Paper/Tables/250.png}{../Paper/Tables/250Time.png}}
+    \only<2-2>{\DisCol{../Paper/Tables/500.png}{../Paper/Tables/500Time.png}}
+    \only<3-3>{\DisCol{../Paper/Tables/750.png}{../Paper/Tables/750Time.png}}
+    \only<4-4>{\DisCol{../Paper/Tables/1000.png}{../Paper/Tables/1000Time.png}}
+    \only<5-5>{\DisCol{../Paper/Tables/DIMACS.png}{../Paper/Tables/DIMACSTime.png}}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Interpretation of the results}
+    \begin{itemize}
+        \item Minimal difference for most algorithms, slight improvements for TabuCol
+        \item TabuCol is already slow, might be worth it
+        \item Could potentially be used to speed up calculations, especially with multi-threading
+    \end{itemize}
+\end{frame}
+
+\end{document}

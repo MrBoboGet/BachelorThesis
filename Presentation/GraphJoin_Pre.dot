@@ -1,0 +1,17 @@
+graph G
+{
+    2 -- 3
+    3 -- 4
+    subgraph  cluster_1
+    {
+        shape="ellipse"
+        1
+    }
+    subgraph  cluster_1
+    {
+        shape="ellipse"
+        2
+        3
+        4
+    }
+}

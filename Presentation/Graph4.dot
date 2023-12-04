@@ -1,0 +1,9 @@
+digraph G
+{
+    root -> 6
+    root -> "Module 1";
+    root -> 7
+    "Module 1" -> 5
+    "Module 1" -> "Module 5";
+    "Module 5" -> {1 2 3 4}
+}

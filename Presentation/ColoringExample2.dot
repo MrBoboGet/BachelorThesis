@@ -1,0 +1,15 @@
+graph
+{
+    node [style="filled"]
+    ratio=1
+    A -- B
+    B -- {C,D}
+    C -- {D,A}
+    D -- E
+
+    A [color=green]
+    B [color=purple]
+    C [color=yellow]
+    D [color=green]
+    E [color=purple]
+}

@@ -1,0 +1,42 @@
+graph G
+{
+    1 -- 2;
+    2 -- 3;
+    3 -- 4;
+
+    //5 -- {1 2 3 4};
+    //6 -- {1 2 3 4};
+
+    subgraph cluster_1
+    {
+        label="Module 2";
+        6;
+    }
+    subgraph cluster_2
+    {
+        label="Module 3";
+        7;
+    }
+    subgraph cluster_3
+    {
+        label="Module 1";
+        1;
+        2;
+        3;
+        4;
+        5;
+        subgraph cluster_4
+        {
+            label="Module 4";
+            5;
+        }
+        subgraph cluster_5
+        {
+            label="Module 5";
+            1;
+            2;
+            3;
+            4;
+        }
+    }
+}

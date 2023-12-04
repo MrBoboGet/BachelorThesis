@@ -1,0 +1,13 @@
+graph G
+{
+    node [style="filled"]
+    1 -- 2 
+    2 -- 3
+    3 -- 4
+
+
+    1 [color="yellow"]
+    2 [color="green"]
+    3 [color="yellow"]
+    4 [color="green"]
+}
