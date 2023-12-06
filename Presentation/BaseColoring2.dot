@@ -6,6 +6,7 @@ graph G
     }   
 
     root -- {M1 M2}
+    M2 [color="red"]
     M2 -- {1 5}
     M1 -- {2 3 4}
 

@@ -512,7 +512,7 @@ We start with the initial graph in \autoref{fig:graph1}.
 
 
 \newcommand{\figbase}{0.6\textwidth}
-
+\newcommand{\lfigbase}{0.5\textwidth}
 
 \begin{figure}[H]
     \centerfloat
@@ -996,7 +996,7 @@ An example run of the algorithm is demonstrated here. We start with the graph
 
 \begin{figure}[H]
     \centerfloat
-    \includegraphics[width=\figbase]{RLF1.pdf}
+    \includegraphics[width=\lfigbase]{RLF1.pdf}
     \caption{Initial graph}
     \label{fig:rlf1}
 \end{figure}
@@ -1012,7 +1012,7 @@ with a dashed outline. We now get the graph in \autoref{fig:rlf2}
 
 \begin{figure}[H]
     \centerfloat
-    \includegraphics[width=\figbase]{RLF2.pdf}
+    \includegraphics[width=\lfigbase]{RLF2.pdf}
     \caption{One vertex has been assigned}
     \label{fig:rlf2}
 \end{figure}
@@ -1027,7 +1027,7 @@ current part, while 1 has two. We therefore add 1 next and get the graph in
 
 \begin{figure}[H]
     \centerfloat
-    \includegraphics[width=\figbase]{RLF3.pdf}
+    \includegraphics[width=\lfigbase]{RLF3.pdf}
     \caption{Two vertices has been assigned}
     \label{fig:rlf3}
 \end{figure}
@@ -1041,7 +1041,7 @@ depicted in \autoref{fig:rlf4}.
 
 \begin{figure}[H]
     \centerfloat
-    \includegraphics[width=\figbase]{RLF4.pdf}
+    \includegraphics[width=\lfigbase]{RLF4.pdf}
     \caption{Construct new part on the induced subraph of unassigned vertices}
     \label{fig:rlf4}
 \end{figure}
@@ -1053,7 +1053,7 @@ This gives us the final coloring depicted in \autoref{fig:rlf5}.
 
 \begin{figure}[H]
     \centerfloat
-    \includegraphics[width=\figbase]{RLF5.pdf}
+    \includegraphics[width=\lfigbase]{RLF5.pdf}
     \caption{Final coloring}
     \label{fig:rlf5}
 \end{figure}
@@ -1434,7 +1434,7 @@ algorithm. That is, we want to color the graph \autoref{fig:strat4a} below.
 The result of applying RLF is shown in \autoref{fig:strat4b}.
 
 \newdimen\pairwidth
-\pairwidth=\dimexpr \figbase * 0.4 \relax
+\pairwidth=0.3\textwidth
 
 \begin{figure}[H]
 \centerfloat

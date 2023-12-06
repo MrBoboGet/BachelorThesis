@@ -6,12 +6,12 @@ digraph G
         2
         3
         4
-        5
         6
         7
+        5
     }
     root [label="\N\nseries"]
-    root [color="red"]
+    "Module 5" [color="red"]
     "Module 1" [label="\N\nparallel"]
     "Module 5" [label="\N\nprime"]
 
@@ -22,12 +22,14 @@ digraph G
     "Module 1" -> "Module 5";
     "Module 5" -> {1 2 3 4}
 
-    6 [color="purple"]
-    7 [color="red"]
-    5 [color="blue"]
 
     1 [color="yellow"]
-    2 [color="blue"]
-    3 [color="yellow"]
-    4 [color="blue"]
+    2 [color="green"]
+    3 [color="pink"]
+    4 [color="brown"]
+
+    5 [color="blue"]
+    6 [color="purple"]
+    7 [color="red"]
+
 }

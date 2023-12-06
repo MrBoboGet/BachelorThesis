@@ -11,6 +11,7 @@ digraph G
         5
     }
     root [label="\N\nseries"]
+    root [color="red"]
     "Module 1" [label="\N\nparallel"]
     "Module 5" [label="\N\nprime"]
 

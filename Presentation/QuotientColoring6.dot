@@ -1,0 +1,11 @@
+graph
+{
+    node [style="filled"]
+   "{5}" -- {"{6}" "Module 3"}
+   "{6}" -- {"Module 2"} 
+
+    "{5}" [fillcolor="red"]
+    "{6}" [fillcolor="green"]
+    "Module 2" [fillcolor="red"]
+    "Module 3" [fillcolor="green"]
+}

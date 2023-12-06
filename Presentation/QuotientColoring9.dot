@@ -1,0 +1,26 @@
+graph G
+{
+    {
+        node [style="filled"]
+        1 2 3 4 5 6 7 8
+    }
+    Module1 [label="Root\nPrime"]
+    Module2 [label="Module 2\nParallel"]
+    Module3 [label="Module 3\nSeries"]
+    Module1 [color="red"]
+
+    Module1 -- {Module2 Module3 5 6}
+    Module3 -- {1 2 3 4}
+    Module2 -- {7 8}
+
+    5 [color="purple"]
+    6 [color="yellow"]
+
+    1 [color="red"]
+    2 [color="green"]
+    3 [color="red"]
+    4 [color="green"]
+
+    7 [color="orange"]
+    8 [color="orange"]
+}

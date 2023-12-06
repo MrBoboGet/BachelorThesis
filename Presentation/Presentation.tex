@@ -68,8 +68,7 @@
 
     \frametitle{Applications of graph coloring}
     \only<1-1>{\CenterPic{./RegisterAllocation.png}}
-    \only<2-2>{\CenterPic{./RegisterAllocation.png}}
-    \only<3-3>{\CenterPic{./RegisterAllocation.png}}
+    \only<2-2>{\CenterPic{./Scheduling.png}}
     
 \end{frame}
 
@@ -79,21 +78,21 @@
     \frametitle{Problems with graph coloring}
 
     \begin{itemize}
-        \item<1-> Graph Coloring is NP-Hard
-        \item<2-> Worst case not polynomial time
-        \item<3-> Optimal solutions to prohibitive to calculate in many applications, especially real-time.
+        \item Obtaining a coloring with the fewest colors is NP-Hard
+        \item Worst case not polynomial time
+        \item Optimal solutions to prohibitive to calculate in many applications, especially real-time/interactive.
     \end{itemize}
     
 \end{frame}
 
 \begin{frame}
     \frametitle{Heuristics}
-    \begin{proof}[Graph coloring heur]
+    \begin{definition}[Graph coloring heuristic]
         A graph coloring heuristic is an algorithm that gives a graph a correct coloring, that is not necessarily optimal.
-    \end{proof}
+    \end{definition}
     \begin{itemize}
-        \item<1-> Some heuristics are easy, assign every vertex a unique color, greedy.
-        \item<2-> In general, trade off between better colorings and faster execution time
+        \item Some heuristics are easy, assign every vertex a unique color, greedy.
+        \item In general, trade off between better colorings and faster execution time
     \end{itemize}
 
 \end{frame}
@@ -109,18 +108,18 @@
 
 \subsection{Cographs}
 \begin{frame}
-    \begin{proof}[Cograph]
+    \begin{definition}[Cograph]
         A cograph if is a cograph if it is the graph join or disjoint union of 2
         cographs, or a graph consisting of a single vertex.
-    \end{proof}
-    \begin{proof}[Disjoint union]
+    \end{definition}
+    \begin{definition}[Disjoint union]
         A cograph if is a cograph if it is the graph join or disjoint union of 2
         cographs, or a graph consisting of a single vertex.
-    \end{proof}
-    \begin{proof}[Graph join]
+    \end{definition}
+    \begin{definition}[Graph join]
         A cograph if is a cograph if it is the graph join or disjoint union of 2
         cographs, or a graph consisting of a single vertex.
-    \end{proof}
+    \end{definition}
 
 \end{frame}
 
@@ -141,18 +140,17 @@
     \frametitle{Properties of cographs}
     
     \begin{itemize}
-        \item<1-> Common ancestors can be found in asdasdasdsdad
-        \item<2-> Most important here, optimal colorings for cographs can be found in linear time
-        \item<3-> Not all graphs are cographs
+        \item Most important here, optimal colorings for cographs can be found in linear time
+        \item Not all graphs are cographs
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Modules}
-    \begin{proof}[Module]
+    \begin{definition}[Module]
         A module is a subset of the vertices of a graph, that share the same
         neighbours excluding vertices within the module.
-    \end{proof}
+    \end{definition}
 \end{frame}
 
 
@@ -171,9 +169,9 @@
 
 \begin{frame}
     \frametitle{Strong modules}
-    \begin{proof}[Strong module]
+    \begin{definition}[Strong module]
         A module M is strong, if for every other module M', M is a subset of M' or M' is a subset of M, M and M' are disjoint.
-    \end{proof}
+    \end{definition}
 \end{frame}
 
 \begin{frame}
@@ -204,7 +202,7 @@
     \only<1-1>
     {
     The central concept of this work, but a bit technical definition
-    \begin{proof}<1-1>[Modular decomposition tree]
+    \begin{definition}<1-1>[Modular decomposition tree]
         The modular decomposition tree $(\widetilde{T},\widetilde{t})$ of a graph $G = (V,E)$,is a rooted
         vertex labeled tree, such that every vertex is associated with a strong
         module $X$ in $G$.  A vertex in the tree with associated strong module $M$
@@ -219,7 +217,7 @@
         \end{enumerate}
         The root of the tree must also have $V$ as the associated strong module, and all 
         strong modules also have to be a part of the tree.
-    \end{proof}
+    \end{definition}
     }
     
     \only<2->
@@ -244,7 +242,7 @@
         \item The modular decomposition tree for a graph is unique
         \item Modular decomposition trees with only prime and series vertices are cographs
         \item The vertices of siblings (vertices that share the same parent) are disjoint
-        \item All graphs have modular decomposition
+        \item All graphs have a modular decomposition
     \end{itemize}
 \end{frame}
 
@@ -320,7 +318,6 @@
            \ENDIF
       \end{algorithmic}
     \end{algorithm}
-    \only<2-2>{The goal of this work, is to fill in the case for prime modules and hopefully create a good heuristic}
 \end{frame}
 
 \begin{frame}
@@ -343,7 +340,7 @@
     {
         \begin{columns}[c]
             \begin{column}{0.5\textwidth}
-                \CenterPic{./MDColoring1.pdf}
+                \CenterPic{./MDColoring6.pdf}
             \end{column}
             \begin{column}{0.5\textwidth}
                 \only<3-3>{\CenterPic{./MDColoring2.pdf}}
@@ -366,13 +363,58 @@
     WholePrime coloring does not utilise the modular decomposition to color prime modules, 
     Quotient coloring uses it.
     \begin{itemize}
-        \item ligma
+        \item A quotient graph is a graph whose vertices represent a set of vertices from another graph, and edges represent that 2 set of vertices
+            has some edge between them
+        \item Idea: Color child modules of prime modules, and use a quotient graph to see if modules can share colors
+        \item Cut-off point where prime modules are colored with regular heuristic, to get reasonable execution times
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Coloring example: Quotient}
-
+    \only<1-1>{\CenterPic{./QuotientColoring1.pdf}}
+    \only<2-2>{\CenterPic{./QuotientColoring2.pdf}}
+    \only<3-3>{\CenterPic{./QuotientColoring3.pdf}}
+    \only<4-4>{\CenterPic{./QuotientColoring4.pdf}}
+    \only<5-7>
+    {
+        \begin{columns}[c]
+            \begin{column}{0.5\textwidth}
+                \only<5-6>{\CenterPic{./QuotientColoring9.pdf}}
+                \only<7-7>{\CenterPic{./QuotientColoring7.pdf}}
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \only<5-5>{\CenterPic{./QuotientColoring5.pdf}}
+                \only<6-6>{\CenterPic{./QuotientColoring6.pdf}}
+                \only<7-7>{\CenterPic{./QuotientColoring6.pdf}}
+            \end{column}
+        \end{columns}
+    }
+    %\only<5-5>{\CenterPic{./QuotientColoring5.pdf}}
+    %\only<6-6>{\CenterPic{./QuotientColoring6.pdf}}
+    %\only<7-7>{\CenterPic{./QuotientColoring7.pdf}}
+    \only<8-8>{\CenterPic{./QuotientColoring8.pdf}}
+    %\only<2-2>{\CenterPic{./MDColoring1.pdf}}
+    %\only<3-4>
+    %{
+    %    \begin{columns}[c]
+    %        \begin{column}{0.5\textwidth}
+    %            \CenterPic{./MDColoring1.pdf}
+    %        \end{column}
+    %        \begin{column}{0.5\textwidth}
+    %            \only<3-3>{\CenterPic{./MDColoring2.pdf}}
+    %            \only<4-4>{\CenterPic{./MDColoring3.pdf}}
+    %        \end{column}
+    %    \end{columns}
+    %}
+    %\only<5-5>
+    %{
+    %    \CenterPic{./MDColoring4.pdf}
+    %}
+    %\only<6-6>
+    %{
+    %    \CenterPic{./MDColoring5.pdf}
+    %}
 \end{frame}
 
 \begin{frame}
@@ -429,6 +471,7 @@
         \item Minimal difference for most algorithms, slight improvements for TabuCol
         \item TabuCol is already slow, might be worth it
         \item Could potentially be used to speed up calculations, especially with multi-threading
+        \item Quotient coloring never improved performance beyond the underlying algorithm
     \end{itemize}
 \end{frame}
 

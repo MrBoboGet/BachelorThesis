@@ -5,6 +5,7 @@ graph G
             1 2 3 4 5    
     }   
     root -- {M1 M2}
+    root [color="red"]
     M2 -- {1 5}
     M1 -- {2 3 4}
 
