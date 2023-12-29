@@ -151,10 +151,10 @@
 Graph coloring is one of the most common and studied problems in computer
 science. It has applications in many different areas, such as for scheduling,
 compiler optimizations, and biological networks, but
-being NP-Hard means that optimal solutions are often to computationally expensive to use in practice, and in turn that most
-practical problems require the use of heuristics. This thesis examines a
+being NP-Hard means that optimal solutions are often too computationally expensive to use in practice, and in turn that many
+instances require the use of heuristics. This thesis examines a
 heuristic based on the modular decomposition of a graph, a way to split the graph
-into well-structured subgraphs called modules, where some parts can be colored optimally,
+into well-structured subgraphs called modules, where some parts can be colored optimally in linear time,
 and some parts require other heuristics. As we will show, this strategy of coloring with the
 modular decomposition was found to give an increase in performance for one
 of the tested heuristics, and no increase for the others.
@@ -163,14 +163,14 @@ of the tested heuristics, and no increase for the others.
 	\textbf{Sammanfattning}
 \end{center}
 \textit{
-Graf färning är några av de vanligaste och mest efterforskade problemen i datavetenskapen.
-Det har många användingsområden, det används för till exempel schemalägning, 
-kompilatoroptimeringar, och biologiska nätverk, men eftersom problemet är 
-NP fullständigt så är optimala lösningar oftast för långsamma för att använda i praktiken. Detta innebär att 
-många applikationer behöver använda sig av heuristics istället. Den här uppsatsen undersöker en heuristic
-baserad på en  grafs "modular decomposition". Det är ett sätt att dela up en graf i subgrafer ,"modules", där vissa modules har en speciell
-struktur som låter dem färgas optimalt i linjär tid, medans andra kräver heuristics. Denna metod kommer visa sig ge bättre
-färgningar i combination med en av de testade heuristicsen, och ingen skillnad för dem andra.
+Graf färgning är ett av de vanligaste och mest efterforskade problemen i datavetenskapen.
+Det har många användningsområden, till exempel för schemaläggning och
+kompilatoroptimeringar, men eftersom problemet är 
+NP-fullständigt så är optimala lösningar oftast för långsamma för att använda i praktiken. Detta innebär att 
+många applikationer behöver använda sig av heuristiker istället. Den här uppsatsen undersöker en heuristik
+baserad på en  grafs "modular decomposition". Det är ett sätt att dela upp en graf i subgrafer ,"modules", där vissa modules har en speciell
+struktur som låter dem färgas optimalt i linjär tid, medan andra kräver heuristiker. Denna metod gav bättre
+färgningar i kombination med en av de testade heuristikerna, och ingen skillnad för de andra.
 }
 \end{NewFont}
 
@@ -183,6 +183,9 @@ färgningar i combination med en av de testade heuristicsen, och ingen skillnad 
 \tableofcontents
 
 \pagenumbering{arabic}
+
+\fontfamily{cmr}
+\selectfont
 
 \section{Introduction}
 
@@ -412,7 +415,7 @@ The central problem in this thesis, is to find efficient algorithms
 for properly coloring a given graph.
 
 Creating a proper coloring for a graph is easy, one could for example assign to
-every vertex a unique color. Finding an optimal coloring however, i.e. proper a
+every vertex a unique color. Finding an optimal coloring however, i.e. a proper 
 coloring using the fewest possible number of colors, is NP-Hard \cite{NPHard}.
 For this purpose, different heuristics, algorithms providing a proper coloring
 with few but not necessarily optimal number of colors, have to be used.
@@ -500,7 +503,7 @@ parallel means that $G[X]$ can be constructed through graph union on the
 induced subgraphs of its childrens associated modules \cite{HCL}.
 
 A single vertex is a strong module, meaning that all the leafs of the tree are
-have associated  with strong module containing a single vertex. This means that
+associated with a strong module containing a single vertex. This means that
 a modular decomposition without prime modules is a cograph, as it is
 recursively constructed by graph join and graph union on $K_1$.
 
@@ -714,7 +717,7 @@ true, which correspond line 2-4 in \autoref{alg:gfc}.
 After having iterated through every neighbour, we step through $used$, and use
 the first color that is not set to true. A maximal $deg(v)$ of vertices can be
 set to true through this process, which means that finding the first available
-color from $used$ this way at most  $|deg(v)|+1$ steps. This part correspond to
+color from $used$ this way is at most  $|deg(v)|+1$ steps. This part correspond to
 lines 5-8.
 
 Then, we reset the
@@ -904,8 +907,8 @@ vertices of the graph, where the vertices in the different parts are all
 non-adjacent to each other. This ensures that all the vertices in a given part
 can share the same color.  This partition is constructed one part at a time. 
 
-When creating a part in the partition, so are vertices added one at a time. Doing the
-partition "largest first" means that we want to add the vertices with the
+Vertices are added one at a time when creating a part in the partition.  Doing
+the partition "largest first" means that we want to add the vertices with the
 highest degree first. We only consider the degrees from the subgraph induced by
 the vertices that are adjacent to the current part. This is similar to Dsatur,
 in that we want to color the currently "most restricted" vertices first.
@@ -1283,7 +1286,7 @@ colors.
 \subsection{Quotient recoloring}
 
 \begin{definition}[Quotient graph]
-    The quotient graph $Q$ for a graph $G = (V,E)$ over partition 
+    The quotient graph $Q$ for a graph $G = (V,E)$ over a partition 
     $P = \{P_1 \cdots P_i\}$  of the vertices $V$, is a graph 
     $Q = \{P, \{(P_i,P_j) : j\neq i, \exists v \in P_i,\exists u \in P_j( (u,v)
     \in E)   \} \}  $
@@ -1532,7 +1535,7 @@ The modules that share color can not be neighbours in a proper coloring,
 which by the definition of a quotient graph means that there are no edges
 between 2 vertices with different modules of the same color. This in turn means
 that they can share the same set of colors. To ensure that we can recolor them
-and end with proper coloring, so are we using the set of colors from the module
+and end with a proper coloring, so are we using the set of colors from the module
 with the most number of colors for every color category. This means that we
 recolor module $\{5\}$ and Module 3 with beige, and Module 2 and $\{6\}$ with
 red and green. This gives the coloring in \autoref{fig:strat9}.
@@ -1567,7 +1570,7 @@ different graphs. However, the modular decomposition might provide a more
 efficient way to color graphs where only some of the vertices are in a prime module. 
 
 The algorithm for generating these graphs is described in \autoref{alg:RDCG}.
-First an ordinary binary tree is randomly generated with a specified amount of
+First an ordinary binary tree is randomly generated with a specified number of
 leafs , and then every vertex in this tree is given a label "series" or
 "parallel".  This then describes a cograph, where the leafs are the $K_1$ bases,
 and a label of "series" means that the children are joined by disjoint union and
@@ -1605,7 +1608,7 @@ size.
   \begin{algorithmic}[1]
       \REQUIRE Percent $p$ for series, $0 \neq p \neq 1$.
       \REQUIRE Percent $pe$ for new  edge, $0 \neq pe \neq 1$.
-      \REQUIRE Total amount of leafs $l$, $0 < l$.
+      \REQUIRE Total number of leafs $l$, $0 < l$.
       \REQUIRE Prime modules size $ms$
       \REQUIRE Prime modules count $mc$
 
@@ -1644,7 +1647,7 @@ can also construct modular decomposition with various percentage prime modules.
 There are a number of parameters that affect the generated graph, as
 \textbf{Random disturbed cograph} takes as arguments the number of vertices in
 the generated graph, the probability of "series" when generating a random cograph,
-and the probability for edges within a module, and finally the amount and size of
+and the probability for edges within a module, and finally the number and size of
 the prime modules. 
 
 The heuristics used also have some parameters that can be tuned. TabuCol has to
@@ -1737,7 +1740,7 @@ python3 ModularColoring.py <input-file>
 Here, <input-file> is interpreted as a path to a file containing the graph to color,
 encoded as a networkx adjacency list \cite{NetworkXFormat}.
 
-The script color the graph described in the file with a every combination of 
+The script colors the graph described in the file with a every combination of 
 heuristic described in \autoref{sec:Heuristics}, and for every strategy 
 defined in \autoref{sec:Strategies}.
 
@@ -1762,7 +1765,7 @@ all disturbed cographs, as well as the performance on DIMACS graphs.
 
 The result for the different categories are displayed grouped by their graph
 size, except for DIMACS and the table containing the averaged result. These
-group in turn divide the result into separate groups depending on the number of
+groups in turn divide the result into separate groups depending on the number of
 modules in the graph, and the series probability. This means that each figure
 contains the result for 4 different graph categories.
 
